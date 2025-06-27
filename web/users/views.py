@@ -1,7 +1,6 @@
-from typing import Annotated
 from fastapi import APIRouter
-from users.shemas import User
-from users import crud
+from web.users.shemas import User
+from web.users import crud
 
 router = APIRouter(prefix='/users', tags=['users'])
 

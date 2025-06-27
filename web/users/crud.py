@@ -1,4 +1,4 @@
-from users.shemas import User
+from web.users.shemas import User
 
 def create_user(user: User) -> dict:
 
