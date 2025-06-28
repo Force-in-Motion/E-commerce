@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Path
 from typing import Annotated
-from shemas import Item
+from web.shemas import Item
 
 router = APIRouter(prefix='/items', tags=['items'])
 
