@@ -1,10 +1,12 @@
 from sqlalchemy.orm import Mapped
-from service.models.base import Base
+from service.database.models.base import Base
 
 
 
 class User(Base):
-    id: Mapped[int]
+
+    __tablename__ = 'User'
+
     name: Mapped[str]
     floor: Mapped[str]
     age: Mapped[int]

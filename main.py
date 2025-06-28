@@ -2,9 +2,9 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from service import engine
-from service.models import Base
+from service.database.models import Base
 from web.item import router as item_router
-from web.users.views import router as users_router
+from web.views.user import router as users_router
 
 
 
