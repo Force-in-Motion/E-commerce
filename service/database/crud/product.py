@@ -27,7 +27,7 @@ class ProductAdapter:
             return await session.get(Product_model, id)
 
         except SQLAlchemyError as e:
-            print('Ошибка при получении продукта по id')
+            print('Ошибка при получении продукта по id', e)
             return None
 
 
@@ -40,14 +40,29 @@ class ProductAdapter:
             return True
 
         except SQLAlchemyError as e:
-            print('Ошибка при добавлении продукта')
+            print('Ошибка при добавлении продукта', e)
             await session.rollback()
             return False
 
 
     @classmethod
-    async def update_product(cls, id: int, data) -> bool:
-        pass
+    async def update_product(cls, id: int, product: Product_scheme, session: AsyncSession) -> bool:
+        try:
+            product_model = await session.get(Product_model, id)
+            if product_model is None:
+                return False
+
+            for key, value in product.model_dump().items():
+                setattr(product_model, key, value)
+
+            await session.commit()
+            return True
+
+        except SQLAlchemyError as e:
+            print('Ошибка при обновлении продукта', e)
+            await session.rollback()
+            return False
+
 
 
     @classmethod
@@ -62,6 +77,6 @@ class ProductAdapter:
             return True
 
         except SQLAlchemyError as e:
-            print('Ошибка при удалении продукта')
+            print('Ошибка при удалении продукта', e)
             await session.rollback()
             return False

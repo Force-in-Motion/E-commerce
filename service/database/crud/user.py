@@ -27,7 +27,7 @@ class UserAdapter:
             return await session.get(User_model, id)
 
         except SQLAlchemyError as e:
-            print('Ошибка при получении пользователя по id')
+            print('Ошибка при получении пользователя по id', e)
             return None
 
 
@@ -40,14 +40,28 @@ class UserAdapter:
             return True
 
         except SQLAlchemyError as e:
-            print('Ошибка при добавлении пользователя')
+            print('Ошибка при добавлении пользователя', e)
             await session.rollback()
             return False
 
 
     @classmethod
-    async def update_user(cls, session: AsyncSession, id: int, data) -> bool:
-        pass
+    async def update_user(cls, session: AsyncSession, id: int, user: User_scheme) -> bool:
+        try:
+            model_user = session.get(User_model, id)
+            if model_user is None:
+                return False
+
+            for key, value in user.model_dump().items():
+                setattr(model_user, key, value)
+
+            await session.commit()
+            return True
+
+        except SQLAlchemyError as e:
+            print('Ошибка при обновлении пользователя', e)
+            await session.rollback()
+            return False
 
 
     @classmethod
@@ -62,6 +76,6 @@ class UserAdapter:
             return True
 
         except SQLAlchemyError as e:
-            print('Ошибка при удалении пользователя')
+            print('Ошибка при удалении пользователя', e)
             await session.rollback()
             return False
