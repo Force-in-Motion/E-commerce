@@ -1,17 +1,20 @@
-from fastapi import HTTPException, status
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException, status, Depends
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from web.schemas.user import User as User_scheme
 from service.database.crud.user import UserAdapter as ua
+from service.database.db_connection import db_connector
 
 
 
 
-router = APIRouter(prefix='/users', tags=['users'])
+router = APIRouter(prefix='/users', tags=['Users'])
 
 
-@router.get('/')
-async def get_users(session) -> list[User_scheme]:
+@router.get('/', response_model=list[User_scheme])
+async def get_users(session: AsyncSession = Depends(db_connector.session_dependency)) -> list[User_scheme]:
+
     result = await ua.get_users(session)
 
     if result:
@@ -20,8 +23,9 @@ async def get_users(session) -> list[User_scheme]:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='The database is empty')
 
 
-@router.get('/{id}')
-async def get_user_by_id(session, id: int):
+@router.get('/{id}', response_model=User_scheme)
+async def get_user_by_id(id: int, session: AsyncSession = Depends(db_connector.session_dependency)) -> User_scheme:
+
         result = await ua.get_user_by_id(session, id)
 
         if result is not None:
@@ -30,9 +34,9 @@ async def get_user_by_id(session, id: int):
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User with this id not found')
 
 
+@router.post('/', response_model=dict)
+async def add_user(user: User_scheme, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
 
-@router.post('/')
-async def add_user(session, user: User_scheme) -> dict:
         result = await ua.add_user(session, user)
 
         if result:
@@ -41,8 +45,9 @@ async def add_user(session, user: User_scheme) -> dict:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Error adding user')
 
 
-@router.put('/{id}')
-async def update_user(session, id: int, user: User_scheme):
+@router.put('/{id}', response_model=dict)
+async def update_user(id: int, user: User_scheme, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
+
     result = await ua.update_user(session, id, user)
 
     if result:
@@ -51,8 +56,9 @@ async def update_user(session, id: int, user: User_scheme):
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Error updating user')
 
 
-@router.delete('/{id}')
-async def del_user_by_id(session, id: int) -> dict:
+@router.delete('/{id}', response_model=dict)
+async def del_user_by_id(id: int, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
+
     result = await ua.del_user(session, id)
 
     if result:

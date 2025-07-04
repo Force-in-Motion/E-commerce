@@ -1,15 +1,18 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
+from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database.crud.product import ProductAdapter as pd
-from web.schemas.product import Product as Product_scheme
+from service.database.crud.product import ProductAdapter as pa
+from service.database.db_connection import db_connector
+from web.schemas.product import ProductInput, ProductOutput
 from service.database.models.product import Product as Product_model
 
-router = APIRouter(prefix='/product', tags=['users'])
+router = APIRouter(prefix='/product', tags=['Products'])
 
 
-@router.get('/')
-async def get_products(session) -> list[Product_model]:
-    result = await pd.get_products(session)
+@router.get('/', response_model=list[ProductOutput])
+async def get_products(session: AsyncSession = Depends(db_connector.session_dependency)) -> list[ProductOutput]:
+
+    result = await pa.get_products(session)
 
     if result:
         return result
@@ -17,9 +20,10 @@ async def get_products(session) -> list[Product_model]:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='The database is empty')
 
 
-@router.get('/{id}')
-async def get_product_by_id(session, id: int) -> Product_model:
-    result = await pd.get_product_by_id(id, session)
+@router.get('/{id}', response_model=ProductOutput)
+async def get_product_by_id(id: int, session: AsyncSession = Depends(db_connector.session_dependency)) -> ProductOutput:
+
+    result = await pa.get_product_by_id(id, session)
 
     if result is not None:
         return result
@@ -27,10 +31,10 @@ async def get_product_by_id(session, id: int) -> Product_model:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Product with this id not found')
 
 
+@router.post('/', response_model=dict)
+async def add_product(product: ProductInput, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
 
-@router.post('/')
-async def add_product(session, product: Product_scheme):
-    result = await pd.add_product(product, session)
+    result = await pa.add_product(product, session)
 
     if result:
         return {'status': 'ok', 'detail': 'Product added'}
@@ -38,9 +42,10 @@ async def add_product(session, product: Product_scheme):
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Error adding product')
 
 
-@router.put('/{id}')
-async def update_product(session, id: int, product: Product_scheme):
-    result = await pd.update_product(id, product, session)
+@router.put('/{id}', response_model=dict)
+async def update_product(id: int, product: ProductInput, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
+
+    result = await pa.update_product(id, product, session)
 
     if  result:
         return {'status': 'ok', 'detail': 'Product updated'}
@@ -48,9 +53,9 @@ async def update_product(session, id: int, product: Product_scheme):
     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Error updating product')
 
 
-@router.delete('/{id}')
-async def del_product(session, id: int):
-    result = await pd.del_product(id, session)
+@router.delete('/{id}', response_model=dict)
+async def del_product(id: int, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
+    result = await pa.del_product(id, session)
 
     if result is not None:
         return {'status': 'ok', 'detail': 'Product deleted'}

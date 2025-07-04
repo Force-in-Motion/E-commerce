@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
-from web.schemas.product import Product as Product_scheme
+from web.schemas.product import ProductInput
 from service.database.models.product import Product as Product_model
 
 
@@ -22,7 +22,7 @@ class ProductAdapter:
 
 
     @classmethod
-    async def get_product_by_id(cls, id: int, session: AsyncSession):
+    async def get_product_by_id(cls, id: int, session: AsyncSession) -> Product_model | None:
         try:
             return await session.get(Product_model, id)
 
@@ -32,7 +32,7 @@ class ProductAdapter:
 
 
     @classmethod
-    async def add_product(cls, product: Product_scheme, session: AsyncSession) -> bool:
+    async def add_product(cls, product: ProductInput, session: AsyncSession) -> bool:
         try:
             product_model = Product_model(**product.model_dump())
             session.add(product_model)
@@ -46,7 +46,7 @@ class ProductAdapter:
 
 
     @classmethod
-    async def update_product(cls, id: int, product: Product_scheme, session: AsyncSession) -> bool:
+    async def update_product(cls, id: int, product: ProductInput, session: AsyncSession) -> bool:
         try:
             product_model = await session.get(Product_model, id)
             if product_model is None:
@@ -62,7 +62,6 @@ class ProductAdapter:
             print('Ошибка при обновлении продукта', e)
             await session.rollback()
             return False
-
 
 
     @classmethod
