@@ -3,62 +3,62 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from service.database.crud import ProductAdapter as pa
 from service.database import db_connector
+from service.database.models import Product as Product_model
 from web.schemas import ProductInput, ProductOutput
+from tools import product_by_id
+
 
 router = APIRouter()
 
 
-@router.get('/', response_model=list[ProductOutput])
+@router.get('/', response_model=list[ProductOutput], status_code=status.HTTP_200_OK)
 async def get_products(session: AsyncSession = Depends(db_connector.session_dependency)) -> list[ProductOutput]:
 
-    result = await pa.get_products(session)
-
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='The database is empty')
-
-    return result
+    return await pa.get_products(session)
 
 
-@router.get('/{id}', response_model=ProductOutput)
-async def get_product_by_id(id: int, session: AsyncSession = Depends(db_connector.session_dependency)) -> ProductOutput:
 
-    result = await pa.get_product_by_id(id, session)
+@router.get('/{id}', response_model=ProductOutput, status_code=status.HTTP_200_OK)
+async def get_product_by_id(product: ProductOutput = Depends(product_by_id)) -> ProductOutput:
 
-    if result is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Product with this id not found')
-
-    return result
+    return product
 
 
-@router.post('/', response_model=dict)
-async def add_product(product: ProductInput, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
 
-    result = await pa.add_product(product, session)
+@router.post('/', response_model=dict, status_code=status.HTTP_201_CREATED)
+async def add_product(product: ProductInput,
+                      session: AsyncSession = Depends(db_connector.session_dependency)
+                      ) -> dict:
 
-    if not result:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='Error adding product')
-
-    return {'status': 'ok', 'detail': 'Product added'}
+    return await pa.add_product(product, session)
 
 
-@router.put('/{id}', response_model=dict)
-async def update_product(id: int, product: ProductInput, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
 
-    result = await pa.update_product(id, product, session)
+@router.put('/{id}', response_model=dict, status_code=status.HTTP_200_OK)
+async def update_product(product_input: ProductInput,
+                         product_model: Product_model = Depends(product_by_id),
+                         session: AsyncSession = Depends(db_connector.session_dependency)
+                         ) -> dict:
 
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Error updating product')
-
-    return {'status': 'ok', 'detail': 'Product updated'}
+    return await pa.update_product(product_input, product_model, session)
 
 
-@router.delete('/{id}', response_model=dict)
-async def del_product(id: int, session: AsyncSession = Depends(db_connector.session_dependency)) -> dict:
 
-    result = await pa.del_product(id, session)
+@router.patch('/{id}', response_model=dict, status_code=status.HTTP_200_OK)
+async def update_product(product_input: ProductInput,
+                         product_model: Product_model = Depends(product_by_id),
+                         session: AsyncSession = Depends(db_connector.session_dependency)
+                         ) -> dict:
 
-    if not result:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Error removing product')
+    return await pa.update_product(product_input, product_model, session, partial=True)
 
-    return {'status': 'ok', 'detail': 'Product deleted'}
+
+
+@router.delete('/{id}', response_model=dict, status_code=status.HTTP_200_OK)
+async def del_product(product_model: Product_model = Depends(product_by_id),
+                      session: AsyncSession = Depends(db_connector.session_dependency)
+                      ) -> dict:
+
+    return await pa.del_product(product_model, session)
+
 
