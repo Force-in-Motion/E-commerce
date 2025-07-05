@@ -20,6 +20,10 @@ class DBConnector:
 
 
     def get_engine(self):
+        """
+        Возвращает асинхронный движок с указанными настройками
+        :return: self.__engine
+        """
         return self.__engine
 
 

@@ -17,10 +17,11 @@ async def get_users(session: AsyncSession = Depends(db_connector.session_depende
 
     result = await ua.get_users(session)
 
-    if result:
-        return result
+    if not result:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='The database is empty')
 
-    raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='The database is empty')
+    return result
+
 
 
 @router.get('/{id}', response_model=User_scheme)
@@ -28,10 +29,11 @@ async def get_user_by_id(id: int, session: AsyncSession = Depends(db_connector.s
 
         result = await ua.get_user_by_id(session, id)
 
-        if result is not None:
-            return result
+        if result is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User with this id not found')
 
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='User with this id not found')
+        return result
+
 
 
 @router.post('/', response_model=dict)
