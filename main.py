@@ -1,10 +1,9 @@
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
-from service.database.db_connection import db_connector
+from service.database import db_connector
 from service.database.models import Base
-from web.views.user import router as users_router
-from web.views.product import router as product_router
+from web.views import include_router
 
 
 
@@ -18,8 +17,7 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
-app.include_router(users_router)
-app.include_router(product_router)
+include_router(app)
 
 
 

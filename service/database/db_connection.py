@@ -4,7 +4,7 @@ from sqlalchemy.ext.asyncio import (
     async_scoped_session)
 from asyncio import current_task
 
-from settings.db_config import settings
+from settings import db_settings
 
 
 
@@ -39,4 +39,4 @@ class DBConnector:
 
 
 
-db_connector = DBConnector(settings.db_url, settings.echo)
+db_connector = DBConnector(db_settings.db_url, db_settings.echo)

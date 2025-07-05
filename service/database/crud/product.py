@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
-from web.schemas.product import ProductInput
-from service.database.models.product import Product as Product_model
+from web.schemas import ProductInput
+from service.database.models import Product as Product_model
 
 
 

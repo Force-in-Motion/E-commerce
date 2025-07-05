@@ -1,8 +1,8 @@
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from service.database.models.user import User as User_model
-from web.schemas.user import User as User_scheme
+from service.database.models import User as User_model
+from web.schemas import User as User_scheme
 
 
 
