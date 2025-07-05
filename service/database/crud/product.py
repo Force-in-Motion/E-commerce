@@ -46,14 +46,15 @@ class ProductAdapter:
 
 
     @classmethod
-    async def update_product(cls, id: int, product: ProductInput, session: AsyncSession) -> bool:
+    async def update_product(cls, id: int, product: ProductInput, session: AsyncSession, partial: bool = False) -> bool:
         try:
             product_model = await session.get(Product_model, id)
             if product_model is None:
                 return False
 
-            for key, value in product.model_dump().items():
-                setattr(product_model, key, value)
+            for key, value in product.model_dump(exclude_unset=partial).items():
+                if value is not None:
+                    setattr(product_model, key, value)
 
             await session.commit()
             return True
