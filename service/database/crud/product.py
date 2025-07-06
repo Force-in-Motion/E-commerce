@@ -5,7 +5,6 @@ from web.schemas import ProductInput
 from service.database.models import Product as Product_model
 
 
-
 class ProductAdapter:
 
     @classmethod
@@ -19,58 +18,59 @@ class ProductAdapter:
         except SQLAlchemyError:
             return []
 
-
-
     @classmethod
-    async def get_product_by_id(cls, id: int, session: AsyncSession) -> Product_model | None:
+    async def get_product_by_id(
+        cls, id: int, session: AsyncSession
+    ) -> Product_model | None:
         try:
             return await session.get(Product_model, id)
 
         except SQLAlchemyError:
             return None
 
-
-
     @classmethod
-    async def add_product(cls, product: ProductInput, session: AsyncSession) -> dict:
+    async def add_product(
+        cls, product_input: ProductInput, session: AsyncSession
+    ) -> dict:
         try:
-            product_model = Product_model(**product.model_dump())
+            product_model = Product_model(**product_input.model_dump())
             session.add(product_model)
             await session.commit()
-            return {'status': 'ok', 'detail': 'product has been added'}
+            return {"status": "ok", "detail": "Product has been added"}
 
         except SQLAlchemyError:
             await session.rollback()
-            return {'status': 'False', 'detail': 'Error added product'}
-
-
+            return {"status": "False", "detail": "Error added Product"}
 
     @classmethod
-    async def update_product(cls,
-                             product_input: ProductInput,
-                             product_model: Product_model,
-                             session: AsyncSession, partial: bool = False) -> dict:
+    async def update_product(
+        cls,
+        product_input: ProductInput,
+        product_model: Product_model,
+        session: AsyncSession,
+        partial: bool = False,
+    ) -> dict:
         try:
             for key, value in product_input.model_dump(exclude_unset=partial).items():
                 if value is not None:
                     setattr(product_model, key, value)
 
             await session.commit()
-            return {'status': 'ok', 'detail': 'product has been updated'}
+            return {"status": "ok", "detail": "Product has been updated"}
 
         except SQLAlchemyError:
             await session.rollback()
-            return {'status': 'False', 'detail': 'Error updating product'}
-
-
+            return {"status": "False", "detail": "Error updating Product"}
 
     @classmethod
-    async def del_product(cls, product_model: Product_model, session: AsyncSession) -> dict:
+    async def del_product(
+        cls, product_model: Product_model, session: AsyncSession
+    ) -> dict:
         try:
             await session.delete(product_model)
-            await  session.commit()
-            return {'status': 'ok', 'detail': 'Product has been removing'}
+            await session.commit()
+            return {"status": "ok", "detail": "Product has been removing"}
 
         except SQLAlchemyError:
             await session.rollback()
-            return {'status': 'False', 'detail': 'Error removing product'}
+            return {"status": "False", "detail": "Error removing Product"}

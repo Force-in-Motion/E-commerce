@@ -2,8 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import User as User_model
-from web.schemas import User as User_scheme
-
+from web.schemas import UserInput
 
 
 class UserAdapter:
@@ -16,66 +15,56 @@ class UserAdapter:
             users = result.scalars().all()
             return list(users)
 
-        except SQLAlchemyError as e:
-            print('Ошибка при получении списка всех пользователей', e)
+        except SQLAlchemyError:
             return []
-
 
     @classmethod
     async def get_user_by_id(cls, session: AsyncSession, id: int) -> User_model | None:
         try:
             return await session.get(User_model, id)
 
-        except SQLAlchemyError as e:
-            print('Ошибка при получении пользователя по id', e)
+        except SQLAlchemyError:
             return None
 
-
     @classmethod
-    async def add_user(cls, session: AsyncSession, user: User_scheme) -> bool:
+    async def add_user(cls, session: AsyncSession, user_input: UserInput) -> dict:
         try:
-            user_model = User_model(**user.model_dump())
+            user_model = User_model(**user_input.model_dump())
             session.add(user_model)
             await session.commit()
-            return True
+            return {"status": "ok", "detail": "User has been added"}
 
-        except SQLAlchemyError as e:
-            print('Ошибка при добавлении пользователя', e)
+        except SQLAlchemyError:
             await session.rollback()
-            return False
-
+            return {"status": "False", "detail": "Error added User"}
 
     @classmethod
-    async def update_user(cls, session: AsyncSession, id: int, user: User_scheme) -> bool:
+    async def update_user(
+        cls,
+        user_input: UserInput,
+        user_model: User_model,
+        session: AsyncSession,
+        partial: bool = False,
+    ) -> dict:
         try:
-            model_user = session.get(User_model, id)
-            if model_user is None:
-                return False
-
-            for key, value in user.model_dump().items():
-                setattr(model_user, key, value)
+            for key, value in user_input.model_dump(exclude_unset=partial).items():
+                if value is not None:
+                    setattr(user_model, key, value)
 
             await session.commit()
-            return True
+            return {"status": "ok", "detail": "User has been updated"}
 
-        except SQLAlchemyError as e:
-            print('Ошибка при обновлении пользователя', e)
+        except SQLAlchemyError:
             await session.rollback()
-            return False
-
+            return {"status": "False", "detail": "Error updated User"}
 
     @classmethod
-    async def del_user(cls, session: AsyncSession, id: int) -> bool:
+    async def del_user(cls, user_model: User_model, session: AsyncSession) -> dict:
         try:
-            user_model = await session.get(User_model, id)
-            if user_model is None:
-                return False
-
             await session.delete(user_model)
             await session.commit()
-            return True
+            return {"status": "ok", "detail": "User has been deleted"}
 
-        except SQLAlchemyError as e:
-            print('Ошибка при удалении пользователя', e)
+        except SQLAlchemyError:
             await session.rollback()
-            return False
+            return {"status": "False", "detail": "Error deleted User"}
