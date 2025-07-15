@@ -2,7 +2,7 @@ from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
 
 
 class Base(DeclarativeBase):
-    """Создает родительский класс для всех таблицы базы данных"""
+    """Родительский класс для всех таблицы базы данных"""
 
     __abstract__ = True  # Указывает алхимии, что такой таблицы в БД быть не должно, она абстрактная
 
