@@ -55,7 +55,7 @@ class DBConnector:
         """
         session = self.__get_scoped_session()
         yield session
-        await session.remove()
+        await session.close()
 
 
 db_connector = DBConnector(url=db_settings.db_url, echo=db_settings.echo)

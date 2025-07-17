@@ -9,6 +9,11 @@ class ProductAdapter:
 
     @classmethod
     async def get_products(cls, session: AsyncSession) -> list[Product_model]:
+        """
+        Возвращает все продукты
+        :param session: Объект сессии, полученный в качестве параметра
+        :return: list[Product_model]
+        """
         try:
             request = select(Product_model).order_by(Product_model.id)
             result = await session.execute(request)
@@ -22,6 +27,12 @@ class ProductAdapter:
     async def get_product_by_id(
         cls, id: int, session: AsyncSession
     ) -> Product_model | None:
+        """
+        Возвращает продукт по его id из БД
+        :param id: id конкретного продукта
+        :param session: Объект сессии, полученный в качестве параметра
+        :return: Product_model | None
+        """
         try:
             return await session.get(Product_model, id)
 
@@ -32,6 +43,12 @@ class ProductAdapter:
     async def add_product(
         cls, product_input: ProductInput, session: AsyncSession
     ) -> dict:
+        """
+        Добавляет продукт в базу данных
+        :param product_input: ProductInput - объект, содержащий данные продукта
+        :param session: Объект сессии, полученный в качестве параметра
+        :return: dict
+        """
         try:
             product_model = Product_model(**product_input.model_dump())
             session.add(product_model)
@@ -50,6 +67,19 @@ class ProductAdapter:
         session: AsyncSession,
         partial: bool = False,
     ) -> dict:
+        """
+        Обновляет данные продукта в БД полностью или частично
+        :param product_input: ProductInput - объект, содержащий данные продукта
+        :param product_model: Product_model - конкретный объект в БД, найденный по id
+        :param session: Объект сессии, полученный в качестве параметра
+        :param partial: Флаг, передаваем значение True или False,
+               значение передается в метод model_dump(exclude_unset=partial),
+               параметр exclude_unset означает - "То, что не было передано, исключить",
+               по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
+               то заменятся только переданные данные объекта. То есть если переданы не все поля объекта ProductInput,
+                то заменить в базе только переданные, не переданные пропустить
+        :return: dict
+        """
         try:
             for key, value in product_input.model_dump(exclude_unset=partial).items():
                 if value is not None:
@@ -66,6 +96,12 @@ class ProductAdapter:
     async def del_product(
         cls, product_model: Product_model, session: AsyncSession
     ) -> dict:
+        """
+        Удаляет продукт из БД
+        :param product_model: Product_model - конкретный объект в БД, найденный по id
+        :param session: Объект сессии, полученный в качестве параметра
+        :return: dict
+        """
         try:
             await session.delete(product_model)
             await session.commit()
