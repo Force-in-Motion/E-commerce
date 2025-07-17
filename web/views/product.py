@@ -18,8 +18,8 @@ async def get_products(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[ProductOutput]:
     """
-    Возвращает список объектов ProductOutput
-    :param session: объект сессии, который получается путем выполнения метода session_dependency объекта db_connector
+    Обрабатывает запрос с фронт энда на получение списка всех продуктов
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[ProductOutput]
     """
     return await pa.get_products(session)
@@ -32,46 +32,76 @@ async def get_product_by_id(
     product: ProductOutput = Depends(product_by_id),
 ) -> ProductOutput:
     """
-    Возвращает объект ProductOutput
-    :param product: объект ProductOutput, который получается путем выполнения функции product_by_id
+    Обрабатывает запрос с фронт энда на получение продукта по его id
+    :param product: объект ProductOutput, который получается путем выполнения зависимости (метода product_by_id)
     :return: ProductOutput
     """
     return product
 
 
+# response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been added"},
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def add_product(
     product: ProductInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict:
-
+    """
+    Обрабатывает запрос с фронт энда на добавление продукта в БД
+    :param product: ProductInput - объект, содержащий данные продукта
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: dict
+    """
     return await pa.add_product(product, session)
 
 
+# response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_product(
     product_input: ProductInput,
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict:
-
+    """
+    Обрабатывает запрос с фронт энда на полную замену данных продукта по его id
+    :param product_input: ProductInput - объект, содержащий новые данные конкретного продукта
+    :param product_model: Product_model - конкретный объект в БД, найденный по id
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: dict
+    """
     return await pa.update_product(product_input, product_model, session)
 
 
+# response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_product(
     product_input: ProductInput,
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict:
-
+    """
+    Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
+    :param product_input: ProductInput - объект, содержащий новые данные конкретного продукта
+    :param product_model: Product_model - конкретный объект в БД, найденный по id
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: dict
+    """
     return await pa.update_product(product_input, product_model, session, partial=True)
 
 
+# response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been removing"},
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def del_product(
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict:
-
+    """
+    Обрабатывает запрос с фронт энда на удаление конкретного продукта
+    :param product_model: Product_model - конкретный объект в БД, найденный по id
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: dict
+    """
     return await pa.del_product(product_model, session)
