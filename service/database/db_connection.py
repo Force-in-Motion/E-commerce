@@ -32,6 +32,13 @@ class DBConnector:
         return self.__engine
 
     def __get_scoped_session(self):
+        """
+        Создаёт "scoped" сессию для работы с базой данных,
+        Привязана к текущей задаче (task) в асинхронном приложении через scopefunc=current_task,
+        session_factory=self.__session_factory: Указывает, какая фабрика будет создавать сессии (AsyncSession)
+        scopefunc=current_task: Гарантирует, что каждая асинхронная задача (например, обработка HTTP-запроса в FastAPI) получает свою уникальную сессию
+        :return:Объект async_scoped_session, который следит за тем, чтобы каждая задача использовала свою сессию, не мешая другим задачам
+        """
         session = async_scoped_session(
             session_factory=self.__session_factory, scopefunc=current_task
         )
@@ -39,6 +46,13 @@ class DBConnector:
         return session
 
     async def session_dependency(self):
+        """
+        Асинхронный генератор, который предоставляет сессию для FastAPI-маршрутов и автоматически закрывает её после использования.
+         Простыми словами: Он берёт сессию из __get_scoped_session.
+        "Отдаёт" её маршруту (через yield), чтобы тот мог работать с базой.
+        После завершения запроса закрывает сессию (await session.remove()) и возвращает ее в пул соединений
+        :return:
+        """
         session = self.__get_scoped_session()
         yield session
         await session.remove()
