@@ -76,7 +76,7 @@ async def update_product(
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
-async def update_product(
+async def update_product_partial(
     product_input: ProductInput,
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),

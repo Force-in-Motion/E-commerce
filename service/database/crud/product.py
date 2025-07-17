@@ -1,3 +1,6 @@
+from typing import Annotated
+
+from fastapi import Path
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
@@ -25,7 +28,7 @@ class ProductAdapter:
 
     @classmethod
     async def get_product_by_id(
-        cls, id: int, session: AsyncSession
+        cls, id: Annotated[int, Path], session: AsyncSession
     ) -> Product_model | None:
         """
         Возвращает продукт по его id из БД
