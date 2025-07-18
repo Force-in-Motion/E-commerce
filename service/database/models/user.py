@@ -1,6 +1,11 @@
+from typing import TYPE_CHECKING
+
 from sqlalchemy import String, Integer
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 from service.database.models.base import Base
+
+if TYPE_CHECKING:
+    from service.database.models import Post
 
 
 class User(Base):
@@ -14,6 +19,9 @@ class User(Base):
     age: Mapped[int] = mapped_column(Integer, nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False)
 
+    # Позволяет получать список постов пользователя через атрибут класса posts
+    posts: Mapped[list["Post"]] = relationship(back_populates="user")
+
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
 # для аннотации типов атрибутов модели. Он указывает, что атрибут класса (например, name)
@@ -24,3 +32,10 @@ class User(Base):
 # в декларативных моделях. Она создаёт объект колонки и связывает его с атрибутом, аннотированным Mapped.
 
 # Mapped и mapped_column используются для определения модели, которая регистрируется в Base.metadata.
+
+# relationship создаёт атрибут в классе модели, который позволяет:
+# Получать связанные объекты (например, список постов пользователя через user.posts).
+# Автоматически загружать связанные данные из базы, когда ты обращаешься к этому атрибуту.
+
+# Это говорит SQLAlchemy, что у объекта User есть атрибут posts, который возвращает список объектов Post, связанных с этим пользователем.
+# back_populates="user" указывает обратную связь: в модели Post есть атрибут user, который ссылается на объект User.
