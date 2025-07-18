@@ -13,14 +13,14 @@ class ProductAdapter:
     @classmethod
     async def get_products(cls, session: AsyncSession) -> list[Product_model]:
         """
-        Возвращает все продукты
+        Возвращает все продукты из БД
         :param session: Объект сессии, полученный в качестве параметра
         :return: list[Product_model]
         """
         try:
-            request = select(Product_model).order_by(Product_model.id)
-            result = await session.execute(request)
-            products = result.scalars().all()
+            expression = select(Product_model).order_by(Product_model.id)
+            response = await session.execute(expression)
+            products = response.scalars().all()
             return list(products)
 
         except SQLAlchemyError:
@@ -47,7 +47,7 @@ class ProductAdapter:
         cls, product_input: ProductInput, session: AsyncSession
     ) -> dict:
         """
-        Добавляет продукт в базу данных
+        Добавляет продукт в БД
         :param product_input: ProductInput - объект, содержащий данные продукта
         :param session: Объект сессии, полученный в качестве параметра
         :return: dict
@@ -80,7 +80,7 @@ class ProductAdapter:
                параметр exclude_unset означает - "То, что не было передано, исключить",
                по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
                то заменятся только переданные данные объекта. То есть если переданы не все поля объекта ProductInput,
-                то заменить в базе только переданные, не переданные пропустить
+               то заменить в базе только переданные, не переданные пропустить
         :return: dict
         """
         try:
