@@ -24,7 +24,7 @@ if config.config_file_name is not None:
 # теоретически мы могли указать в файле alembic.ini в строке sqlalchemy.url тот же url что и в db_settings.db_url,
 # но если в db_settings.db_url поменяется db_url а в alembic.ini в строке sqlalchemy.url нет, то это приведет к ошибке,
 # по этому важно указать эту настройку здесь, теперь при смене db_url alembic будет брать его оттуда автоматически
-config.set_main_option("sqlalchemy.url", db_settings.db_url)
+config.set_main_option("sqlalchemy.url", db_settings.url)
 
 # Указывает откуда брать информацию о существующих таблицах в SQLAlchemy,
 # то есть какие таблицы описаны в моделях и какие метаданные они имеют (столбцы, строки и их параметры)

@@ -1,28 +1,37 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer
+from sqlalchemy import String, Integer, Boolean, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from service.database.models.base import Base
 
 if TYPE_CHECKING:
-    from service.database.models import Post, Profile
+    from service.database.models import User
 
 
-class User(Base):
-    """Класс, описывающий мета информацию таблицы User"""
+class Profile(Base):
+    """Класс, описывающий мета информацию таблицы Profile"""
 
-    __tablename__ = "User"  # Название таблицы в БД
+    __tablename__ = "Profile"
 
     # Описание мета информации таблицы
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    address: Mapped[str] = mapped_column(String(150), nullable=False)
-    email: Mapped[str] = mapped_column(String, nullable=False)
+    floor: Mapped[str] = mapped_column(
+        String, nullable=True, default=None, server_default=None
+    )
+    age: Mapped[int] = mapped_column(
+        Integer, nullable=True, default=None, server_default=None
+    )
+    married: Mapped[bool] = mapped_column(
+        Boolean, nullable=True, default=None, server_default=None
+    )
+    bio: Mapped[str] = mapped_column(
+        String, nullable=True, default=None, server_default=None
+    )
 
-    # Позволяет получать список постов пользователя через атрибут класса posts
-    posts: Mapped[list["Post"]] = relationship(back_populates="user")
+    # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
+    user_id: Mapped[int] = mapped_column(ForeignKey("User.id"))
 
-    # Позволяет получать профиль пользователя через атрибут класса profile
-    profile: Mapped["Profile"] = relationship(back_populates="user")
+    # Позволяет получать профиль пользователя через атрибут класса user
+    user: Mapped[User] = relationship(back_populates="profile")
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
@@ -39,5 +48,5 @@ class User(Base):
 # Получать связанные объекты (например, список постов пользователя через user.posts).
 # Автоматически загружать связанные данные из базы, когда ты обращаешься к этому атрибуту.
 
-# Это говорит SQLAlchemy, что у объекта User есть атрибут posts, который возвращает список объектов Post, связанных с этим пользователем.
-# back_populates="user" указывает обратную связь: в модели Post есть атрибут user, который ссылается на объект User.
+# Это говорит SQLAlchemy, что у объекта Post есть атрибут user, который возвращает объект User, связанный с этим постом.
+# back_populates="posts" указывает обратную связь: в модели User есть атрибут posts, который ссылается на объект User.

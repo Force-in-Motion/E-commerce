@@ -58,7 +58,7 @@ class DBConnector:
         await session.close()
 
 
-db_connector = DBConnector(url=db_settings.db_url, echo=db_settings.echo)
+db_connector = DBConnector(url=db_settings.url, echo=db_settings.echo)
 
 
 # Когда expire_on_commit=True (по умолчанию), SQLAlchemy помечает все объекты в сессии как "устаревшие" после commit,

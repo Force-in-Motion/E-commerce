@@ -76,7 +76,7 @@ async def update_user(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
-async def update_product(
+async def update_user_partial(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -92,7 +92,7 @@ async def update_product(
 
 
 @router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
-async def del_user_by_id(
+async def del_user(
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict:
