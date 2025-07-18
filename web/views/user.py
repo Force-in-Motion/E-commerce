@@ -11,6 +11,7 @@ from tools import user_by_id
 
 router = APIRouter()
 
+
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get("/", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
