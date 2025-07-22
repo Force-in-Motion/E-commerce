@@ -11,7 +11,7 @@ from web.schemas import ProfileInput
 class ProfileAdapter:
 
     @classmethod
-    async def get_all_profiles(cls, session: AsyncSession) -> list[Profile_model]:
+    async def get_profiles(cls, session: AsyncSession) -> list[Profile_model]:
         """
         Возвращает все профили, существующие в БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -47,7 +47,7 @@ class ProfileAdapter:
 
     @classmethod
     async def add_profile(
-        cls, session: AsyncSession, id: int, profile_input: ProfileInput
+        cls, session: AsyncSession, profile_input: ProfileInput
     ) -> dict:
         """
         Создает профиль конкретного пользователя в БД

@@ -1,9 +1,9 @@
-from fastapi import APIRouter, HTTPException, status, Depends
+from fastapi import APIRouter, status, Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from web.schemas.user import UserOutput, UserInput
-from service.database.crud import UserAdapter as ua
+from web.schemas import UserOutput, UserInput
+from service.database.crud import UserAdapter
 from service.database.models import User as User_model
 from service.database import db_connector
 from tools import user_by_id
@@ -23,7 +23,7 @@ async def get_users(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[ProductOutput]
     """
-    return await ua.get_users(session)
+    return await UserAdapter.get_users(session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -52,7 +52,7 @@ async def add_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ua.add_user(session, user)
+    return await UserAdapter.add_user(session, user)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -70,7 +70,7 @@ async def update_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ua.update_user(user_input, user_model, session)
+    return await UserAdapter.update_user(user_input, user_model, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -88,7 +88,7 @@ async def update_user_partial(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ua.update_user(user_input, user_model, session, partial=True)
+    return await UserAdapter.update_user(user_input, user_model, session, partial=True)
 
 
 @router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
@@ -102,4 +102,4 @@ async def del_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ua.del_user(user_model, session)
+    return await UserAdapter.del_user(user_model, session)

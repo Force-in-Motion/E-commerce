@@ -27,4 +27,4 @@ class ProductOutput(ProductInput):
 
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    id: Annotated[int, Ge(1)]
