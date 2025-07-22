@@ -1,6 +1,6 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Annotated, Optional
-from annotated_types import MaxLen, MinLen, Ge, Le, Gt
+from annotated_types import MaxLen, MinLen, Ge
 
 
 class UserInput(BaseModel):
@@ -13,8 +13,7 @@ class UserInput(BaseModel):
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
     name: Optional[Annotated[str, MinLen(3), MaxLen(30)]] = None
-    floor: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
-    age: Optional[Annotated[int, Ge(12), Le(120)]] = None
+    address: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
     email: Optional[EmailStr] = None
 
 
