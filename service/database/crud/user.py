@@ -1,3 +1,4 @@
+from datetime import date, datetime
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -40,6 +41,33 @@ class UserAdapter:
 
         except SQLAlchemyError:
             return None
+
+    @classmethod
+    async def get_added_users_by_date(
+        cls,
+        session: AsyncSession,
+        input_date: date,
+    ) -> list[User_model] | []:
+        """
+        Возвращает список всех пользователей, добавленных за указанный интервал времени
+        :param session: Объект сессии, полученный в качестве аргумента
+        :param input_date: полученный интервал времени
+        :return: список всех пользователей, добавленных за указанный интервал времени
+        """
+        start_of_day = datetime.combine(input_date, datetime.min.time())
+        end_of_day = datetime.combine(input_date, datetime.max.time())
+
+        try:
+            request = select(User_model).where(
+                User_model.created_at.between(start_of_day, end_of_day)
+            )
+            response = await session.execute(request)
+            users = response.scalars().all()
+            return list[users]
+
+        except SQLAlchemyError:
+            await session.rollback()
+            return []
 
     @classmethod
     async def add_user(
