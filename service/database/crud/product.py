@@ -18,8 +18,8 @@ class ProductAdapter:
         :return: list[Product_model]
         """
         try:
-            expression = select(Product_model).order_by(Product_model.id)
-            response = await session.execute(expression)
+            request = select(Product_model).order_by(Product_model.id)
+            response = await session.execute(request)
             products = response.scalars().all()
             return list(products)
 

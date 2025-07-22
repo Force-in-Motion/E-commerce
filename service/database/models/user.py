@@ -28,7 +28,12 @@ class User(Base):
     posts: Mapped[list["Post"]] = relationship(back_populates="user")
 
     # Позволяет получать профиль пользователя через атрибут класса profile
-    profile: Mapped["Profile"] = relationship(back_populates="user")
+    # uselist: Указывает, является ли связь коллекцией (True для один-ко-многим, False для один-к-одному)
+    # lazy="joined Выполняет LEFT OUTER JOIN при загрузке объекта, загружая связанные данные сразу
+    # Для один-к-одному (User.profile) или небольших коллекций (User.posts).
+    profile: Mapped["Profile"] = relationship(
+        back_populates="user", uselist=False, lazy="joined"
+    )
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,

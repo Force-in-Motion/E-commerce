@@ -16,8 +16,8 @@ class UserAdapter:
         :return: list[User_model]
         """
         try:
-            expression = select(User_model).order_by(User_model.id)
-            response = await session.execute(expression)
+            request = select(User_model).order_by(User_model.created_at)
+            response = await session.execute(request)
             users = response.scalars().all()
             return list(users)
 

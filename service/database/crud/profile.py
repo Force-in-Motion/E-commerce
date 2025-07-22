@@ -1,7 +1,10 @@
-from sqlalchemy import select
+from sqlalchemy import select, Select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import Mapped
+
 from service.database.models import Profile as Profile_model
+from service.database.models import User as User_model
 from web.schemas import ProfileInput
 
 
@@ -14,19 +17,33 @@ class ProfileAdapter:
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список моделей профилей
         """
+        try:
+            request = Select(Profile_model).order_by(Profile_model.created_at)
+            response = await session.execute(request)
+            profiles = response.scalars().all()
+            return list(profiles)
+
+        except SQLAlchemyError:
+            return []
 
     @classmethod
     async def get_profile_by_user_id(
         cls,
         session: AsyncSession,
         id: int,
-    ) -> Profile_model | None:
+    ) -> Mapped[Profile_model] | None:
         """
         Возвращает профиль, соответствующий id пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
         :param id: id конкретного пользователя
         :return: модель конкретного профиля
         """
+        try:
+            response = await session.get(User_model, id)
+            return response.profile
+
+        except SQLAlchemyError:
+            return None
 
     @classmethod
     async def add_profile(
