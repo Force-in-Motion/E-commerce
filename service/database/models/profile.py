@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer, Boolean, ForeignKey
+from sqlalchemy import String, Integer, Boolean, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from service.database.models.base import Base
 
@@ -25,6 +26,11 @@ class Profile(Base):
     )
     bio: Mapped[str] = mapped_column(
         String, nullable=True, default=None, server_default=None
+    )
+
+    # Автоматически записывает дату создания профиля пользователя
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
     )
 
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта

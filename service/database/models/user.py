@@ -1,6 +1,7 @@
+from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String
+from sqlalchemy import String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 from service.database.models.base import Base
 
@@ -17,6 +18,11 @@ class User(Base):
     name: Mapped[str] = mapped_column(String, nullable=False)
     address: Mapped[str] = mapped_column(String(150), nullable=False)
     email: Mapped[str] = mapped_column(String, nullable=False)
+
+    # Автоматически записывает дату создания пользователя
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
     # Позволяет получать список постов пользователя через атрибут класса posts
     posts: Mapped[list["Post"]] = relationship(back_populates="user")
