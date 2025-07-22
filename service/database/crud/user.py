@@ -8,7 +8,7 @@ from web.schemas import UserInput
 class UserAdapter:
 
     @classmethod
-    async def get_users(cls, session: AsyncSession) -> list[User_model]:
+    async def get_users(cls, session: AsyncSession) -> list[User_model] | []:
         """
         Возвращает всех пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -24,7 +24,11 @@ class UserAdapter:
             return []
 
     @classmethod
-    async def get_user_by_id(cls, session: AsyncSession, id: int) -> User_model | None:
+    async def get_user_by_id(
+        cls,
+        session: AsyncSession,
+        id: int,
+    ) -> User_model | None:
         """
         Возвращает пользователя по его id из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -38,7 +42,11 @@ class UserAdapter:
             return None
 
     @classmethod
-    async def add_user(cls, session: AsyncSession, user_input: UserInput) -> dict:
+    async def add_user(
+        cls,
+        session: AsyncSession,
+        user_input: UserInput,
+    ) -> dict:
         """
         Добавляет пользователя в БД
         :param user_input: UserInput - объект, содержащий данные пользователя
@@ -89,7 +97,11 @@ class UserAdapter:
             return {"status": "False", "detail": "Error updated User"}
 
     @classmethod
-    async def del_user(cls, user_model: User_model, session: AsyncSession) -> dict:
+    async def del_user(
+        cls,
+        user_model: User_model,
+        session: AsyncSession,
+    ) -> dict:
         """
         Удаляет продукт из БД
         :param user_model: User_model - конкретный объект в БД, найденный по id

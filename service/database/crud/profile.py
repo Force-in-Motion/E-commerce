@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import Profile as Profile_model
-from web.schemas.profile import ProfileInput
+from web.schemas import ProfileInput
 
 
 class ProfileAdapter:
@@ -20,7 +20,7 @@ class ProfileAdapter:
         cls,
         session: AsyncSession,
         id: int,
-    ) -> Profile_model:
+    ) -> Profile_model | None:
         """
         Возвращает профиль, соответствующий id пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента

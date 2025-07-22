@@ -1,7 +1,8 @@
+from _datetime import datetime
 from typing import TYPE_CHECKING
 
 from service.database.models.base import Base
-from sqlalchemy import String, Text, ForeignKey
+from sqlalchemy import String, Text, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 if TYPE_CHECKING:
@@ -15,10 +16,16 @@ class Post(Base):
 
     # Описание мета информации таблицы
     title: Mapped[str] = mapped_column(String(100), nullable=False)
+
     # default="" используется когда экземпляр этого класса создается в алхимии, server_default="" используется когда создается колонка в базе данных
     body: Mapped[str] = mapped_column(
         Text, nullable=False, default="", server_default=""
     )
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
+
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
     user_id: Mapped[int] = mapped_column(ForeignKey("User.id"))
 
