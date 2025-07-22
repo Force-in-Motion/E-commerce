@@ -5,7 +5,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from service.database.models.base import Base
 
 if TYPE_CHECKING:
-    from service.database.models import User
+    from service.database.models import User as user
 
 
 class Profile(Base):
@@ -31,7 +31,7 @@ class Profile(Base):
     user_id: Mapped[int] = mapped_column(ForeignKey("User.id"))
 
     # Позволяет получать профиль пользователя через атрибут класса user
-    user: Mapped[User] = relationship(back_populates="profile")
+    user: Mapped[user] = relationship(back_populates="profile")
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,

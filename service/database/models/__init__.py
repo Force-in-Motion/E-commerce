@@ -4,4 +4,4 @@ from .base import Base
 from .product import Product
 from .user import User
 from .post import Post
-from .prifile import Profile
+from .profile import Profile
