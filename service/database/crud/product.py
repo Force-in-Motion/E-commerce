@@ -14,7 +14,7 @@ class ProductAdapter:
     async def get_products(cls, session: AsyncSession) -> list[Product_model]:
         """
         Возвращает все продукты из БД
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: list[Product_model]
         """
         try:
@@ -33,7 +33,7 @@ class ProductAdapter:
         """
         Возвращает продукт по его id из БД
         :param id: id конкретного продукта
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: Product_model | None
         """
         try:
@@ -49,7 +49,7 @@ class ProductAdapter:
         """
         Добавляет продукт в БД
         :param product_input: ProductInput - объект, содержащий данные продукта
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
         try:
@@ -74,7 +74,7 @@ class ProductAdapter:
         Обновляет данные продукта в БД полностью или частично
         :param product_input: ProductInput - объект, содержащий данные продукта
         :param product_model: Product_model - конкретный объект в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :param partial: Флаг, передаваем значение True или False,
                значение передается в метод model_dump(exclude_unset=partial),
                параметр exclude_unset означает - "То, что не было передано, исключить",
@@ -102,7 +102,7 @@ class ProductAdapter:
         """
         Удаляет продукт из БД
         :param product_model: Product_model - конкретный объект в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
         try:

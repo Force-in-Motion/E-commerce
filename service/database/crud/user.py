@@ -11,7 +11,7 @@ class UserAdapter:
     async def get_users(cls, session: AsyncSession) -> list[User_model]:
         """
         Возвращает всех пользователей из БД
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: list[User_model]
         """
         try:
@@ -27,7 +27,7 @@ class UserAdapter:
     async def get_user_by_id(cls, session: AsyncSession, id: int) -> User_model | None:
         """
         Возвращает пользователя по его id из БД
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :param id: id конкретного пользователя
         :return: User_model | None
         """
@@ -42,7 +42,7 @@ class UserAdapter:
         """
         Добавляет пользователя в БД
         :param user_input: UserInput - объект, содержащий данные пользователя
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
         try:
@@ -64,10 +64,10 @@ class UserAdapter:
         partial: bool = False,
     ) -> dict:
         """
-        Обновляет данные продукта в БД полностью или частично
+        Обновляет данные пользователя в БД полностью или частично
         :param user_input: UserInput - объект, содержащий данные пользователя
         :param user_model: User_model - конкретный объект в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :param partial: Флаг, передаваем значение True или False,
                значение передается в метод model_dump(exclude_unset=partial),
                параметр exclude_unset означает - "То, что не было передано, исключить",
@@ -93,7 +93,7 @@ class UserAdapter:
         """
         Удаляет продукт из БД
         :param user_model: User_model - конкретный объект в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве параметра
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
         try:
