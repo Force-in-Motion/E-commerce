@@ -56,6 +56,15 @@ class ProfileAdapter:
         :param id: id конкретного пользователя
         :return: dict
         """
+        try:
+            profile_model = Profile_model(**profile_input.model_dump())
+            session.add(profile_model)
+            await session.commit()
+            return {"status": "ok", "detail": "Profile has been added"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            return {"status": "False", "detail": "Error added Profile"}
 
     @classmethod
     async def update_profile(
@@ -78,6 +87,17 @@ class ProfileAdapter:
                то заменить в базе только переданные, не переданные пропустить
         :return: dict
         """
+        try:
+            for key, value in profile_input.model_dump(exclude_unset=partial).items():
+                if value is not None:
+                    setattr(profile_model, key, value)
+
+                await session.commit()
+                return {"status": "ok", "detail": "Profile has been updated"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            return {"status": "False", "detail": "Error updated Profile"}
 
     @classmethod
     async def del_profile(
@@ -89,3 +109,11 @@ class ProfileAdapter:
         :param profile_model: Profile_model -конкретный объект в БД, найденный по id
         :return: dict
         """
+        try:
+            await session.delete(profile_model)
+            await session.commit()
+            return {"status": "ok", "detail": "Profile has been deleted"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            return {"status": "False", "detail": "Error deleted Profile"}
