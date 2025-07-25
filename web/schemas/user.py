@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Annotated, Optional
 from annotated_types import MaxLen, MinLen, Ge
@@ -13,7 +15,7 @@ class UserInput(BaseModel):
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
     name: Optional[Annotated[str, MinLen(3), MaxLen(30)]] = None
-    address: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
+    address: Optional[Annotated[str, MinLen(3), MaxLen(120)]] = None
     email: Optional[EmailStr] = None
 
 
@@ -28,3 +30,4 @@ class UserOutput(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
     id: Annotated[int, Ge(1)]
+    created_at: datetime

@@ -9,7 +9,7 @@ from web.schemas import UserInput
 class UserAdapter:
 
     @classmethod
-    async def get_users(cls, session: AsyncSession) -> list[User_model] | []:
+    async def get_users(cls, session: AsyncSession) -> list[User_model]:
         """
         Возвращает всех пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -47,7 +47,7 @@ class UserAdapter:
         cls,
         session: AsyncSession,
         input_date: date,
-    ) -> list[User_model] | []:
+    ) -> list[User_model]:
         """
         Возвращает список всех пользователей, добавленных за указанный интервал времени
         :param session: Объект сессии, полученный в качестве аргумента

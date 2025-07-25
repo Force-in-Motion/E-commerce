@@ -17,7 +17,7 @@ class ProfileInput(BaseModel):
     floor: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
     age: Optional[Annotated[int, Ge(7), Le(120)]] = None
     married: Optional[bool] = None
-    bio: Optional[Annotated[str, MinLen(5)], MaxLen(700)] = None
+    bio: Optional[Annotated[str, MinLen(5), MaxLen(700)]] = None
 
 
 class ProfileOutput(ProfileInput):

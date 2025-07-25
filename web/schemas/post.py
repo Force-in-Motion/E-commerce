@@ -13,7 +13,7 @@ class PostInput(BaseModel):
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
     title: Optional[Annotated[str, MinLen(3), MaxLen(100)]] = None
-    body: Optional[Annotated[str, MinLen(3)], MaxLen(700)] = None
+    body: Optional[Annotated[str, MinLen(3), MaxLen(700)]] = None
 
 
 class PostOutput(PostInput):
