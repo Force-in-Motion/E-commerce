@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database.crud import ProductAdapter as pa
+from service.database.crud import ProductAdapter
 from service.database import db_connector
 from service.database.models import Product as Product_model
 from web.schemas import ProductInput, ProductOutput
@@ -22,7 +22,7 @@ async def get_products(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[ProductOutput]
     """
-    return await pa.get_products(session)
+    return await ProductAdapter.get_products(session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае объект ProductOutput,
@@ -52,7 +52,7 @@ async def add_product(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await pa.add_product(product, session)
+    return await ProductAdapter.add_product(product, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
@@ -70,7 +70,7 @@ async def update_product(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await pa.update_product(product_input, product_model, session)
+    return await ProductAdapter.update_product(product_input, product_model, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
@@ -88,7 +88,21 @@ async def update_product_partial(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await pa.update_product(product_input, product_model, session, partial=True)
+    return await ProductAdapter.update_product(
+        product_input, product_model, session, partial=True
+    )
+
+
+@router.delete("/clear", response_model=dict, status_code=status.HTTP_200_OK)
+async def clear_products(
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> dict[str, str]:
+    """
+    Обрабатывает запрос с фронт энда на удаление всех пользователей
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: dict
+    """
+    return await ProductAdapter.clear_product_db(session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been removing"},

@@ -1,3 +1,4 @@
+from fastapi import HTTPException
 from sqlalchemy import select, Select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -64,7 +65,7 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error added Profile"}
+            raise HTTPException(status_code=500, detail="Error added Profile")
 
     @classmethod
     async def update_profile(
@@ -73,7 +74,7 @@ class ProfileAdapter:
         profile_input: ProfileInput,
         profile_model: Profile_model,
         partial: bool = False,
-    ) -> dict:
+    ) -> dict[str, str] | None:
         """
         Обновляет данные профиля пользователя в БД полностью или частично
         :param session: Объект сессии, полученный в качестве аргумента
@@ -97,12 +98,12 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error updated Profile"}
+            raise HTTPException(status_code=500, detail="Error updated Profile")
 
     @classmethod
     async def del_profile(
         cls, session: AsyncSession, profile_model: Profile_model
-    ) -> dict:
+    ) -> dict[str, str]:
         """
         Удаляет профиль из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -116,4 +117,4 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error deleted Profile"}
+            raise HTTPException(status_code=500, detail="Error deleted Profile")

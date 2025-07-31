@@ -4,6 +4,7 @@ from fastapi import APIRouter, status, Depends, Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.annotation import Annotated
+from sqlalchemy.util import await_only
 
 from web.schemas import UserOutput, UserInput
 from service.database.crud import UserAdapter
@@ -31,7 +32,7 @@ async def get_users(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{id}", response_model=UserOutput, status_code=status.HTTP_200_OK)
+@router.get("/id{id}", response_model=UserOutput, status_code=status.HTTP_200_OK)
 async def get_user_by_id(
     user: UserOutput = Depends(user_by_id),
 ) -> UserOutput:
@@ -45,7 +46,9 @@ async def get_user_by_id(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{date}", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
+@router.get(
+    "/date{date}", response_model=list[UserOutput], status_code=status.HTTP_200_OK
+)
 async def get_users_by_date(
     date: datetime,
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -65,7 +68,7 @@ async def get_users_by_date(
 async def add_user(
     user: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> dict[str, str]:
     """
     Обрабатывает запрос с фронт энда на добавление пользователя в БД
     :param user: UserInput - объект, содержащий данные пользователя
@@ -82,7 +85,7 @@ async def update_user(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> dict[str, str]:
     """
     Обрабатывает запрос с фронт энда на полную замену данных продукта по его id
     :param user_input: UserInput - объект, содержащий новые данные конкретного пользователя
@@ -100,7 +103,7 @@ async def update_user_partial(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> dict[str, str]:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
     :param user_input: UserInput - объект, содержащий новые данные конкретного пользователя
@@ -111,13 +114,25 @@ async def update_user_partial(
     return await UserAdapter.update_user(user_input, user_model, session, partial=True)
 
 
+@router.delete("/clear", response_model=dict, status_code=status.HTTP_200_OK)
+async def clear_users(
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> dict[str, str]:
+    """
+    Обрабатывает запрос с фронт энда на удаление всех пользователей
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: dict
+    """
+    return await UserAdapter.clear_user_db(session)
+
+
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def del_user(
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> dict[str, str]:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного пользователя
     :param user_model: User_model - конкретный объект в БД, найденный по id

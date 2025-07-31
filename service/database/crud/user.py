@@ -1,5 +1,8 @@
+from asyncio.log import logger
 from datetime import datetime, time
-from sqlalchemy import select, text
+from fastapi import HTTPException
+
+from sqlalchemy import select, text, delete
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import User as User_model
@@ -89,7 +92,7 @@ class UserAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error added User"}
+            raise HTTPException(status_code=500, detail="Error added User")
 
     @classmethod
     async def update_user(
@@ -122,7 +125,7 @@ class UserAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error updated User"}
+            raise HTTPException(status_code=500, detail="Error updated User")
 
     @classmethod
     async def del_user(
@@ -143,27 +146,22 @@ class UserAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error deleted User"}
+            raise HTTPException(status_code=500, detail="Error deleted User")
 
     @classmethod
-    async def clear_user_db(cls, session) -> dict[str, str]:
+    async def clear_user_db(cls, session: AsyncSession) -> dict[str, str]:
         """
-
-        :param session:
-        :return:
-        """
-
-    @classmethod
-    async def reset_user_id_sequence(cls, session: AsyncSession) -> dict[str, str]:
-        """
-        Сбрасывает последовательность id пользователей, чтобы после очистки базы id начинались с единицы
-        :param session:
+        Очищает базу данных пользователя и сбрасывает последовательность id пользователей
+        :param session: Объект сессии, полученный в качестве аргумента
         :return:
         """
         try:
-            await session.execute(text("ALTER SEQUENCE User_id_seq RESTART WITH 1"))
+            await session.execute(delete(User_model))
+            await session.execute(text('ALTER SEQUENCE "User_id_seq" RESTART WITH 1'))
             await session.commit()
-            return {"status": "ok", "detail": "User has been deleted"}
-        except SQLAlchemyError as e:
+            return {"status": "ok", "detail": "All users have been deleted"}
+
+        except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error resetting ID sequence"}
+            logger.info("text error")
+            raise HTTPException(status_code=500, detail="Error deleted all Users")

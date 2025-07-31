@@ -1,7 +1,7 @@
 from typing import Annotated
 
-from fastapi import Path
-from sqlalchemy import select
+from fastapi import Path, HTTPException
+from sqlalchemy import select, delete, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
 from web.schemas import ProductInput
@@ -28,7 +28,9 @@ class ProductAdapter:
 
     @classmethod
     async def get_product_by_id(
-        cls, id: Annotated[int, Path], session: AsyncSession
+        cls,
+        id: Annotated[int, Path],
+        session: AsyncSession,
     ) -> Product_model | None:
         """
         Возвращает продукт по его id из БД
@@ -44,7 +46,9 @@ class ProductAdapter:
 
     @classmethod
     async def add_product(
-        cls, product_input: ProductInput, session: AsyncSession
+        cls,
+        product_input: ProductInput,
+        session: AsyncSession,
     ) -> dict:
         """
         Добавляет продукт в БД
@@ -60,7 +64,7 @@ class ProductAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error added Product"}
+            raise HTTPException(status_code=500, detail="Error added Product")
 
     @classmethod
     async def update_product(
@@ -93,11 +97,13 @@ class ProductAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error updating Product"}
+            raise HTTPException(status_code=500, detail="Error updating Product")
 
     @classmethod
     async def del_product(
-        cls, product_model: Product_model, session: AsyncSession
+        cls,
+        product_model: Product_model,
+        session: AsyncSession,
     ) -> dict:
         """
         Удаляет продукт из БД
@@ -112,4 +118,21 @@ class ProductAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            return {"status": "False", "detail": "Error removing Product"}
+            raise HTTPException(status_code=500, detail="Error removing Product")
+
+    @classmethod
+    async def clear_product_db(cls, session: AsyncSession) -> dict[str, str]:
+        """
+        Очищает базу данных продуктов и сбрасывает последовательность id пользователей
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return:
+        """
+        try:
+            await session.execute(delete(Product_model))
+            await session.execute(text('ALTER SEQUENCE "User_id_seq" RESTART WITH 1'))
+            await session.commit()
+            return {"status": "ok", "detail": "All users have been deleted"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail="Error deleted all Users")
