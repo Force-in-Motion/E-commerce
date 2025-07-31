@@ -1,5 +1,5 @@
-from datetime import date, datetime
-from sqlalchemy import select
+from datetime import datetime, time
+from sqlalchemy import select, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import User as User_model
@@ -9,7 +9,7 @@ from web.schemas import UserInput
 class UserAdapter:
 
     @classmethod
-    async def get_users(cls, session: AsyncSession) -> list[User_model]:
+    async def get_all_users(cls, session: AsyncSession) -> list[User_model]:
         """
         Возвращает всех пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -46,16 +46,16 @@ class UserAdapter:
     async def get_added_users_by_date(
         cls,
         session: AsyncSession,
-        input_date: date,
+        date: datetime,
     ) -> list[User_model]:
         """
         Возвращает список всех пользователей, добавленных за указанный интервал времени
         :param session: Объект сессии, полученный в качестве аргумента
-        :param input_date: полученный интервал времени
+        :param date: полученный интервал времени
         :return: список всех пользователей, добавленных за указанный интервал времени
         """
-        start_of_day = datetime.combine(input_date, datetime.min.time())
-        end_of_day = datetime.combine(input_date, datetime.max.time())
+        start_of_day = datetime.combine(date, time(0, 0, 0))
+        end_of_day = datetime.combine(date, time(23, 59, 59))
 
         try:
             request = select(User_model).where(
@@ -63,7 +63,7 @@ class UserAdapter:
             )
             response = await session.execute(request)
             users = response.scalars().all()
-            return list[users]
+            return list(users)
 
         except SQLAlchemyError:
             await session.rollback()
@@ -74,7 +74,7 @@ class UserAdapter:
         cls,
         session: AsyncSession,
         user_input: UserInput,
-    ) -> dict:
+    ) -> dict[str, str]:
         """
         Добавляет пользователя в БД
         :param user_input: UserInput - объект, содержащий данные пользователя
@@ -98,7 +98,7 @@ class UserAdapter:
         user_model: User_model,
         session: AsyncSession,
         partial: bool = False,
-    ) -> dict:
+    ) -> dict[str, str]:
         """
         Обновляет данные пользователя в БД полностью или частично
         :param user_input: UserInput - объект, содержащий данные пользователя
@@ -129,9 +129,9 @@ class UserAdapter:
         cls,
         user_model: User_model,
         session: AsyncSession,
-    ) -> dict:
+    ) -> dict[str, str]:
         """
-        Удаляет продукт из БД
+        Удаляет пользователя из БД
         :param user_model: User_model - конкретный объект в БД, найденный по id
         :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
@@ -144,3 +144,26 @@ class UserAdapter:
         except SQLAlchemyError:
             await session.rollback()
             return {"status": "False", "detail": "Error deleted User"}
+
+    @classmethod
+    async def clear_user_db(cls, session) -> dict[str, str]:
+        """
+
+        :param session:
+        :return:
+        """
+
+    @classmethod
+    async def reset_user_id_sequence(cls, session: AsyncSession) -> dict[str, str]:
+        """
+        Сбрасывает последовательность id пользователей, чтобы после очистки базы id начинались с единицы
+        :param session:
+        :return:
+        """
+        try:
+            await session.execute(text("ALTER SEQUENCE User_id_seq RESTART WITH 1"))
+            await session.commit()
+            return {"status": "ok", "detail": "User has been deleted"}
+        except SQLAlchemyError as e:
+            await session.rollback()
+            return {"status": "False", "detail": "Error resetting ID sequence"}

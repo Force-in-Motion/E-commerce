@@ -61,7 +61,7 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         post_input: PostInput,
-    ) -> dict:
+    ) -> dict[str, str]:
         """
         Добавляет пост пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -76,7 +76,7 @@ class PostAdapter:
         post_input: PostInput,
         post_model: Post_model,
         partial: bool = False,
-    ):
+    ) -> dict[str, str]:
         """
         Обновляет пост в БД полностью или частично
         :param session: Объект сессии, полученный в качестве аргумента
@@ -96,7 +96,7 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         post_model: Post_model,
-    ) -> dict:
+    ) -> dict[str, str]:
         """
         Удаляет пост из БД
         :param session: Объект сессии, полученный в качестве аргумента

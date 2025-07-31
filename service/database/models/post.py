@@ -27,7 +27,7 @@ class Post(Base):
     )
 
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
-    user_id: Mapped[int] = mapped_column(ForeignKey("User.id"))
+    user_id: Mapped[int] = mapped_column(ForeignKey("User.id", ondelete="CASCADE"))
 
     # Позволяет получать пользователя конкретного поста через атрибут класса user
     user: Mapped["User"] = relationship(back_populates="posts")

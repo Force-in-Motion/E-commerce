@@ -19,7 +19,7 @@ class UserInput(BaseModel):
     email: Optional[EmailStr] = None
 
 
-class UserOutput(BaseModel):
+class UserOutput(UserInput):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от UserInput
     для доступа ко всем полям UserInput, дополнительно содержит id
     поскольку в возвращаемом объекте он обязан быть,

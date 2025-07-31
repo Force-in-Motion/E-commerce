@@ -1,6 +1,9 @@
-from fastapi import APIRouter, status, Depends
+from datetime import datetime
+
+from fastapi import APIRouter, status, Depends, Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.annotation import Annotated
 
 from web.schemas import UserOutput, UserInput
 from service.database.crud import UserAdapter
@@ -21,9 +24,9 @@ async def get_users(
     """
     Обрабатывает запрос с фронт энда на получение списка всех пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: list[ProductOutput]
+    :return: список всех пользователей в БД
     """
-    return await UserAdapter.get_users(session)
+    return await UserAdapter.get_all_users(session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -35,16 +38,33 @@ async def get_user_by_id(
     """
     Обрабатывает запрос с фронт энда на получение пользователя по его id
     :param user: объект UserOutput, который получается путем выполнения зависимости (метода product_by_id)
-    :return: UserOutput
+    :return: Конкретного пользователя по его id
     """
     return user
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.get("/{date}", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
+async def get_users_by_date(
+    date: datetime,
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> list[UserOutput]:
+    """
+    Возвращает всех добавленных в БД пользователей за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :param date: конкретная дата, по которой нужно распарсить всех пользователей
+    :return: Список пользователей за указанную дату
+    """
+    return await UserAdapter.get_added_users_by_date(session, date)
+
+
+# response_model определяет модель ответа пользователю, в данном случае словарь
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
 async def add_user(
-    user: UserInput, session: AsyncSession = Depends(db_connector.session_dependency)
+    user: UserInput,
+    session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict:
     """
     Обрабатывает запрос с фронт энда на добавление пользователя в БД
@@ -55,7 +75,7 @@ async def add_user(
     return await UserAdapter.add_user(session, user)
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
+# response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_user(
@@ -73,7 +93,7 @@ async def update_user(
     return await UserAdapter.update_user(user_input, user_model, session)
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
+# response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_user_partial(
@@ -91,6 +111,8 @@ async def update_user_partial(
     return await UserAdapter.update_user(user_input, user_model, session, partial=True)
 
 
+# response_model определяет модель ответа пользователю, в данном случае словарь
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def del_user(
     user_model: User_model = Depends(user_by_id),
