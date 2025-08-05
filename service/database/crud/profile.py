@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from sqlalchemy import select, Select
+from sqlalchemy import select, Select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import Mapped
@@ -118,3 +118,22 @@ class ProfileAdapter:
         except SQLAlchemyError:
             await session.rollback()
             raise HTTPException(status_code=500, detail="Error deleted Profile")
+
+    @classmethod
+    async def clear_user_db(cls, session: AsyncSession) -> dict[str, str]:
+        """
+        Очищает базу данных пользователя и сбрасывает последовательность id пользователей
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return:
+        """
+        try:
+            await session.execute(delete(User_model))
+            await session.execute(
+                text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
+            )
+            await session.commit()
+            return {"status": "ok", "detail": "All Profiles have been deleted"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail="Error deleted all Profiles")

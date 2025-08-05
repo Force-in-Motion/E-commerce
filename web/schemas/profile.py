@@ -18,6 +18,7 @@ class ProfileInput(BaseModel):
     age: Optional[Annotated[int, Ge(7), Le(120)]] = None
     married: Optional[bool] = None
     bio: Optional[Annotated[str, MinLen(5), MaxLen(700)]] = None
+    user_id: Annotated[int, Ge(1)]
 
 
 class ProfileOutput(ProfileInput):
@@ -32,4 +33,3 @@ class ProfileOutput(ProfileInput):
 
     id: Annotated[int, Ge(1)]
     created_at: datetime
-    user_id: Annotated[int, Ge(1)]

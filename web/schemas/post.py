@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from pydantic import BaseModel, ConfigDict
 from typing import Annotated, Optional
 from annotated_types import MaxLen, MinLen, Ge
@@ -27,3 +29,4 @@ class PostOutput(PostInput):
     model_config = ConfigDict(from_attributes=True)
 
     id: Annotated[int, Ge(1)]
+    created_at: datetime

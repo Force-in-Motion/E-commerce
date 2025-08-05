@@ -1,4 +1,3 @@
-from asyncio.log import logger
 from datetime import datetime, time
 from fastapi import HTTPException
 
@@ -163,5 +162,4 @@ class UserAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            logger.info("text error")
             raise HTTPException(status_code=500, detail="Error deleted all Users")

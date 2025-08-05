@@ -3,8 +3,6 @@ from datetime import datetime
 from fastapi import APIRouter, status, Depends, Path
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.annotation import Annotated
-from sqlalchemy.util import await_only
 
 from web.schemas import UserOutput, UserInput
 from service.database.crud import UserAdapter
