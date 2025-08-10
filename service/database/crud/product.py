@@ -1,10 +1,12 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import Path, HTTPException
+from fastapi import Path, HTTPException, status
 from sqlalchemy import select, delete, text
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
+
+
 from web.schemas import ProductInput
 from service.database.models import Product as Product_model
 
@@ -60,7 +62,10 @@ class ProductAdapter:
         :return: список всех продуктов, добавленных за указанный интервал времени
         """
         if date_start >= date_end:
-            raise ValueError("date_start must be less than date_end")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="date_start must be less than date_end",
+            )
 
         try:
             request = (
@@ -90,11 +95,17 @@ class ProductAdapter:
             product_model = Product_model(**product_input.model_dump())
             session.add(product_model)
             await session.commit()
-            return {"status": "ok", "detail": "Product has been added"}
+            return {
+                "status": "ok",
+                "detail": "Product has been added",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error added Product")
+            raise HTTPException(
+                status_code=500,
+                detail="Error added Product",
+            )
 
     @classmethod
     async def update_product(
@@ -123,11 +134,17 @@ class ProductAdapter:
                     setattr(product_model, key, value)
 
             await session.commit()
-            return {"status": "ok", "detail": "Product has been updated"}
+            return {
+                "status": "ok",
+                "detail": "Product has been updated",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error updating Product")
+            raise HTTPException(
+                status_code=500,
+                detail="Error updating Product",
+            )
 
     @classmethod
     async def del_product(
@@ -144,11 +161,17 @@ class ProductAdapter:
         try:
             await session.delete(product_model)
             await session.commit()
-            return {"status": "ok", "detail": "Product has been removing"}
+            return {
+                "status": "ok",
+                "detail": "Product has been removing",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error removing Product")
+            raise HTTPException(
+                status_code=500,
+                detail="Error removing Product",
+            )
 
     @classmethod
     async def clear_product_db(cls, session: AsyncSession) -> dict[str, str]:
@@ -161,8 +184,14 @@ class ProductAdapter:
             await session.execute(delete(Product_model))
             await session.execute(text('ALTER SEQUENCE "User_id_seq" RESTART WITH 1'))
             await session.commit()
-            return {"status": "ok", "detail": "All users have been deleted"}
+            return {
+                "status": "ok",
+                "detail": "All users have been deleted",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error deleted all Users")
+            raise HTTPException(
+                status_code=500,
+                detail="Error deleted all Users",
+            )

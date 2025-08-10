@@ -36,13 +36,13 @@ async def get_posts_by_date(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[PostOutput]:
     """
-    Обрабатывает запрос с фронт энда на получение списка всех постов пользователей за указанный интервал времени
+    Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
     :param date_start: начало интервала времени
     :param date_end: окончание интервала времени
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех постов, созданных за указанный интервал времени
     """
-    return await PostAdapter.get_posts_by_date(date_start, date_end, session)
+    return await PostAdapter.get_added_posts_by_date(date_start, date_end, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
