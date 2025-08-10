@@ -1,15 +1,13 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status, Depends, Path
-
+from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from web.schemas import UserOutput, UserInput
+from service.database import db_connector
 from service.database.crud import UserAdapter
 from service.database.models import User as User_model
-from service.database import db_connector
 from tools import user_by_id
-
+from web.schemas import UserOutput, UserInput
 
 router = APIRouter()
 

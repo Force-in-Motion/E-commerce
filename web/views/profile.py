@@ -1,4 +1,6 @@
-from fastapi import APIRouter, status, Depends, Body
+from datetime import datetime
+
+from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import Profile as ProfileModel
 from service.database.crud import ProfileAdapter
@@ -33,6 +35,24 @@ async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_use
     :return: Профиль конкретного пользователя
     """
     return profile
+
+
+# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.get(
+    "/date{date}", response_model=list[ProfileOutput], status_code=status.HTTP_200_OK
+)
+async def get_users_by_date(
+    date: datetime,
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> list[ProfileOutput]:
+    """
+    Возвращает всех добавленных в БД пользователей за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :param date: конкретная дата, по которой нужно распарсить всех пользователей
+    :return: Список пользователей за указанную дату
+    """
+    return await ProfileAdapter.get_added_profiles_by_date(session, date)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -100,7 +120,7 @@ async def clear_profiles(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileAdapter.clear_user_db(session)
+    return await ProfileAdapter.clear_profile_db(session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,

@@ -1,8 +1,8 @@
 from datetime import datetime
-
-from pydantic import BaseModel, ConfigDict
 from typing import Annotated, Optional
-from annotated_types import MaxLen, MinLen, Ge, Le, Gt
+
+from annotated_types import MaxLen, MinLen, Ge, Le
+from pydantic import BaseModel, ConfigDict
 
 
 class ProfileInput(BaseModel):
@@ -14,11 +14,11 @@ class ProfileInput(BaseModel):
     полученных от пользователя"""
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
+    user_id: Annotated[int, Ge(1)]
     floor: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
     age: Optional[Annotated[int, Ge(7), Le(120)]] = None
     married: Optional[bool] = None
     bio: Optional[Annotated[str, MinLen(5), MaxLen(700)]] = None
-    user_id: Annotated[int, Ge(1)]
 
 
 class ProfileOutput(ProfileInput):

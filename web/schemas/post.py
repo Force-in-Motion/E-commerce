@@ -14,9 +14,9 @@ class PostInput(BaseModel):
     полученных от пользователя"""
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
+    user_id: Annotated[int, Ge(1)]
     title: Optional[Annotated[str, MinLen(3), MaxLen(100)]] = None
     body: Optional[Annotated[str, MinLen(3), MaxLen(700)]] = None
-
 
 class PostOutput(PostInput):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от UserInput

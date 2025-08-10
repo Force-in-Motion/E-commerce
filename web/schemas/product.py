@@ -1,8 +1,7 @@
-from datetime import datetime
-
-from pydantic import BaseModel, ConfigDict
 from typing import Annotated, Optional
+
 from annotated_types import MaxLen, MinLen, Ge, Le
+from pydantic import BaseModel, ConfigDict
 
 
 class ProductInput(BaseModel):
