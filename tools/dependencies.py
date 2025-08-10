@@ -56,6 +56,27 @@ async def user_by_id(
     return user_model
 
 
+async def profile_by_id(
+    id: Annotated[int, Path],
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> Profile_model:
+    """
+    Возвращает профиль пользователя по его id
+    :param id: id конкретного профиля пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: Profile_model
+    """
+    profile_model = await ProfileAdapter.get_profile_by_id(id, session)
+
+    if profile_model is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Profile with this user_id not found",
+        )
+
+    return profile_model
+
+
 async def profile_by_user_id(
     user_id: Annotated[int, Path],
     session: AsyncSession = Depends(db_connector.session_dependency),

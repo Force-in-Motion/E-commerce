@@ -71,7 +71,7 @@ class PostAdapter:
             return []
 
     @classmethod
-    async def get_posts_by_date(
+    async def get_added_posts_by_date(
         cls,
         date_start: Annotated[datetime, Query()],
         date_end: Annotated[datetime, Query()],

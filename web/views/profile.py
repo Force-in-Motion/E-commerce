@@ -6,7 +6,7 @@ from service.database.models import Profile as ProfileModel
 from service.database.crud import ProfileAdapter
 from service.database import db_connector
 from web.schemas import ProfileOutput, ProfileInput
-from tools import profile_by_user_id
+from tools import profile_by_user_id, profile_by_id
 
 router = APIRouter()
 
@@ -27,10 +27,24 @@ async def get_profiles(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.get("/{id}", response_model=ProfileOutput, status_code=status.HTTP_200_OK)
+async def get_profile_by_id(
+    profile: ProfileOutput = Depends(profile_by_id),
+) -> ProfileOutput:
+    """
+    Обрабатывает запрос с фронт энда на получение профиля пользователя по его id
+    :param profile: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
+    :return: Профиль конкретного пользователя
+    """
+    return profile
+
+
+# response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get("/{user_id}", response_model=ProfileOutput, status_code=status.HTTP_200_OK)
 async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_user_id)):
     """
-    Обрабатывает запрос с фронт энда на получение профиля пользователя по его id
+    Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
     :param profile: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
     :return: Профиль конкретного пользователя
     """

@@ -27,6 +27,23 @@ class ProfileAdapter:
         except SQLAlchemyError:
             return []
 
+    @staticmethod
+    async def get_profile_by_id(
+        id: int, session: AsyncSession
+    ) -> Optional[Profile_model]:
+        """
+        Возвращает профиль по его id
+        :param id: id профиля в БД
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: модель конкретного профиля
+        """
+        try:
+            result = await session.get(Profile_model, id)
+            return result
+
+        except SQLAlchemyError:
+            return None
+
     @classmethod
     async def get_profile_by_user_id(
         cls,
