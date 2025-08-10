@@ -15,7 +15,11 @@ router = APIRouter()
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/", response_model=list[PostOutput], status_code=status.HTTP_200_OK)
+@router.get(
+    "/",
+    response_model=list[PostOutput],
+    status_code=status.HTTP_200_OK,
+)
 async def get_posts(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[PostOutput]:
@@ -29,10 +33,18 @@ async def get_posts(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/date", response_model=PostOutput, status_code=status.HTTP_201_CREATED)
+@router.get(
+    "/date",
+    response_model=PostOutput,
+    status_code=status.HTTP_201_CREATED,
+)
 async def get_posts_by_date(
-    date_start: datetime = Query(),
-    date_end: datetime = Query(),
+    date_start: datetime = Query(
+        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
+    ),
+    date_end: datetime = Query(
+        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
+    ),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[PostOutput]:
     """
@@ -47,7 +59,11 @@ async def get_posts_by_date(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{id}", response_model=PostOutput, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{id}",
+    response_model=PostOutput,
+    status_code=status.HTTP_200_OK,
+)
 async def get_post_by_id(
     post: PostOutput = Depends(post_by_id),
 ) -> PostOutput:
@@ -61,7 +77,11 @@ async def get_post_by_id(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{user_id}", response_model=PostOutput, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{user_id}",
+    response_model=PostOutput,
+    status_code=status.HTTP_200_OK,
+)
 async def get_posts_by_user_id(
     posts: list[PostOutput] = Depends(posts_by_user_id),
 ) -> list[PostOutput]:
@@ -75,7 +95,11 @@ async def get_posts_by_user_id(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=dict,
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_post(
     post_input: PostInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -91,7 +115,11 @@ async def add_post(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.put("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def update_post(
     post_input: PostInput,
     post_model: Post_model = Depends(post_by_id),
@@ -109,7 +137,11 @@ async def update_post(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.patch("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.patch(
+    "/{id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def update_post(
     post_input: PostInput,
     post_model: Post_model = Depends(post_by_id),
@@ -127,7 +159,11 @@ async def update_post(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete("/clear", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/clear",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def clear_posts(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
@@ -141,7 +177,11 @@ async def clear_posts(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/{id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def delete_post(
     post_model: Post_model = Depends(post_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),

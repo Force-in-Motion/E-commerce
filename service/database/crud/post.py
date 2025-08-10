@@ -1,9 +1,9 @@
-from datetime import date, datetime
-from math import trunc
-from typing import Annotated, Any, Coroutine, Optional
+from datetime import datetime
 
-from fastapi import Query, HTTPException
-from sqlalchemy import select, Row, and_, delete, text
+from typing import Optional
+
+from fastapi import HTTPException, status
+from sqlalchemy import select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -73,8 +73,8 @@ class PostAdapter:
     @classmethod
     async def get_added_posts_by_date(
         cls,
-        date_start: Annotated[datetime, Query()],
-        date_end: Annotated[datetime, Query()],
+        date_start: datetime,
+        date_end: datetime,
         session: AsyncSession,
     ) -> list[Post_model]:
         """
@@ -85,8 +85,10 @@ class PostAdapter:
         :return: список всех постов пользователей, добавленных за указанный интервал времени
         """
         if date_start >= date_end:
-            raise ValueError("date_start must be less than date_end")
-
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="date_start must be less than date_end",
+            )
         try:
             request = (
                 select(Post_model)

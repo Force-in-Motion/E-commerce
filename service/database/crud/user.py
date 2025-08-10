@@ -1,5 +1,5 @@
-from datetime import datetime, time
-from fastapi import HTTPException, Query
+from datetime import datetime
+from fastapi import HTTPException, Query, status
 
 from sqlalchemy import select, text, delete
 from sqlalchemy.exc import SQLAlchemyError
@@ -48,8 +48,8 @@ class UserAdapter:
     async def get_added_users_by_date(
         cls,
         session: AsyncSession,
-        date_start: datetime = Query(),
-        date_end: datetime = Query(),
+        date_start: datetime,
+        date_end: datetime,
     ) -> list[User_model]:
         """
         Возвращает список всех пользователей, добавленных за указанный интервал времени
@@ -59,7 +59,10 @@ class UserAdapter:
         :return: список всех пользователей, добавленных за указанный интервал времени
         """
         if date_start >= date_end:
-            raise ValueError("date_start must be less than date_end")
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="date_start must be less than date_end",
+            )
 
         try:
             request = (

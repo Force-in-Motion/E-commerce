@@ -1,7 +1,7 @@
-from datetime import datetime, time
+from datetime import datetime
 from typing import Optional
 
-from fastapi import HTTPException
+from fastapi import HTTPException, status
 from sqlalchemy import select, Select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -63,27 +63,33 @@ class ProfileAdapter:
     async def get_added_profiles_by_date(
         cls,
         session: AsyncSession,
-        date: datetime,
+        date_start: datetime,
+        date_end: datetime,
     ) -> list[Profile_model]:
         """
         Возвращает список всех профилей пользователей, добавленных за указанный интервал времени
         :param session: Объект сессии, полученный в качестве аргумента
-        :param date: полученный интервал времени
+        :param date_start: начало интервала времени
+        :param date_end: окончание интервала времени
         :return: список всех профилей пользователей, добавленных за указанный интервал времени
         """
-        start_of_day = datetime.combine(date, time(0, 0, 0))
-        end_of_day = datetime.combine(date, time(23, 59, 59))
+        if date_start >= date_end:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="date_start must be less than date_end",
+            )
 
         try:
-            request = select(Profile_model).where(
-                Profile_model.created_at.between(start_of_day, end_of_day)
+            request = (
+                select(Profile_model)
+                .where(Profile_model.created_at.between(date_start, date_end))
+                .order_by(Profile_model.created_at.desc())
             )
-            response = await session.execute(request)
-            profiles = response.scalars().all()
-            return list(profiles)
+
+            result = await session.execute(request)
+            return list(result.scalars().all())
 
         except SQLAlchemyError:
-            await session.rollback()
             return []
 
     @classmethod
