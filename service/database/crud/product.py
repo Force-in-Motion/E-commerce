@@ -65,14 +65,14 @@ class ProductAdapter:
         try:
             request = (
                 select(Product_model)
-                .where(Product_model.)
+                .where(Product_model.created_at.between(date_start, date_end))
+                .order_by(Product_model.created_at.desc())
             )
+            result = await session.execute(request)
+            return list(result.scalars().all())
 
-
-
-
-
-
+        except SQLAlchemyError:
+            return []
 
     @classmethod
     async def add_product(
