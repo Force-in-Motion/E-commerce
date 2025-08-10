@@ -14,7 +14,11 @@ router = APIRouter()
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
+@router.get(
+    "/",
+    response_model=list[UserOutput],
+    status_code=status.HTTP_200_OK,
+)
 async def get_users(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[UserOutput]:
@@ -28,7 +32,11 @@ async def get_users(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{id}", response_model=UserOutput, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{id}",
+    response_model=UserOutput,
+    status_code=status.HTTP_200_OK,
+)
 async def get_user_by_id(
     user: UserOutput = Depends(user_by_id),
 ) -> UserOutput:
@@ -42,10 +50,18 @@ async def get_user_by_id(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/date", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
+@router.get(
+    "/date",
+    response_model=list[UserOutput],
+    status_code=status.HTTP_200_OK,
+)
 async def get_users_by_date(
-    date_start: datetime = Query(),
-    date_end: datetime = Query(),
+    date_start: datetime = Query(
+        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
+    ),
+    date_end: datetime = Query(
+        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
+    ),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[UserOutput]:
     """
@@ -60,7 +76,11 @@ async def get_users_by_date(
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=dict,
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_user(
     user: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -76,7 +96,11 @@ async def add_user(
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.put("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def update_user(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
@@ -94,7 +118,11 @@ async def update_user(
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.patch("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.patch(
+    "/{id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def update_user_partial(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
@@ -110,7 +138,11 @@ async def update_user_partial(
     return await UserAdapter.update_user(user_input, user_model, session, partial=True)
 
 
-@router.delete("/clear", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/clear",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def clear_users(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
@@ -124,7 +156,11 @@ async def clear_users(
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete("/{id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/{id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def del_user(
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
