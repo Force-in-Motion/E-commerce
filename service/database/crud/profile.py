@@ -12,7 +12,10 @@ from web.schemas import ProfileInput
 class ProfileAdapter:
 
     @classmethod
-    async def get_profiles(cls, session: AsyncSession) -> list[Profile_model]:
+    async def get_profiles(
+        cls,
+        session: AsyncSession,
+    ) -> list[Profile_model]:
         """
         Возвращает все профили, существующие в БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -29,7 +32,8 @@ class ProfileAdapter:
 
     @staticmethod
     async def get_profile_by_id(
-        id: int, session: AsyncSession
+        id: int,
+        session: AsyncSession,
     ) -> Optional[Profile_model]:
         """
         Возвращает профиль по его id
@@ -114,15 +118,22 @@ class ProfileAdapter:
                 profile_model = Profile_model(**profile_input.model_dump())
                 session.add(profile_model)
                 await session.commit()
-                return {"status": "ok", "detail": "Profile has been added"}
+                return {
+                    "status": "ok",
+                    "detail": "Profile has been added",
+                }
 
             except SQLAlchemyError:
                 await session.rollback()
-                raise HTTPException(status_code=500, detail="Error added Profile")
+                raise HTTPException(
+                    status_code=500,
+                    detail="Error added Profile",
+                )
 
         else:
             raise HTTPException(
-                status_code=500, detail="Error user profile already exists"
+                status_code=500,
+                detail="Error user profile already exists",
             )
 
     @classmethod
@@ -138,7 +149,7 @@ class ProfileAdapter:
         :param session: Объект сессии, полученный в качестве аргумента
         :param profile_input: ProfileInput - объект, содержащий данные профиля пользователя
         :param profile_model: Profile_model -конкретный объект в БД, найденный по id
-        :param partial: partial: Флаг, передаваем значение True или False,
+        :param partial: partial: Флаг, передаваемое значение True или False,
                значение передается в метод model_dump(exclude_unset=partial),
                параметр exclude_unset означает - "То, что не было передано, исключить",
                по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
@@ -152,15 +163,23 @@ class ProfileAdapter:
                     setattr(profile_model, key, value)
 
             await session.commit()
-            return {"status": "ok", "detail": "Profile has been updated"}
+            return {
+                "status": "ok",
+                "detail": "Profile has been updated",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error updated Profile")
+            raise HTTPException(
+                status_code=500,
+                detail="Error updated Profile",
+            )
 
     @classmethod
     async def del_profile(
-        cls, session: AsyncSession, profile_model: Profile_model
+        cls,
+        session: AsyncSession,
+        profile_model: Profile_model,
     ) -> dict[str, str]:
         """
         Удаляет профиль из БД
@@ -171,11 +190,17 @@ class ProfileAdapter:
         try:
             await session.delete(profile_model)
             await session.commit()
-            return {"status": "ok", "detail": "Profile has been deleted"}
+            return {
+                "status": "ok",
+                "detail": "Profile has been deleted",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error deleted Profile")
+            raise HTTPException(
+                status_code=500,
+                detail="Error deleted Profile",
+            )
 
     @classmethod
     async def clear_profile_db(cls, session: AsyncSession) -> dict[str, str]:
@@ -190,8 +215,14 @@ class ProfileAdapter:
                 text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
             )
             await session.commit()
-            return {"status": "ok", "detail": "All Profiles have been deleted"}
+            return {
+                "status": "ok",
+                "detail": "All Profiles have been deleted",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error deleted all Profiles")
+            raise HTTPException(
+                status_code=500,
+                detail="Error deleted all Profiles",
+            )

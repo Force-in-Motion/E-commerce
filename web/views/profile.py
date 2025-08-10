@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import Profile as ProfileModel
 from service.database.crud import ProfileAdapter
@@ -13,7 +13,11 @@ router = APIRouter()
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/", response_model=list[ProfileOutput], status_code=status.HTTP_200_OK)
+@router.get(
+    "/",
+    response_model=list[ProfileOutput],
+    status_code=status.HTTP_200_OK,
+)
 async def get_profiles(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[ProfileOutput]:
@@ -27,7 +31,11 @@ async def get_profiles(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{id}", response_model=ProfileOutput, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{id}",
+    response_model=ProfileOutput,
+    status_code=status.HTTP_200_OK,
+)
 async def get_profile_by_id(
     profile: ProfileOutput = Depends(profile_by_id),
 ) -> ProfileOutput:
@@ -41,7 +49,11 @@ async def get_profile_by_id(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{user_id}", response_model=ProfileOutput, status_code=status.HTTP_200_OK)
+@router.get(
+    "/{user_id}",
+    response_model=ProfileOutput,
+    status_code=status.HTTP_200_OK,
+)
 async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_user_id)):
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
@@ -54,24 +66,38 @@ async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_use
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/{date}", response_model=list[ProfileOutput], status_code=status.HTTP_200_OK
+    "/date",
+    response_model=list[ProfileOutput],
+    status_code=status.HTTP_200_OK,
 )
 async def get_profiles_by_date(
-    date: datetime,
+    date_start: datetime = Query(
+        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
+    ),
+    date_end: datetime = Query(
+        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
+    ),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[ProfileOutput]:
     """
     Возвращает всех добавленных в БД пользователей за указанный интервал времени
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :param date: конкретная дата, по которой нужно распарсить всех пользователей
+        :param date_start: начало интервала времени
+    :param date_end: окончание интервала времени
     :return: Список пользователей за указанную дату
     """
-    return await ProfileAdapter.get_added_profiles_by_date(session, date)
+    return await ProfileAdapter.get_added_profiles_by_date(
+        session, date_start, date_end
+    )
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.post("/", response_model=dict, status_code=status.HTTP_201_CREATED)
+@router.post(
+    "/",
+    response_model=dict,
+    status_code=status.HTTP_201_CREATED,
+)
 async def add_profile(
     profile_input: ProfileInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -87,7 +113,11 @@ async def add_profile(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.put("/{user_id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.put(
+    "/{user_id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def update_profile(
     profile_input: ProfileInput,
     profile_model: ProfileModel = Depends(profile_by_user_id),
@@ -105,7 +135,11 @@ async def update_profile(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.patch("/{user_id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.patch(
+    "/{user_id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def update_profile_partial(
     profile_input: ProfileInput,
     profile_model: ProfileModel = Depends(profile_by_user_id),
@@ -125,7 +159,11 @@ async def update_profile_partial(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete("/clear", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/clear",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def clear_profiles(
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
@@ -139,7 +177,11 @@ async def clear_profiles(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete("/{user_id}", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete(
+    "/{user_id}",
+    response_model=dict,
+    status_code=status.HTTP_200_OK,
+)
 async def del_profile(
     profile_model: ProfileModel = Depends(profile_by_user_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
