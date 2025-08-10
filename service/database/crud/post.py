@@ -1,8 +1,8 @@
 from datetime import date, datetime
-from typing import Annotated
+from typing import Annotated, Any, Coroutine
 
 from fastapi import Query
-from sqlalchemy import select
+from sqlalchemy import select, Row
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -20,19 +20,33 @@ class PostAdapter:
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех постов пользователей
         """
+        try:
+            request = select(Post_model).order_by(Post_model.id)
+            response = await session.execute(request)
+            posts = response.scalars().all()
+            return list(posts)
+
+        except SQLAlchemyError:
+            return []
 
     @classmethod
     async def get_post_by_id(
         cls,
         session: AsyncSession,
         id: int,
-    ) -> Post_model:
+    ) -> Post_model | None:
         """
         Возвращает конкретный пост, найденный по id
         :param session: Объект сессии, полученный в качестве аргумента
         :param id: id конкретного поста
         :return: один пост
         """
+        try:
+            result = await session.get(Post_model, id)
+            return result
+
+        except SQLAlchemyError:
+            return None
 
     @classmethod
     async def get_posts_by_user_id(

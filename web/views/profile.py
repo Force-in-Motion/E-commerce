@@ -40,7 +40,7 @@ async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_use
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/date{date}", response_model=list[ProfileOutput], status_code=status.HTTP_200_OK
+    "/{date}", response_model=list[ProfileOutput], status_code=status.HTTP_200_OK
 )
 async def get_profiles_by_date(
     date: datetime,
@@ -91,7 +91,7 @@ async def update_profile(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.patch("/user_id", response_model=dict, status_code=status.HTTP_200_OK)
+@router.patch("/{user_id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def update_profile_partial(
     profile_input: ProfileInput,
     profile_model: ProfileModel = Depends(profile_by_user_id),
@@ -125,7 +125,7 @@ async def clear_profiles(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete("/user_id", response_model=dict, status_code=status.HTTP_200_OK)
+@router.delete("/{user_id}", response_model=dict, status_code=status.HTTP_200_OK)
 async def del_profile(
     profile_model: ProfileModel = Depends(profile_by_user_id),
     session: AsyncSession = Depends(db_connector.session_dependency),

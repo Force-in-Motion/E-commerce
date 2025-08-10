@@ -33,7 +33,7 @@ class ProfileAdapter:
         cls,
         session: AsyncSession,
         id: int,
-    ) -> Mapped[Profile_model] | None:
+    ) -> Profile_model | None:
         """
         Возвращает профиль, соответствующий id пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
