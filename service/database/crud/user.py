@@ -1,5 +1,5 @@
 from datetime import datetime, time
-from fastapi import HTTPException
+from fastapi import HTTPException, Query
 
 from sqlalchemy import select, text, delete
 from sqlalchemy.exc import SQLAlchemyError
@@ -48,24 +48,27 @@ class UserAdapter:
     async def get_added_users_by_date(
         cls,
         session: AsyncSession,
-        date: datetime,
+        date_start: datetime = Query(),
+        date_end: datetime = Query(),
     ) -> list[User_model]:
         """
         Возвращает список всех пользователей, добавленных за указанный интервал времени
         :param session: Объект сессии, полученный в качестве аргумента
-        :param date: полученный интервал времени
+        :param date_start: начало интервала времени
+        :param date_end: окончание интервала времени
         :return: список всех пользователей, добавленных за указанный интервал времени
         """
-        start_of_day = datetime.combine(date, time(0, 0, 0))
-        end_of_day = datetime.combine(date, time(23, 59, 59))
+        if date_start >= date_end:
+            raise ValueError("date_start must be less than date_end")
 
         try:
-            request = select(User_model).where(
-                User_model.created_at.between(start_of_day, end_of_day)
+            request = (
+                select(User_model)
+                .where(User_model.created_at.between(date_start, date_end))
+                .order_by(User_model.created_at.desc())
             )
             response = await session.execute(request)
-            users = response.scalars().all()
-            return list(users)
+            return list(response.scalars().all())
 
         except SQLAlchemyError:
             await session.rollback()

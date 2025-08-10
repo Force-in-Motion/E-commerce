@@ -29,7 +29,7 @@ async def get_posts(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/{date}", response_model=PostOutput, status_code=status.HTTP_201_CREATED)
+@router.get("/date", response_model=PostOutput, status_code=status.HTTP_201_CREATED)
 async def get_posts_by_date(
     date_start: datetime = Query(),
     date_end: datetime = Query(),

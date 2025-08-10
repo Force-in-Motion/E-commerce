@@ -1,13 +1,14 @@
 from datetime import date, datetime
-from typing import Annotated, Any, Coroutine
+from math import trunc
+from typing import Annotated, Any, Coroutine, Optional
 
-from fastapi import Query
-from sqlalchemy import select, Row
+from fastapi import Query, HTTPException
+from sqlalchemy import select, Row, and_, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database.models import Post as Post_model
+from service.database.models import Post as Post_model, User as User_model
 from web.schemas import PostInput
 
 
@@ -34,7 +35,7 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         id: int,
-    ) -> Post_model | None:
+    ) -> Optional[Post_model]:
         """
         Возвращает конкретный пост, найденный по id
         :param session: Объект сессии, полученный в качестве аргумента
@@ -60,6 +61,14 @@ class PostAdapter:
         :param id: id конкретного пользователя
         :return: список всех постов конкретного пользователя
         """
+        try:
+            request = select(Post_model).where(Post_model.user_id == id)
+            response = await session.execute(request)
+            posts = response.scalars().all()
+            return list(posts)
+
+        except SQLAlchemyError:
+            return []
 
     @classmethod
     async def get_posts_by_date(
@@ -69,12 +78,27 @@ class PostAdapter:
         session: AsyncSession,
     ) -> list[Post_model]:
         """
-        Возвращает посты, соответствующие полученному интервалу времени и их создателей
+        Возвращает посты, соответствующие полученному интервалу времени
         :param date_start: начало интервала времени
         :param date_end: окончание интервала времени
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех постов пользователей за указанный интервал времени
         """
+        if date_start >= date_end:
+            raise ValueError("date_start must be less than date_end")
+
+        try:
+            request = (
+                select(Post_model)
+                .where(Post_model.created_at.between(date_start, date_end))
+                .order_by(Post_model.created_at.desc())
+            )
+
+            result = await session.execute(request)
+            return list(result.scalars().all())
+
+        except SQLAlchemyError:
+            return []
 
     @classmethod
     async def add_post(
@@ -88,6 +112,15 @@ class PostAdapter:
         :param post_input: PostInput - объект, содержащий данные поста пользователя
         :return: dict
         """
+        try:
+            post_model = Post_model(**post_input.model_dump())
+            session.add(post_model)
+            await session.commit()
+            return {"status": "ok", "detail": "Post has been added"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail="Error added User")
 
     @classmethod
     async def update_post(
@@ -110,6 +143,17 @@ class PostAdapter:
                то заменить в базе только переданные, не переданные пропустить
         :return: dict
         """
+        try:
+            for key, value in post_input.model_dump(exclude_unset=partial).items():
+                if value is not None:
+                    setattr(post_model, key, value)
+
+            await session.commit()
+            return {"status": "ok", "detail": "Post has been updated"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail="Error updated Post")
 
     @classmethod
     async def clear_posts(
@@ -121,6 +165,17 @@ class PostAdapter:
         :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
+        try:
+            await session.execute(delete(Post_model))
+            await session.execute(
+                text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
+            )
+            await session.commit()
+            return {"status": "ok", "detail": "Post has been cleared"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail="Error cleared Post")
 
     @classmethod
     async def del_post(
@@ -134,3 +189,11 @@ class PostAdapter:
         :param post_model: Post_model - конкретный объект в БД, найденный по id
         :return: dict
         """
+        try:
+            await session.execute(delete(post_model))
+            await session.commit()
+            return {"status": "ok", "detail": "Post has been deleted"}
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(status_code=500, detail="Error deleted Post")

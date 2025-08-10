@@ -1,12 +1,11 @@
 from datetime import datetime, time
+from typing import Optional
 
 from fastapi import HTTPException
 from sqlalchemy import select, Select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import Mapped
-from service.database.models import Profile as Profile_model
-from service.database.models import User as User_model
+from service.database.models import Profile as Profile_model, User as User_model
 from web.schemas import ProfileInput
 
 
@@ -33,7 +32,7 @@ class ProfileAdapter:
         cls,
         session: AsyncSession,
         id: int,
-    ) -> Profile_model | None:
+    ) -> Optional[Profile_model]:
         """
         Возвращает профиль, соответствующий id пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -60,7 +59,7 @@ class ProfileAdapter:
 
         try:
             request = select(Profile_model).where(
-                User_model.created_at.between(start_of_day, end_of_day)
+                Profile_model.created_at.between(start_of_day, end_of_day)
             )
             response = await session.execute(request)
             profiles = response.scalars().all()

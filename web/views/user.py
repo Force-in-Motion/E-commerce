@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from service.database import db_connector
@@ -28,7 +28,7 @@ async def get_users(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get("/id{id}", response_model=UserOutput, status_code=status.HTTP_200_OK)
+@router.get("/{id}", response_model=UserOutput, status_code=status.HTTP_200_OK)
 async def get_user_by_id(
     user: UserOutput = Depends(user_by_id),
 ) -> UserOutput:
@@ -42,20 +42,20 @@ async def get_user_by_id(
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get(
-    "/date{date}", response_model=list[UserOutput], status_code=status.HTTP_200_OK
-)
+@router.get("/date", response_model=list[UserOutput], status_code=status.HTTP_200_OK)
 async def get_users_by_date(
-    date: datetime,
+    date_start: datetime = Query(),
+    date_end: datetime = Query(),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[UserOutput]:
     """
     Возвращает всех добавленных в БД пользователей за указанный интервал времени
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :param date: конкретная дата, по которой нужно распарсить всех пользователей
+    :param date_start: начало интервала времени
+    :param date_end: окончание интервала времени
     :return: Список пользователей за указанную дату
     """
-    return await UserAdapter.get_added_users_by_date(session, date)
+    return await UserAdapter.get_added_users_by_date(session, date_start, date_end)
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь

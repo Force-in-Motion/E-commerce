@@ -25,14 +25,14 @@ class User(Base):
     )
 
     # Позволяет получать список постов пользователя через атрибут класса posts
-    posts: Mapped[list["Post"]] = relationship(back_populates="user")
+    posts: Mapped[list["Post"]] = relationship(back_populates="user", lazy="select")
 
     # Позволяет получать профиль пользователя через атрибут класса profile
     # uselist: Указывает, является ли связь коллекцией (True для один-ко-многим, False для один-к-одному)
     # lazy="joined Выполняет LEFT OUTER JOIN при загрузке объекта, загружая связанные данные сразу
     # Для один-к-одному (User.profile) или небольших коллекций (User.posts).
     profile: Mapped["Profile"] = relationship(
-        back_populates="user", uselist=False, lazy="joined"
+        back_populates="user", uselist=False, lazy="select"
     )
 
 
