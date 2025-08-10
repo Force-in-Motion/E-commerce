@@ -14,7 +14,10 @@ from service.database.models import Product as Product_model
 class ProductAdapter:
 
     @classmethod
-    async def get_products(cls, session: AsyncSession) -> list[Product_model]:
+    async def get_products(
+        cls,
+        session: AsyncSession,
+    ) -> list[Product_model]:
         """
         Возвращает все продукты из БД
         :param session: Объект сессии, полученный в качестве аргумента

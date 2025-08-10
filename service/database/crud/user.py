@@ -11,7 +11,10 @@ from web.schemas import UserInput
 class UserAdapter:
 
     @classmethod
-    async def get_all_users(cls, session: AsyncSession) -> list[User_model]:
+    async def get_all_users(
+        cls,
+        session: AsyncSession,
+    ) -> list[User_model]:
         """
         Возвращает всех пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -93,11 +96,17 @@ class UserAdapter:
             user_model = User_model(**user_input.model_dump())
             session.add(user_model)
             await session.commit()
-            return {"status": "ok", "detail": "User has been added"}
+            return {
+                "status": "ok",
+                "detail": "User has been added",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error added User")
+            raise HTTPException(
+                status_code=500,
+                detail="Error added User",
+            )
 
     @classmethod
     async def update_user(
@@ -126,11 +135,17 @@ class UserAdapter:
                     setattr(user_model, key, value)
 
             await session.commit()
-            return {"status": "ok", "detail": "User has been updated"}
+            return {
+                "status": "ok",
+                "detail": "User has been updated",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error updated User")
+            raise HTTPException(
+                status_code=500,
+                detail="Error updated User",
+            )
 
     @classmethod
     async def del_user(
@@ -147,11 +162,17 @@ class UserAdapter:
         try:
             await session.delete(user_model)
             await session.commit()
-            return {"status": "ok", "detail": "User has been deleted"}
+            return {
+                "status": "ok",
+                "detail": "User has been deleted",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error deleted User")
+            raise HTTPException(
+                status_code=500,
+                detail="Error deleted User",
+            )
 
     @classmethod
     async def clear_user_db(cls, session: AsyncSession) -> dict[str, str]:
@@ -164,8 +185,14 @@ class UserAdapter:
             await session.execute(delete(User_model))
             await session.execute(text('ALTER SEQUENCE "User_id_seq" RESTART WITH 1'))
             await session.commit()
-            return {"status": "ok", "detail": "All users have been deleted"}
+            return {
+                "status": "ok",
+                "detail": "All users have been deleted",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error deleted all Users")
+            raise HTTPException(
+                status_code=500,
+                detail="Error deleted all Users",
+            )

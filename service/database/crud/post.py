@@ -15,7 +15,10 @@ from web.schemas import PostInput
 class PostAdapter:
 
     @classmethod
-    async def get_all_posts(cls, session: AsyncSession) -> list[Post_model]:
+    async def get_all_posts(
+        cls,
+        session: AsyncSession,
+    ) -> list[Post_model]:
         """
         Возвращает все посты, существующие в БД, и имена их создателей
         :param session: Объект сессии, полученный в качестве аргумента
@@ -118,11 +121,17 @@ class PostAdapter:
             post_model = Post_model(**post_input.model_dump())
             session.add(post_model)
             await session.commit()
-            return {"status": "ok", "detail": "Post has been added"}
+            return {
+                "status": "ok",
+                "detail": "Post has been added",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error added User")
+            raise HTTPException(
+                status_code=500,
+                detail="Error added User",
+            )
 
     @classmethod
     async def update_post(
@@ -151,11 +160,17 @@ class PostAdapter:
                     setattr(post_model, key, value)
 
             await session.commit()
-            return {"status": "ok", "detail": "Post has been updated"}
+            return {
+                "status": "ok",
+                "detail": "Post has been updated",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error updated Post")
+            raise HTTPException(
+                status_code=500,
+                detail="Error updated Post",
+            )
 
     @classmethod
     async def clear_posts(
@@ -173,11 +188,17 @@ class PostAdapter:
                 text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
             )
             await session.commit()
-            return {"status": "ok", "detail": "Post has been cleared"}
+            return {
+                "status": "ok",
+                "detail": "Post has been cleared",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error cleared Post")
+            raise HTTPException(
+                status_code=500,
+                detail="Error cleared Post",
+            )
 
     @classmethod
     async def del_post(
@@ -194,8 +215,14 @@ class PostAdapter:
         try:
             await session.execute(delete(post_model))
             await session.commit()
-            return {"status": "ok", "detail": "Post has been deleted"}
+            return {
+                "status": "ok",
+                "detail": "Post has been deleted",
+            }
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(status_code=500, detail="Error deleted Post")
+            raise HTTPException(
+                status_code=500,
+                detail="Error deleted Post",
+            )
