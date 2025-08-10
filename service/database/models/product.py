@@ -1,4 +1,6 @@
-from sqlalchemy import String, Integer
+from datetime import datetime
+
+from sqlalchemy import String, Integer, DateTime, func
 
 from service.database.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column
@@ -11,8 +13,14 @@ class Product(Base):
 
     # Описание мета информации таблицы
     name: Mapped[str] = mapped_column(String, nullable=False)
+
     description: Mapped[str] = mapped_column(String, nullable=False)
+
     price: Mapped[int] = mapped_column(Integer, nullable=False)
+
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), server_default=func.now()
+    )
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,

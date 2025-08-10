@@ -82,7 +82,7 @@ class PostAdapter:
         :param date_start: начало интервала времени
         :param date_end: окончание интервала времени
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: список всех постов пользователей за указанный интервал времени
+        :return: список всех постов пользователей, добавленных за указанный интервал времени
         """
         if date_start >= date_end:
             raise ValueError("date_start must be less than date_end")

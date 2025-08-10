@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated
 
 from fastapi import Path, HTTPException
@@ -43,6 +44,35 @@ class ProductAdapter:
 
         except SQLAlchemyError:
             return None
+
+    @classmethod
+    async def get_added_product_by_date(
+        cls,
+        date_start: datetime,
+        date_end: datetime,
+        session: AsyncSession,
+    ) -> list[Product_model]:
+        """
+        Возвращает продукты, добавленные в указанный интервал времени
+        :param date_start: начало интервала времени
+        :param date_end: окончание интервала времени
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: список всех продуктов, добавленных за указанный интервал времени
+        """
+        if date_start >= date_end:
+            raise ValueError("date_start must be less than date_end")
+
+        try:
+            request = (
+                select(Product_model)
+                .where(Product_model.)
+            )
+
+
+
+
+
+
 
     @classmethod
     async def add_product(
