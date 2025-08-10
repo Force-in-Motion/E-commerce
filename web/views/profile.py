@@ -42,7 +42,7 @@ async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_use
 @router.get(
     "/date{date}", response_model=list[ProfileOutput], status_code=status.HTTP_200_OK
 )
-async def get_users_by_date(
+async def get_profiles_by_date(
     date: datetime,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[ProfileOutput]:

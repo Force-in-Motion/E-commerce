@@ -1,4 +1,7 @@
-from datetime import date
+from datetime import date, datetime
+from typing import Annotated
+
+from fastapi import Query
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 
@@ -47,12 +50,14 @@ class PostAdapter:
     @classmethod
     async def get_posts_by_date(
         cls,
+        date_start: Annotated[datetime, Query()],
+        date_end: Annotated[datetime, Query()],
         session: AsyncSession,
-        input_date: date,
     ) -> list[Post_model]:
         """
         Возвращает посты, соответствующие полученному интервалу времени и их создателей
-        :param input_date: полученный интервал времени
+        :param date_start: начало интервала времени
+        :param date_end: окончание интервала времени
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех постов пользователей за указанный интервал времени
         """
@@ -89,6 +94,17 @@ class PostAdapter:
                по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
                то заменятся только переданные данные объекта. То есть если переданы не все поля объекта UserInput,
                то заменить в базе только переданные, не переданные пропустить
+        :return: dict
+        """
+
+    @classmethod
+    async def clear_posts(
+        cls,
+        session: AsyncSession,
+    ) -> dict[str, str]:
+        """
+        Удаляет все посты пользователей из БД
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
 
