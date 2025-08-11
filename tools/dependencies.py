@@ -16,7 +16,7 @@ from web.schemas import PostOutput
 
 
 async def product_by_id(
-    id: Annotated[int, Path],
+    id: Annotated[int, Path(..., description="Product id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Product_model:
     """
@@ -37,7 +37,7 @@ async def product_by_id(
 
 
 async def user_by_id(
-    user_id: Annotated[int, Path],
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> User_model:
     """
@@ -57,7 +57,7 @@ async def user_by_id(
 
 
 async def profile_by_id(
-    id: Annotated[int, Path],
+    id: Annotated[int, Path(..., description="Profile id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Profile_model:
     """
@@ -78,7 +78,7 @@ async def profile_by_id(
 
 
 async def profile_by_user_id(
-    user_id: Annotated[int, Path],
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Profile_model:
     """
@@ -99,7 +99,7 @@ async def profile_by_user_id(
 
 
 async def post_by_id(
-    id: Annotated[int, Path],
+    id: Annotated[int, Path(..., description="Post id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Post_model:
     """
@@ -119,7 +119,7 @@ async def post_by_id(
 
 
 async def posts_by_user_id(
-    user_id: Annotated[int, Path],
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[Post_model]:
     """

@@ -29,6 +29,6 @@ class ProfileOutput(ProfileInput):
     полученных из БД и формировать из них объекты ProfileOutput для возврата клиенту"""
 
     model_config = ConfigDict(from_attributes=True)
-
+    user_id: Annotated[int, Ge(1)]
     id: Annotated[int, Ge(1)]
     created_at: datetime
