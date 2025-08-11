@@ -14,7 +14,6 @@ class ProfileInput(BaseModel):
     полученных от пользователя"""
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
-    user_id: Annotated[int, Ge(1)]
     floor: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
     age: Optional[Annotated[int, Ge(7), Le(120)]] = None
     married: Optional[bool] = None

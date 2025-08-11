@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status, Depends, Query
+from fastapi import APIRouter, status, Depends, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 from service.database.models import Profile as ProfileModel
 from service.database.crud import ProfileAdapter
@@ -27,6 +27,38 @@ async def get_profiles(
     :return: Список всех профилей пользователей
     """
     return await ProfileAdapter.get_profiles(session)
+
+
+# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.get(
+    "/date",
+    response_model=list[ProfileOutput],
+    status_code=status.HTTP_200_OK,
+)
+async def get_profiles_by_date(
+    date_start: datetime = Query(
+        ...,
+        description="Start date (формат: YYYY-MM-DD HH:MM:SS)",
+    ),
+    date_end: datetime = Query(
+        ...,
+        description="End date (формат: YYYY-MM-DD HH:MM:SS)",
+    ),
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> list[ProfileOutput]:
+    """
+    Возвращает всех добавленных в БД пользователей за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :param date_start: начало интервала времени
+    :param date_end: окончание интервала времени
+    :return: Список пользователей за указанную дату
+    """
+    return await ProfileAdapter.get_added_profiles_by_date(
+        session,
+        date_start,
+        date_end,
+    )
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
@@ -65,34 +97,6 @@ async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_use
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get(
-    "/date",
-    response_model=list[ProfileOutput],
-    status_code=status.HTTP_200_OK,
-)
-async def get_profiles_by_date(
-    date_start: datetime = Query(
-        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
-    date_end: datetime = Query(
-        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
-    session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[ProfileOutput]:
-    """
-    Возвращает всех добавленных в БД пользователей за указанный интервал времени
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :param date_start: начало интервала времени
-    :param date_end: окончание интервала времени
-    :return: Список пользователей за указанную дату
-    """
-    return await ProfileAdapter.get_added_profiles_by_date(
-        session, date_start, date_end
-    )
-
-
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/",
     response_model=dict,
@@ -119,7 +123,7 @@ async def add_profile(
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
-    profile_input: ProfileInput,
+    profile_input: ProfileInput = Path(..., description="New data user profile"),
     profile_model: ProfileModel = Depends(profile_by_user_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
@@ -130,7 +134,11 @@ async def update_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileAdapter.update_profile(session, profile_input, profile_model)
+    return await ProfileAdapter.update_profile(
+        session,
+        profile_input,
+        profile_model,
+    )
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -153,7 +161,10 @@ async def update_profile_partial(
     :return: dict
     """
     return await ProfileAdapter.update_profile(
-        session, profile_input, profile_model, partial=True
+        session,
+        profile_input,
+        profile_model,
+        partial=True,
     )
 
 

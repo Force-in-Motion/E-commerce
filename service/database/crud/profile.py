@@ -5,6 +5,8 @@ from fastapi import HTTPException, status
 from sqlalchemy import select, Select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
+
 from service.database.models import Profile as Profile_model, User as User_model
 from web.schemas import ProfileInput
 
@@ -60,8 +62,13 @@ class ProfileAdapter:
         :param id: id конкретного пользователя
         :return: модель конкретного профиля
         """
-        response = await session.get(User_model, id)
-        return response.profile if response else None
+        try:
+            request = select(Profile_model).where(Profile_model.user_id == id)
+            response = await session.execute(request)
+            return response.scalars().first()
+
+        except SQLAlchemyError:
+            return None
 
     @classmethod
     async def get_added_profiles_by_date(
