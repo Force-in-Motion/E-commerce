@@ -16,31 +16,47 @@ class Profile(Base):
 
     # Описание мета информации таблицы
     floor: Mapped[str] = mapped_column(
-        String, nullable=True, default=None, server_default=None
+        String,
+        nullable=True,
+        default=None,
+        server_default=None,
     )
     age: Mapped[int] = mapped_column(
-        Integer, nullable=True, default=None, server_default=None
+        Integer,
+        nullable=True,
+        default=None,
+        server_default=None,
     )
     married: Mapped[bool] = mapped_column(
-        Boolean, nullable=True, default=None, server_default=None
+        Boolean,
+        nullable=True,
+        default=None,
+        server_default=None,
     )
     bio: Mapped[str] = mapped_column(
-        String, nullable=True, default=None, server_default=None
+        String,
+        nullable=True,
+        default=None,
+        server_default=None,
     )
 
     # Автоматически записывает дату создания профиля пользователя
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+        DateTime(timezone=True),
+        server_default=func.now(),
     )
 
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
-    # ondelete="CASCADE" Говорит о том, что при удалении пользователя с указанным id удалится и его профиль, на который ссылается эта запись через ForeignKey
-    # Удаление записи из Profile (например, профиля с user_id=1) не влияет на таблицу User. Внешний ключ и ON DELETE CASCADE работают только в направлении от родительской таблицы (User) к дочерней (Profile).
-    # Это означает, что пользователь с id=1 останется в таблице User, даже если его профиль удален.
-    user_id: Mapped[int] = mapped_column(ForeignKey("User.id", ondelete="CASCADE"))
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("User.id", ondelete="CASCADE"),
+        unique=True,
+    )
 
     # Позволяет получать профиль пользователя через атрибут класса user
-    user: Mapped["User"] = relationship(back_populates="profile")
+    user: Mapped["User"] = relationship(
+        back_populates="profile",
+        uselist=False,
+    )
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
@@ -59,3 +75,8 @@ class Profile(Base):
 
 # Это говорит SQLAlchemy, что у объекта Post есть атрибут user, который возвращает объект User, связанный с этим постом.
 # back_populates="posts" указывает обратную связь: в модели User есть атрибут posts, который ссылается на объект User.
+
+
+# ondelete="CASCADE" Говорит о том, что при удалении пользователя с указанным id удалится и его профиль, на который ссылается эта запись через ForeignKey
+# Удаление записи из Profile (например, профиля с user_id=1) не влияет на таблицу User. Внешний ключ и ON DELETE CASCADE работают только в направлении от родительской таблицы (User) к дочерней (Profile).
+# Это означает, что пользователь с id=1 останется в таблице User, даже если его профиль удален.

@@ -15,9 +15,19 @@ class User(Base):
     __tablename__ = "User"  # Название таблицы в БД
 
     # Описание мета информации таблицы
-    name: Mapped[str] = mapped_column(String, nullable=False)
-    address: Mapped[str] = mapped_column(String(150), nullable=False)
-    email: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
+    address: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+    email: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        unique=True,
+    )
 
     # Автоматически записывает дату создания пользователя
     created_at: Mapped[datetime] = mapped_column(
@@ -25,14 +35,18 @@ class User(Base):
     )
 
     # Позволяет получать список постов пользователя через атрибут класса posts
-    posts: Mapped[list["Post"]] = relationship(back_populates="user", lazy="select")
+    posts: Mapped[list["Post"]] = relationship(
+        back_populates="user",
+        lazy="select",
+        cascade="all, delete-orphan",
+    )
 
     # Позволяет получать профиль пользователя через атрибут класса profile
-    # uselist: Указывает, является ли связь коллекцией (True для один-ко-многим, False для один-к-одному)
-    # lazy="joined Выполняет LEFT OUTER JOIN при загрузке объекта, загружая связанные данные сразу
-    # Для один-к-одному (User.profile) или небольших коллекций (User.posts).
     profile: Mapped["Profile"] = relationship(
-        back_populates="user", uselist=False, lazy="select"
+        back_populates="user",
+        uselist=False,  # uselist: Указывает, является ли связь коллекцией (True для один-ко-многим, False для один-к-одному)
+        lazy="select",
+        cascade="all, delete",
     )
 
 
@@ -52,3 +66,10 @@ class User(Base):
 
 # Это говорит SQLAlchemy, что у объекта User есть атрибут posts, который возвращает список объектов Post, связанных с этим пользователем.
 # back_populates="user" указывает обратную связь: в модели Post есть атрибут user, который ссылается на объект User.
+
+# cascade="all, delete-orphan", Это настройка в relationship на стороне родительской таблицы (User), которая управляет каскадом при операциях с объектами в сессии (например, session.delete(user)).
+# Она определяет, что делать с связанными объектами в памяти. Это обеспечивает, что связанные объекты (posts, profile) удаляются в памяти Python и синхронизируются с БД.
+# предназначен для коллекций (один-ко-многим, как posts), а не для отношений один-к-одному (profile)
+
+# cascade="all, delete" Используется для каскадного удаления при связи один к одному.
+# lazy="joined Выполняет LEFT OUTER JOIN при загрузке объекта, загружая связанные данные сразу. # Для один-к-одному (User.profile) или небольших коллекций (User.posts).
