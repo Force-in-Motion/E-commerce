@@ -2,11 +2,12 @@ from datetime import datetime
 
 from fastapi import APIRouter, status, Depends, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
-from service.database.models import Profile as ProfileModel
-from service.database.crud import ProfileAdapter
+
 from service.database import db_connector
+from service.database.crud import ProfileAdapter
+from service.database.models import Profile as ProfileModel, User as UserModel
+from tools import profile_by_user_id, profile_by_id, user_by_id, date_checker
 from web.schemas import ProfileOutput, ProfileInput
-from tools import profile_by_user_id, profile_by_id
 
 router = APIRouter()
 
@@ -37,34 +38,38 @@ async def get_profiles(
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles_by_date(
-    date_start: datetime = Query(
-        ...,
-        description="Start date (формат: YYYY-MM-DD HH:MM:SS)",
-    ),
-    date_end: datetime = Query(
-        ...,
-        description="End date (формат: YYYY-MM-DD HH:MM:SS)",
-    ),
+    dates: tuple[datetime, datetime] = Depends(date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[ProfileOutput]:
     """
     Возвращает всех добавленных в БД пользователей за указанный интервал времени
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :param date_start: начало интервала времени
-    :param date_end: окончание интервала времени
+    :param dates: окончание интервала времени
     :return: Список пользователей за указанную дату
     """
-    return await ProfileAdapter.get_added_profiles_by_date(
-        session,
-        date_start,
-        date_end,
-    )
+    return await ProfileAdapter.get_added_profiles_by_date(session, dates)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/{id}",
+    "/by-user/{user_id}",
+    response_model=ProfileOutput,
+    status_code=status.HTTP_200_OK,
+)
+async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_user_id)):
+    """
+    Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
+    :param profile: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
+    :return: Профиль конкретного пользователя
+    """
+    return profile
+
+
+# response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.get(
+    "/by-id/{id}",
     response_model=ProfileOutput,
     status_code=status.HTTP_200_OK,
 )
@@ -79,51 +84,37 @@ async def get_profile_by_id(
     return profile
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get(
-    "/{user_id}",
-    response_model=ProfileOutput,
-    status_code=status.HTTP_200_OK,
-)
-async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_user_id)):
-    """
-    Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
-    :param profile: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
-    :return: Профиль конкретного пользователя
-    """
-    return profile
-
-
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
-    "/",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_201_CREATED,
 )
 async def add_profile(
     profile_input: ProfileInput,
+    user_model: UserModel = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
     """
     Обрабатывает запрос с фронт энда на создание профиля пользователя в БД
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :param profile_input: ProfileInput - объект, содержащий данные профиля пользователя
+    :param user_model: UserModel - объект, содержащий данные пользователя
     :return: dict
     """
-    return await ProfileAdapter.add_profile(session, profile_input)
+    return await ProfileAdapter.add_profile(user_model, session, profile_input)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
-    "/{user_id}",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
 async def update_profile(
-    profile_input: ProfileInput = Path(..., description="New data user profile"),
+    profile_input: ProfileInput,
     profile_model: ProfileModel = Depends(profile_by_user_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
@@ -144,7 +135,7 @@ async def update_profile(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/{user_id}",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
@@ -189,7 +180,7 @@ async def clear_profiles(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/{user_id}",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )

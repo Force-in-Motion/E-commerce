@@ -1,6 +1,8 @@
+from datetime import datetime
+
 from typing import Annotated
 
-from fastapi import Path, Depends, HTTPException, status
+from fastapi import Path, Query, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from service.database import db_connector
@@ -71,7 +73,7 @@ async def profile_by_id(
     if profile_model is None:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Profile with this user_id not found",
+            detail="Profile with this id not found",
         )
 
     return profile_model
@@ -137,3 +139,20 @@ async def posts_by_user_id(
         )
 
     return list(list_user_posts)
+
+
+async def date_checker(
+    date_start: Annotated[
+        datetime, Query(..., description="Start date (формат: YYYY-MM-DD HH:MM:SS)")
+    ],
+    date_end: Annotated[
+        datetime, Query(..., description="End date (формат: YYYY-MM-DD HH:MM:SS)")
+    ],
+):
+    if date_start >= date_end:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="date_start must be less than date_end",
+        )
+
+    return date_start, date_end

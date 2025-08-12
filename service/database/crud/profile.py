@@ -5,7 +5,7 @@ from fastapi import HTTPException, status
 from sqlalchemy import select, Select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import joinedload, selectinload
 
 from service.database.models import Profile as Profile_model, User as User_model
 from web.schemas import ProfileInput
@@ -54,18 +54,32 @@ class ProfileAdapter:
     async def get_profile_by_user_id(
         cls,
         session: AsyncSession,
-        id: int,
+        user_id: int,
     ) -> Optional[Profile_model]:
         """
         Возвращает профиль, соответствующий id пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
-        :param id: id конкретного пользователя
+        :param user_id: id конкретного пользователя
         :return: модель конкретного профиля
         """
         try:
-            request = select(Profile_model).where(Profile_model.user_id == id)
+            request = (
+                select(User_model)
+                .where(User_model.id == user_id)
+                .options(selectinload(User_model.profile))
+            )
+
             response = await session.execute(request)
-            return response.scalars().first()
+
+            user = response.scalars().first()
+
+            if not user:
+                raise HTTPException(
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail="User with this id not found",
+                )
+
+            return user.profile
 
         except SQLAlchemyError:
             return None
@@ -73,24 +87,17 @@ class ProfileAdapter:
     @classmethod
     async def get_added_profiles_by_date(
         cls,
+        dates: tuple[datetime, datetime],
         session: AsyncSession,
-        date_start: datetime,
-        date_end: datetime,
     ) -> list[Profile_model]:
         """
         Возвращает список всех профилей пользователей, добавленных за указанный интервал времени
         :param session: Объект сессии, полученный в качестве аргумента
-        :param date_start: начало интервала времени
-        :param date_end: окончание интервала времени
+        :param dates: кортеж, содержащий начало интервала времени и его окончание
         :return: список всех профилей пользователей, добавленных за указанный интервал времени
         """
-        if date_start >= date_end:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="date_start must be less than date_end",
-            )
-
         try:
+            date_start, date_end = dates
             request = (
                 select(Profile_model)
                 .where(Profile_model.created_at.between(date_start, date_end))
@@ -106,23 +113,27 @@ class ProfileAdapter:
     @classmethod
     async def add_profile(
         cls,
+        user_model: User_model,
         session: AsyncSession,
         profile_input: ProfileInput,
     ) -> dict:
         """
         Создает профиль конкретного пользователя в БД
+        :param user_model: UserModel - объект, содержащий данные пользователя
         :param profile_input: ProfileInput - объект, содержащий данные профиля пользователя
         :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
         # Проверка наличия уже существующего профиля у пользователя
-        profile_model = await cls.get_profile_by_user_id(session, profile_input.user_id)
+        profile_model = await cls.get_profile_by_user_id(session, user_model.id)
 
         # Если профиля у пользователя нет, то добавляем
         if profile_model is None:
 
             try:
-                profile_model = Profile_model(**profile_input.model_dump())
+                profile_model = Profile_model(
+                    user_id=user_model.id, **profile_input.model_dump()
+                )
                 session.add(profile_model)
                 await session.commit()
                 return {
