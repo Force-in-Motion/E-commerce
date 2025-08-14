@@ -121,31 +121,24 @@ async def post_by_id(
 
 
 async def posts_by_user_id(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[Post_model]:
     """
     Возвращает все посты пользователя по его id
-    :param user_id: id конкретного пользователя
+    :param user_model: UserModel - объект, содержащий данные пользователя
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[PostOutput]
     """
-    user = user_by_id(user_id, session)
+    posts = await PostAdapter.get_posts_by_user_id(session, user_model.id)
 
-    if not user:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="User with this id not found",
-        )
-    user_posts = await PostAdapter.get_posts_by_user_id(session, user_id)
-
-    if not user_posts:
+    if not posts:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Posts with this user_id not found",
         )
 
-    return list(user_posts)
+    return posts
 
 
 async def date_checker(

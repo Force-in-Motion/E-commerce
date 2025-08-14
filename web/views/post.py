@@ -73,7 +73,7 @@ async def get_post_by_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/by-user/{user_id}",
-    response_model=PostOutput,
+    response_model=list[PostOutput],
     status_code=status.HTTP_200_OK,
 )
 async def get_posts_by_user_id(

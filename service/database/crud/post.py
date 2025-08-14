@@ -8,7 +8,7 @@ from sqlalchemy import select, delete, text, Result
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload
+from sqlalchemy.orm import selectinload, joinedload
 
 from service.database.models import Post as Post_model, User as User_model
 from web.schemas import PostInput
@@ -67,16 +67,12 @@ class PostAdapter:
         :return: список всех постов конкретного пользователя
         """
         try:
-            stmt = (
-                select(User_model)
-                .where(User_model.id == user_id)
-                .options(selectinload(User_model.posts))
-            )
+            stmt = select(Post_model).where(Post_model.user_id == user_id)
 
             result = await session.execute(stmt)
-            user = result.scalars().all()
+            posts = result.scalars().all()
 
-            return user.posts
+            return list(posts)
 
         except SQLAlchemyError:
             return []
@@ -112,17 +108,15 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         post_input: PostInput,
-        user_model: User_model,
     ) -> dict[str, str]:
         """
         Добавляет пост пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
-        :param user_model: UserModel - объект, содержащий данные пользователя
         :param post_input: PostInput - объект, содержащий данные поста пользователя
         :return: dict
         """
         try:
-            post_model = Post_model(user_id=user_model.id, **post_input.model_dump())
+            post_model = Post_model(**post_input.model_dump())
             session.add(post_model)
             await session.commit()
             return {
