@@ -70,7 +70,6 @@ class ProfileAdapter:
             )
 
             response = await session.execute(request)
-
             user = response.scalars().first()
 
             if not user:

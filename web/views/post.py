@@ -5,8 +5,9 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from service.database import db_connector
 from service.database.crud import PostAdapter
-from service.database.models import Post as Post_model
-from tools.dependencies import posts_by_user_id, post_by_id
+from service.database.models import Post as Post_model, User as User_model
+from tools import date_checker
+from tools.dependencies import posts_by_user_id, post_by_id, user_by_id
 from web.schemas import PostOutput, PostInput
 
 router = APIRouter()
@@ -38,22 +39,16 @@ async def get_posts(
     status_code=status.HTTP_201_CREATED,
 )
 async def get_posts_by_date(
-    date_start: datetime = Query(
-        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
-    date_end: datetime = Query(
-        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
+    dates: tuple[datetime, datetime] = Depends(date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[PostOutput]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
-    :param date_start: начало интервала времени
-    :param date_end: окончание интервала времени
+    :param dates: кортеж, содержащий начало интервала времени и его окончание
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех постов, созданных за указанный интервал времени
     """
-    return await PostAdapter.get_added_posts_by_date(date_start, date_end, session)
+    return await PostAdapter.get_added_posts_by_date(dates, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -101,15 +96,17 @@ async def get_posts_by_user_id(
 )
 async def add_post(
     post_input: PostInput,
+    user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, str]:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
     :param post_input: PostInput - объект, содержащий данные поста пользователя
+    :param user_model: UserModel - объект, содержащий данные пользователя
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostAdapter.add_post(session, post_input)
+    return await PostAdapter.add_post(session, post_input, user_model)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,

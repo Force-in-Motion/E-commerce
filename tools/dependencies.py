@@ -130,15 +130,22 @@ async def posts_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[PostOutput]
     """
-    list_user_posts = await PostAdapter.get_posts_by_user_id(session, user_id)
+    user = user_by_id(user_id, session)
 
-    if list_user_posts is None:
+    if not user:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="User with this id not found",
+        )
+    user_posts = await PostAdapter.get_posts_by_user_id(session, user_id)
+
+    if not user_posts:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Posts with this user_id not found",
         )
 
-    return list(list_user_posts)
+    return list(user_posts)
 
 
 async def date_checker(

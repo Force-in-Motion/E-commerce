@@ -2,11 +2,13 @@ from datetime import datetime
 
 from typing import Optional
 
+
 from fastapi import HTTPException, status
-from sqlalchemy import select, delete, text
+from sqlalchemy import select, delete, text, Result
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import selectinload
 
 from service.database.models import Post as Post_model, User as User_model
 from web.schemas import PostInput
@@ -25,9 +27,9 @@ class PostAdapter:
         :return: список всех постов пользователей
         """
         try:
-            request = select(Post_model).order_by(Post_model.id)
-            response = await session.execute(request)
-            posts = response.scalars().all()
+            stmt = select(Post_model).order_by(Post_model.id)
+            result = await session.execute(stmt)
+            posts = result.scalars().all()
             return list(posts)
 
         except SQLAlchemyError:
@@ -56,19 +58,25 @@ class PostAdapter:
     async def get_posts_by_user_id(
         cls,
         session: AsyncSession,
-        id: int,
-    ) -> list[Post_model]:
+        user_id: int,
+    ) -> Optional[list[Post_model]]:
         """
         Возвращает посты, соответствующие id пользователя в БД и имя пользователя
         :param session: Объект сессии, полученный в качестве аргумента
-        :param id: id конкретного пользователя
+        :param user_id: id конкретного пользователя
         :return: список всех постов конкретного пользователя
         """
         try:
-            request = select(Post_model).where(Post_model.user_id == id)
-            response = await session.execute(request)
-            posts = response.scalars().all()
-            return list(posts)
+            stmt = (
+                select(User_model)
+                .where(User_model.id == user_id)
+                .options(selectinload(User_model.posts))
+            )
+
+            result = await session.execute(stmt)
+            user = result.scalars().all()
+
+            return user.posts
 
         except SQLAlchemyError:
             return []
@@ -76,23 +84,17 @@ class PostAdapter:
     @classmethod
     async def get_added_posts_by_date(
         cls,
-        date_start: datetime,
-        date_end: datetime,
+        dates: tuple[datetime, datetime],
         session: AsyncSession,
     ) -> list[Post_model]:
         """
         Возвращает посты, соответствующие полученному интервалу времени
-        :param date_start: начало интервала времени
-        :param date_end: окончание интервала времени
+        :param dates:  кортеж, содержащий начало интервала времени и его окончание
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех постов пользователей, добавленных за указанный интервал времени
         """
-        if date_start >= date_end:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="date_start must be less than date_end",
-            )
         try:
+            date_start, date_end = dates
             request = (
                 select(Post_model)
                 .where(Post_model.created_at.between(date_start, date_end))
@@ -110,15 +112,17 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         post_input: PostInput,
+        user_model: User_model,
     ) -> dict[str, str]:
         """
         Добавляет пост пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
+        :param user_model: UserModel - объект, содержащий данные пользователя
         :param post_input: PostInput - объект, содержащий данные поста пользователя
         :return: dict
         """
         try:
-            post_model = Post_model(**post_input.model_dump())
+            post_model = Post_model(user_id=user_model.id, **post_input.model_dump())
             session.add(post_model)
             await session.commit()
             return {
