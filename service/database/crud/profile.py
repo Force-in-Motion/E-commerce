@@ -63,22 +63,11 @@ class ProfileAdapter:
         :return: модель конкретного профиля
         """
         try:
-            request = (
-                select(User_model)
-                .where(User_model.id == user_id)
-                .options(selectinload(User_model.profile))
-            )
-
+            request = select(Profile_model).where(Profile_model.user_id == user_id)
             response = await session.execute(request)
-            user = response.scalars().first()
+            profile = response.scalars().first()
 
-            if not user:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail="User with this id not found",
-                )
-
-            return user.profile
+            return profile
 
         except SQLAlchemyError:
             return None

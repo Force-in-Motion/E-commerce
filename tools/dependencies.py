@@ -80,16 +80,16 @@ async def profile_by_id(
 
 
 async def profile_by_user_id(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Profile_model:
     """
     Возвращает профиль пользователя по его id
-    :param user_id: id конкретного пользователя
+    :param user_model: UserModel - объект, содержащий данные пользователя
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Profile_model
     """
-    profile_model = await ProfileAdapter.get_profile_by_user_id(session, user_id)
+    profile_model = await ProfileAdapter.get_profile_by_user_id(session, user_model.id)
 
     if profile_model is None:
         raise HTTPException(
@@ -130,15 +130,15 @@ async def posts_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[PostOutput]
     """
-    posts = await PostAdapter.get_posts_by_user_id(session, user_model.id)
+    posts_model = await PostAdapter.get_posts_by_user_id(session, user_model.id)
 
-    if not posts:
+    if not posts_model:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Posts with this user_id not found",
         )
 
-    return posts
+    return posts_model
 
 
 async def date_checker(
