@@ -2,11 +2,10 @@ from datetime import datetime
 
 from fastapi import APIRouter, status, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from service.database import db_connector
-from service.database.models import Post as Post_model
 from service.database.crud import PostAdapter
+from service.database.models import Post as Post_model
 from tools.dependencies import posts_by_user_id, post_by_id
 from web.schemas import PostOutput, PostInput
 
@@ -60,7 +59,7 @@ async def get_posts_by_date(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/{id}",
+    "/by-id/{id}",
     response_model=PostOutput,
     status_code=status.HTTP_200_OK,
 )
@@ -78,7 +77,7 @@ async def get_post_by_id(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/{user_id}",
+    "/by-user/{user_id}",
     response_model=PostOutput,
     status_code=status.HTTP_200_OK,
 )
@@ -96,7 +95,7 @@ async def get_posts_by_user_id(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
-    "/",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_201_CREATED,
 )
@@ -116,7 +115,7 @@ async def add_post(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
-    "/{id}",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
@@ -138,7 +137,7 @@ async def update_post(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/{id}",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
@@ -178,7 +177,7 @@ async def clear_posts(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/{id}",
+    "/by-user/{user_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
