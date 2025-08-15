@@ -18,16 +18,16 @@ from web.schemas import PostOutput
 
 
 async def product_by_id(
-    id: Annotated[int, Path(..., description="Product id")],
+    product_id: Annotated[int, Path(..., description="Product id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Product_model:
     """
     Возвращает продукт по его id из БД, работает в качестве зависимости для другой логики
-    :param id: id конкретного продукта
+    :param product_id: id конкретного продукта
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Product_model
     """
-    product_model = await ProductAdapter.get_product_by_id(id, session)
+    product_model = await ProductAdapter.get_product_by_id(product_id, session)
 
     if product_model is None:
         raise HTTPException(
@@ -59,16 +59,16 @@ async def user_by_id(
 
 
 async def profile_by_id(
-    id: Annotated[int, Path(..., description="Profile id")],
+    profile_id: Annotated[int, Path(..., description="Profile id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Profile_model:
     """
     Возвращает профиль пользователя по его id
-    :param id: id конкретного профиля пользователя
+    :param profile_id: id конкретного профиля пользователя
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Profile_model
     """
-    profile_model = await ProfileAdapter.get_profile_by_id(id, session)
+    profile_model = await ProfileAdapter.get_profile_by_id(profile_id, session)
 
     if profile_model is None:
         raise HTTPException(
@@ -101,16 +101,16 @@ async def profile_by_user_id(
 
 
 async def post_by_id(
-    id: Annotated[int, Path(..., description="Post id")],
+    post_id: Annotated[int, Path(..., description="Post id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> Post_model:
     """
     Возвращает конкретный пост по его id
-    :param id:
+    :param post_id:
     :param session:
     :return:
     """
-    post_model = await PostAdapter.get_post_by_id(session, id)
+    post_model = await PostAdapter.get_post_by_id(session, post_id)
 
     if post_model is None:
         raise HTTPException(
@@ -143,10 +143,12 @@ async def posts_by_user_id(
 
 async def date_checker(
     date_start: Annotated[
-        datetime, Query(..., description="Start date (формат: YYYY-MM-DD HH:MM:SS)")
+        datetime,
+        Query(..., description="Start date (формат: YYYY-MM-DD HH:MM:SS)"),
     ],
     date_end: Annotated[
-        datetime, Query(..., description="End date (формат: YYYY-MM-DD HH:MM:SS)")
+        datetime,
+        Query(..., description="End date (формат: YYYY-MM-DD HH:MM:SS)"),
     ],
 ):
     if date_start >= date_end:

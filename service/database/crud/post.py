@@ -8,10 +8,9 @@ from sqlalchemy import select, delete, text, Result
 from sqlalchemy.exc import SQLAlchemyError
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import selectinload, joinedload
 
 from service.database.models import Post as Post_model, User as User_model
-from web.schemas import PostInput
+from web.schemas import PostInput, PostOutput
 
 
 class PostAdapter:
@@ -29,8 +28,7 @@ class PostAdapter:
         try:
             stmt = select(Post_model).order_by(Post_model.id)
             result = await session.execute(stmt)
-            posts = result.scalars().all()
-            return list(posts)
+            return list(result.scalars().all())
 
         except SQLAlchemyError:
             return []
@@ -39,17 +37,16 @@ class PostAdapter:
     async def get_post_by_id(
         cls,
         session: AsyncSession,
-        id: int,
+        post_id: int,
     ) -> Optional[Post_model]:
         """
         Возвращает конкретный пост, найденный по id
         :param session: Объект сессии, полученный в качестве аргумента
-        :param id: id конкретного поста
+        :param post_id: id конкретного поста
         :return: один пост
         """
         try:
-            result = await session.get(Post_model, id)
-            return result
+            return await session.get(Post_model, post_id)
 
         except SQLAlchemyError:
             return None
@@ -70,7 +67,7 @@ class PostAdapter:
             stmt = select(Post_model).where(Post_model.user_id == user_id)
 
             result = await session.execute(stmt)
-            posts = result.scalars().all()
+            return list(result.scalars().all())
 
             return list(posts)
 
@@ -90,14 +87,13 @@ class PostAdapter:
         :return: список всех постов пользователей, добавленных за указанный интервал времени
         """
         try:
-            date_start, date_end = dates
-            request = (
+            stmt = (
                 select(Post_model)
-                .where(Post_model.created_at.between(date_start, date_end))
+                .where(Post_model.created_at.between(*dates))
                 .order_by(Post_model.created_at.desc())
             )
 
-            result = await session.execute(request)
+            result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError:
@@ -108,21 +104,24 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         post_input: PostInput,
-    ) -> dict[str, str]:
+        user_model: User_model,
+    ) -> Post_model:
         """
         Добавляет пост пользователя в БД
         :param session: Объект сессии, полученный в качестве аргумента
         :param post_input: PostInput - объект, содержащий данные поста пользователя
+        :param user_model: UserModel - объект, содержащий данные пользователя
         :return: dict
         """
         try:
-            post_model = Post_model(**post_input.model_dump())
+            post_model = Post_model(user_id=user_model.id, **post_input.model_dump())
             session.add(post_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Post has been added",
-            }
+            await session.refresh(
+                post_model
+            )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
+            # refresh гарантирует, что post_model содержит актуальное состояние из базы.
+            return post_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -138,7 +137,7 @@ class PostAdapter:
         post_input: PostInput,
         post_model: Post_model,
         partial: bool = False,
-    ) -> dict[str, str]:
+    ) -> Post_model:
         """
         Обновляет пост в БД полностью или частично
         :param session: Объект сессии, полученный в качестве аргумента
@@ -153,15 +152,18 @@ class PostAdapter:
         :return: dict
         """
         try:
-            for key, value in post_input.model_dump(exclude_unset=partial).items():
+            update_data = post_input.model_dump(exclude_unset=partial)
+
+            for key, value in update_data.items():
                 if value is not None:
                     setattr(post_model, key, value)
 
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Post has been updated",
-            }
+            await session.refresh(
+                post_model  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
+                # refresh гарантирует, что post_model содержит актуальное состояние из базы.
+            )
+            return post_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -174,7 +176,7 @@ class PostAdapter:
     async def clear_posts(
         cls,
         session: AsyncSession,
-    ) -> dict[str, str]:
+    ) -> list:
         """
         Удаляет все посты пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -186,10 +188,7 @@ class PostAdapter:
                 text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
             )
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Post has been cleared",
-            }
+            return []
 
         except SQLAlchemyError:
             await session.rollback()
@@ -203,7 +202,7 @@ class PostAdapter:
         cls,
         session: AsyncSession,
         post_model: Post_model,
-    ) -> dict[str, str]:
+    ) -> Post_model:
         """
         Удаляет пост из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -211,12 +210,9 @@ class PostAdapter:
         :return: dict
         """
         try:
-            await session.execute(delete(post_model))
+            await session.delete(post_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Post has been deleted",
-            }
+            return post_model
 
         except SQLAlchemyError:
             await session.rollback()

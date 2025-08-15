@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status, Depends, Query
+from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from service.database import db_connector
@@ -54,7 +54,7 @@ async def get_posts_by_date(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/by-id/{id}",
+    "/by-id/{post_id}",
     response_model=PostOutput,
     status_code=status.HTTP_200_OK,
 )
@@ -91,14 +91,14 @@ async def get_posts_by_user_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/by-user/{user_id}",
-    response_model=dict,
+    response_model=PostOutput,
     status_code=status.HTTP_201_CREATED,
 )
 async def add_post(
     post_input: PostInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> PostOutput:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
     :param post_input: PostInput - объект, содержащий данные поста пользователя
@@ -112,15 +112,15 @@ async def add_post(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
-    "/by-user/{user_id}",
-    response_model=dict,
+    "/by-id/{post_id}",
+    response_model=PostOutput,
     status_code=status.HTTP_200_OK,
 )
-async def update_post(
+async def full_update_post(
     post_input: PostInput,
     post_model: Post_model = Depends(post_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> PostOutput:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
     :param post_input:  PostInput - объект, содержащий данные поста пользователя
@@ -134,15 +134,15 @@ async def update_post(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/by-user/{user_id}",
-    response_model=dict,
+    "/by-id/{post_id}",
+    response_model=PostOutput,
     status_code=status.HTTP_200_OK,
 )
-async def update_post(
+async def partial_update_post(
     post_input: PostInput,
     post_model: Post_model = Depends(post_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> PostOutput:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
     :param post_input:  PostInput - объект, содержащий данные поста пользователя
@@ -157,12 +157,12 @@ async def update_post(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/clear",
-    response_model=dict,
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_posts(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех постов пользователей из БД
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -174,14 +174,14 @@ async def clear_posts(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/by-user/{user_id}",
-    response_model=dict,
+    "/by-id/{post_id}",
+    response_model=PostOutput,
     status_code=status.HTTP_200_OK,
 )
 async def delete_post(
     post_model: Post_model = Depends(post_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> PostOutput:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
     :param post_model: Post_model - конкретный объект в БД, найденный по id

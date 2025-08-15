@@ -69,7 +69,7 @@ async def get_profile_by_user_id(profile: ProfileOutput = Depends(profile_by_use
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/by-id/{id}",
+    "/by-id/{profile_id}",
     response_model=ProfileOutput,
     status_code=status.HTTP_200_OK,
 )

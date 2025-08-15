@@ -58,7 +58,7 @@ async def get_products_by_date(
 # response_model определяет модель ответа пользователю, в данном случае объект ProductOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/{id}",
+    "/{product_id}",
     response_model=ProductOutput,
     status_code=status.HTTP_200_OK,
 )
@@ -96,7 +96,7 @@ async def add_product(
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
-    "/{id}",
+    "/{product_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
@@ -118,7 +118,7 @@ async def update_product(
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/{id}",
+    "/{product_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
@@ -158,7 +158,7 @@ async def clear_products(
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been removing"},
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/{id}",
+    "/{product_id}",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
