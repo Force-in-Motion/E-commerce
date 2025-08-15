@@ -1,16 +1,13 @@
 from datetime import datetime
-
 from typing import Optional
 
-
-from fastapi import HTTPException, status
-from sqlalchemy import select, delete, text, Result
+from fastapi import HTTPException
+from sqlalchemy import select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
-
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database.models import Post as Post_model, User as User_model
-from web.schemas import PostInput, PostOutput
+from app.models import Post as Post_model, User as User_model
+from app.schemas import PostInput
 
 
 class PostAdapter:
@@ -69,8 +66,6 @@ class PostAdapter:
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
-            return list(posts)
-
         except SQLAlchemyError:
             return []
 
@@ -127,7 +122,7 @@ class PostAdapter:
             await session.rollback()
             raise HTTPException(
                 status_code=500,
-                detail="Error added User",
+                detail="Error added Post",
             )
 
     @classmethod

@@ -1,11 +1,13 @@
 from datetime import datetime
-from fastapi import HTTPException, Query, status
+from typing import Optional
 
+from fastapi import HTTPException, status
 from sqlalchemy import select, text, delete
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from service.database.models import User as User_model
-from web.schemas import UserInput
+
+from app.models import User as User_model
+from app.schemas import UserInput
 
 
 class UserAdapter:
@@ -21,10 +23,9 @@ class UserAdapter:
         :return: list[User_model]
         """
         try:
-            request = select(User_model).order_by(User_model.created_at)
-            response = await session.execute(request)
-            users = response.scalars().all()
-            return list(users)
+            stmt = select(User_model).order_by(User_model.id)
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
 
         except SQLAlchemyError:
             return []
@@ -32,17 +33,35 @@ class UserAdapter:
     @classmethod
     async def get_user_by_id(
         cls,
+        user_id: int,
         session: AsyncSession,
-        id: int,
-    ) -> User_model | None:
+    ) -> Optional[User_model]:
         """
         Возвращает пользователя по его id из БД
+        :param user_id: id конкретного пользователя
         :param session: Объект сессии, полученный в качестве аргумента
-        :param id: id конкретного пользователя
         :return: User_model | None
         """
         try:
-            return await session.get(User_model, id)
+            return await session.get(User_model, user_id)
+
+        except SQLAlchemyError:
+            return None
+
+    @classmethod
+    async def get_user_by_name(
+        cls,
+        name: str,
+        session: AsyncSession,
+    ) -> Optional[User_model]:
+        """
+        Возвращает пользователя по его имени если существует в БД
+        :param name: Имя пользователя
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: User_model | None
+        """
+        try:
+            return await session.get(User_model, name)
 
         except SQLAlchemyError:
             return None
@@ -50,31 +69,23 @@ class UserAdapter:
     @classmethod
     async def get_added_users_by_date(
         cls,
+        dates: tuple[datetime, datetime],
         session: AsyncSession,
-        date_start: datetime,
-        date_end: datetime,
     ) -> list[User_model]:
         """
         Возвращает список всех пользователей, добавленных за указанный интервал времени
+        :param dates:  кортеж, содержащий начало интервала времени и его окончание
         :param session: Объект сессии, полученный в качестве аргумента
-        :param date_start: начало интервала времени
-        :param date_end: окончание интервала времени
         :return: список всех пользователей, добавленных за указанный интервал времени
         """
-        if date_start >= date_end:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="date_start must be less than date_end",
-            )
-
         try:
-            request = (
+            stmt = (
                 select(User_model)
-                .where(User_model.created_at.between(date_start, date_end))
+                .where(User_model.created_at.between(*dates))
                 .order_by(User_model.created_at.desc())
             )
-            response = await session.execute(request)
-            return list(response.scalars().all())
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
 
         except SQLAlchemyError:
             await session.rollback()
@@ -83,9 +94,9 @@ class UserAdapter:
     @classmethod
     async def add_user(
         cls,
-        session: AsyncSession,
         user_input: UserInput,
-    ) -> dict[str, str]:
+        session: AsyncSession,
+    ) -> User_model:
         """
         Добавляет пользователя в БД
         :param user_input: UserInput - объект, содержащий данные пользователя
@@ -96,10 +107,11 @@ class UserAdapter:
             user_model = User_model(**user_input.model_dump())
             session.add(user_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "User has been added",
-            }
+            await session.refresh(
+                user_model
+            )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
+            # refresh гарантирует, что post_model содержит актуальное состояние из базы.
+            return user_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -115,7 +127,7 @@ class UserAdapter:
         user_model: User_model,
         session: AsyncSession,
         partial: bool = False,
-    ) -> dict[str, str]:
+    ) -> User_model:
         """
         Обновляет данные пользователя в БД полностью или частично
         :param user_input: UserInput - объект, содержащий данные пользователя
@@ -135,10 +147,11 @@ class UserAdapter:
                     setattr(user_model, key, value)
 
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "User has been updated",
-            }
+            await session.refresh(
+                user_model
+            )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
+            # refresh гарантирует, что post_model содержит актуальное состояние из базы.
+            return user_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -152,7 +165,7 @@ class UserAdapter:
         cls,
         user_model: User_model,
         session: AsyncSession,
-    ) -> dict[str, str]:
+    ) -> User_model:
         """
         Удаляет пользователя из БД
         :param user_model: User_model - конкретный объект в БД, найденный по id
@@ -162,10 +175,7 @@ class UserAdapter:
         try:
             await session.delete(user_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "User has been deleted",
-            }
+            return user_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -175,7 +185,7 @@ class UserAdapter:
             )
 
     @classmethod
-    async def clear_user_db(cls, session: AsyncSession) -> dict[str, str]:
+    async def clear_users(cls, session: AsyncSession) -> list:
         """
         Очищает базу данных пользователя и сбрасывает последовательность id пользователей
         :param session: Объект сессии, полученный в качестве аргумента
@@ -185,10 +195,7 @@ class UserAdapter:
             await session.execute(delete(User_model))
             await session.execute(text('ALTER SEQUENCE "User_id_seq" RESTART WITH 1'))
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "All users have been deleted",
-            }
+            return []
 
         except SQLAlchemyError:
             await session.rollback()

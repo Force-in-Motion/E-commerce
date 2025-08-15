@@ -9,7 +9,7 @@ __all__ = [
     "ProfileOutput",
 ]
 
-from .product import ProductInput, ProductOutput
-from .user import UserInput, UserOutput
 from .post import PostInput, PostOutput
+from .product import ProductInput, ProductOutput
 from .profile import ProfileInput, ProfileOutput
+from .user import UserInput, UserOutput

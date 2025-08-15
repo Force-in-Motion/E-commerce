@@ -1,14 +1,13 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy import select, Select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import joinedload, selectinload
 
-from service.database.models import Profile as Profile_model, User as User_model
-from web.schemas import ProfileInput
+from app.models import Profile as Profile_model, User as User_model
+from app.schemas import ProfileInput
 
 
 class ProfileAdapter:

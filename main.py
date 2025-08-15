@@ -1,8 +1,8 @@
-from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
+from fastapi import FastAPI
 
-from web.views import include_router
+from app.api import include_router
 
 
 @asynccontextmanager

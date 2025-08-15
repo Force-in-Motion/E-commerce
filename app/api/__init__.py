@@ -1,9 +1,9 @@
 __all__ = ["include_router"]
 
-from .product import router as product_router
-from .user import router as user_router
-from .profile import router as profile_router
-from .post import router as post_router
+from app.api.post import router as post_router
+from app.api.product import router as product_router
+from app.api.profile import router as profile_router
+from app.api.user import router as user_router
 
 
 def include_router(app):

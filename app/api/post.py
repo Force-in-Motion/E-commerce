@@ -3,12 +3,12 @@ from datetime import datetime
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database import db_connector
-from service.database.crud import PostAdapter
-from service.database.models import Post as Post_model, User as User_model
-from tools import date_checker
-from tools.dependencies import posts_by_user_id, post_by_id, user_by_id
-from web.schemas import PostOutput, PostInput
+from app.core import db_connector
+from app.crud import PostAdapter
+from app.models import Post as Post_model, User as User_model
+from app.schemas import PostOutput, PostInput
+from app.tools import date_checker
+from app.tools.dependencies import posts_by_user_id, post_by_id, user_by_id
 
 router = APIRouter()
 
@@ -35,7 +35,7 @@ async def get_posts(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/date",
-    response_model=PostOutput,
+    response_model=list[PostOutput],
     status_code=status.HTTP_201_CREATED,
 )
 async def get_posts_by_date(

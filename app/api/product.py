@@ -3,12 +3,11 @@ from datetime import datetime
 from fastapi import APIRouter, status, Depends, Query
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database.crud import ProductAdapter
-from service.database import db_connector
-from service.database.models import Product as Product_model
-from web.schemas import ProductInput, ProductOutput
-from tools import product_by_id
-
+from app.core import db_connector
+from app.crud import ProductAdapter
+from app.models import Product as Product_model
+from app.schemas import ProductInput, ProductOutput
+from app.tools import product_by_id
 
 router = APIRouter()
 

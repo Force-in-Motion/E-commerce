@@ -3,12 +3,11 @@ from typing import Annotated
 
 from fastapi import Path, HTTPException, status
 from sqlalchemy import select, delete, text
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import SQLAlchemyError
+from sqlalchemy.ext.asyncio import AsyncSession
 
-
-from web.schemas import ProductInput
-from service.database.models import Product as Product_model
+from app.models import Product as Product_model
+from app.schemas import ProductInput
 
 
 class ProductAdapter:

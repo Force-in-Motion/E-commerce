@@ -1,9 +1,9 @@
 from datetime import datetime
 
 from sqlalchemy import String, Integer, DateTime, func
-
-from service.database.models.base import Base
 from sqlalchemy.orm import Mapped, mapped_column
+
+from app.models.base import Base
 
 
 class Product(Base):

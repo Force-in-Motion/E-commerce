@@ -1,20 +1,18 @@
 from datetime import datetime
-
 from typing import Annotated
 
 from fastapi import Path, Query, Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from service.database import db_connector
-from service.database.crud.post import PostAdapter
-from service.database.models import (
+from app.core import db_connector
+from app.crud import ProductAdapter, UserAdapter, ProfileAdapter
+from app.crud.post import PostAdapter
+from app.models import (
     Product as Product_model,
     User as User_model,
     Profile as Profile_model,
     Post as Post_model,
 )
-from service.database.crud import ProductAdapter, UserAdapter, ProfileAdapter
-from web.schemas import PostOutput
 
 
 async def product_by_id(

@@ -1,12 +1,13 @@
 from _datetime import datetime
 from typing import TYPE_CHECKING
 
-from service.database.models.base import Base
 from sqlalchemy import String, Text, ForeignKey, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models.base import Base
+
 if TYPE_CHECKING:
-    from service.database.models import User
+    pass
 
 
 class Post(Base):
