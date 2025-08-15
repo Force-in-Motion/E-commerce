@@ -106,7 +106,7 @@ async def add_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostAdapter.add_post(session, post_input, user_model)
+    return await PostAdapter.add_post(post_input, user_model, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -128,7 +128,7 @@ async def full_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostAdapter.update_post(session, post_input, post_model)
+    return await PostAdapter.update_post(post_input, post_model, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -150,7 +150,7 @@ async def partial_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostAdapter.update_post(session, post_input, post_model, partial=True)
+    return await PostAdapter.update_post(post_input, post_model, session, partial=True)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -188,4 +188,4 @@ async def delete_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostAdapter.del_post(session, post_model)
+    return await PostAdapter.del_post(post_model, session)

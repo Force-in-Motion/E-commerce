@@ -115,6 +115,7 @@ class ProfileAdapter:
 
             session.add(profile_model)
             await session.commit()
+            await session.refresh(profile_model)
             return profile_model
 
         except SQLAlchemyError:
@@ -151,6 +152,7 @@ class ProfileAdapter:
                     setattr(profile_model, key, value)
 
             await session.commit()
+            await session.refresh(profile_model)
             return profile_model
 
         except SQLAlchemyError:

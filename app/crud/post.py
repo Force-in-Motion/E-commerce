@@ -33,8 +33,8 @@ class PostAdapter:
     @classmethod
     async def get_post_by_id(
         cls,
-        session: AsyncSession,
         post_id: int,
+        session: AsyncSession,
     ) -> Optional[Post_model]:
         """
         Возвращает конкретный пост, найденный по id
@@ -51,9 +51,9 @@ class PostAdapter:
     @classmethod
     async def get_posts_by_user_id(
         cls,
-        session: AsyncSession,
         user_id: int,
-    ) -> Optional[list[Post_model]]:
+        session: AsyncSession,
+    ) -> list[Post_model]:
         """
         Возвращает посты, соответствующие id пользователя в БД и имя пользователя
         :param session: Объект сессии, полученный в качестве аргумента
@@ -62,7 +62,6 @@ class PostAdapter:
         """
         try:
             stmt = select(Post_model).where(Post_model.user_id == user_id)
-
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
@@ -97,9 +96,9 @@ class PostAdapter:
     @classmethod
     async def add_post(
         cls,
-        session: AsyncSession,
         post_input: PostInput,
         user_model: User_model,
+        session: AsyncSession,
     ) -> Post_model:
         """
         Добавляет пост пользователя в БД
@@ -128,9 +127,9 @@ class PostAdapter:
     @classmethod
     async def update_post(
         cls,
-        session: AsyncSession,
         post_input: PostInput,
         post_model: Post_model,
+        session: AsyncSession,
         partial: bool = False,
     ) -> Post_model:
         """
@@ -195,8 +194,8 @@ class PostAdapter:
     @classmethod
     async def del_post(
         cls,
-        session: AsyncSession,
         post_model: Post_model,
+        session: AsyncSession,
     ) -> Post_model:
         """
         Удаляет пост из БД

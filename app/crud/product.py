@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import Path, HTTPException, status
 from sqlalchemy import select, delete, text
@@ -23,10 +23,9 @@ class ProductAdapter:
         :return: list[Product_model]
         """
         try:
-            request = select(Product_model).order_by(Product_model.id)
-            response = await session.execute(request)
-            products = response.scalars().all()
-            return list(products)
+            stmt = select(Product_model).order_by(Product_model.id)
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
 
         except SQLAlchemyError:
             return []
@@ -34,17 +33,17 @@ class ProductAdapter:
     @classmethod
     async def get_product_by_id(
         cls,
-        id: Annotated[int, Path],
+        product_id: int,
         session: AsyncSession,
-    ) -> Product_model | None:
+    ) -> Optional[Product_model]:
         """
         Возвращает продукт по его id из БД
-        :param id: id конкретного продукта
+        :param product_id: id конкретного продукта
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Product_model | None
         """
         try:
-            return await session.get(Product_model, id)
+            return await session.get(Product_model, product_id)
 
         except SQLAlchemyError:
             return None
@@ -52,30 +51,22 @@ class ProductAdapter:
     @classmethod
     async def get_added_product_by_date(
         cls,
-        date_start: datetime,
-        date_end: datetime,
+        dates: tuple[datetime, datetime],
         session: AsyncSession,
     ) -> list[Product_model]:
         """
         Возвращает продукты, добавленные в указанный интервал времени
-        :param date_start: начало интервала времени
-        :param date_end: окончание интервала времени
+        :param dates: кортеж, содержащий начало интервала времени и его окончание
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех продуктов, добавленных за указанный интервал времени
         """
-        if date_start >= date_end:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="date_start must be less than date_end",
-            )
-
         try:
-            request = (
+            stmt = (
                 select(Product_model)
-                .where(Product_model.created_at.between(date_start, date_end))
+                .where(Product_model.created_at.between(*dates))
                 .order_by(Product_model.created_at.desc())
             )
-            result = await session.execute(request)
+            result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError:
@@ -86,7 +77,7 @@ class ProductAdapter:
         cls,
         product_input: ProductInput,
         session: AsyncSession,
-    ) -> dict:
+    ) -> Product_model:
         """
         Добавляет продукт в БД
         :param product_input: ProductInput - объект, содержащий данные продукта
@@ -97,10 +88,8 @@ class ProductAdapter:
             product_model = Product_model(**product_input.model_dump())
             session.add(product_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Product has been added",
-            }
+            await session.refresh(product_model)
+            return product_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -116,7 +105,7 @@ class ProductAdapter:
         product_model: Product_model,
         session: AsyncSession,
         partial: bool = False,
-    ) -> dict:
+    ) -> Product_model:
         """
         Обновляет данные продукта в БД полностью или частично
         :param product_input: ProductInput - объект, содержащий данные продукта
@@ -136,10 +125,8 @@ class ProductAdapter:
                     setattr(product_model, key, value)
 
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Product has been updated",
-            }
+            await session.refresh(product_model)
+            return product_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -153,7 +140,7 @@ class ProductAdapter:
         cls,
         product_model: Product_model,
         session: AsyncSession,
-    ) -> dict:
+    ) -> Product_model:
         """
         Удаляет продукт из БД
         :param product_model: Product_model - конкретный объект в БД, найденный по id
@@ -163,10 +150,7 @@ class ProductAdapter:
         try:
             await session.delete(product_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Product has been removing",
-            }
+            return product_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -176,7 +160,7 @@ class ProductAdapter:
             )
 
     @classmethod
-    async def clear_product_db(cls, session: AsyncSession) -> dict[str, str]:
+    async def clear_product_db(cls, session: AsyncSession) -> list:
         """
         Очищает базу данных продуктов и сбрасывает последовательность id пользователей
         :param session: Объект сессии, полученный в качестве аргумента
@@ -186,10 +170,7 @@ class ProductAdapter:
             await session.execute(delete(Product_model))
             await session.execute(text('ALTER SEQUENCE "User_id_seq" RESTART WITH 1'))
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "All users have been deleted",
-            }
+            return []
 
         except SQLAlchemyError:
             await session.rollback()
