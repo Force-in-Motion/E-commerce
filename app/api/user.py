@@ -8,7 +8,7 @@ from app.core import db_connector
 from app.crud import UserAdapter
 from app.models import User as User_model
 from app.schemas import UserOutput, UserInput
-from app.tools import user_by_id
+from app.tools import user_by_id, date_checker
 
 router = APIRouter()
 
@@ -34,7 +34,27 @@ async def get_users(
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/{id}",
+    "/date",
+    response_model=list[UserOutput],
+    status_code=status.HTTP_200_OK,
+)
+async def get_users_by_date(
+    dates: tuple[datetime, datetime] = Depends(date_checker),
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> list[UserOutput]:
+    """
+    Возвращает всех добавленных в БД пользователей за указанный интервал времени
+    :param dates:  кортеж, содержащий начало интервала времени и его окончание
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: Список пользователей за указанную дату
+    """
+    return await UserAdapter.get_added_users_by_date(dates, session)
+
+
+# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
+# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.get(
+    "/{user_id}",
     response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
@@ -49,43 +69,17 @@ async def get_user_by_id(
     return user
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get(
-    "/date",
-    response_model=list[UserOutput],
-    status_code=status.HTTP_200_OK,
-)
-async def get_users_by_date(
-    date_start: datetime = Query(
-        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
-    date_end: datetime = Query(
-        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
-    session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[UserOutput]:
-    """
-    Возвращает всех добавленных в БД пользователей за указанный интервал времени
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :param date_start: начало интервала времени
-    :param date_end: окончание интервала времени
-    :return: Список пользователей за указанную дату
-    """
-    return await UserAdapter.get_added_users_by_date(session, date_start, date_end)
-
-
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/",
-    response_model=dict,
+    response_model=UserOutput,
     status_code=status.HTTP_201_CREATED,
 )
 async def add_user(
     user: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> UserOutput:
     """
     Обрабатывает запрос с фронт энда на добавление пользователя в БД
     :param user: UserInput - объект, содержащий данные пользователя
@@ -98,15 +92,15 @@ async def add_user(
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
-    "/{id}",
-    response_model=dict,
+    "/{user_id}",
+    response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
 async def update_user(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> UserOutput:
     """
     Обрабатывает запрос с фронт энда на полную замену данных продукта по его id
     :param user_input: UserInput - объект, содержащий новые данные конкретного пользователя
@@ -120,15 +114,15 @@ async def update_user(
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/{id}",
-    response_model=dict,
+    "/{user_id}",
+    response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
 async def update_user_partial(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) ->UserOutput:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
     :param user_input: UserInput - объект, содержащий новые данные конкретного пользователя
@@ -141,31 +135,31 @@ async def update_user_partial(
 
 @router.delete(
     "/clear",
-    response_model=dict,
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_users(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await UserAdapter.clear_user_db(session)
+    return await UserAdapter.clear_users(session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/{id}",
-    response_model=dict,
+    "/{user_id}",
+    response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
 async def del_user(
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> UserOutput:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного пользователя
     :param user_model: User_model - конкретный объект в БД, найденный по id

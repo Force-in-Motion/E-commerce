@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
-    pass
+    from app.models import Post, Profile
 
 
 class User(Base):
@@ -19,6 +19,7 @@ class User(Base):
     name: Mapped[str] = mapped_column(
         String,
         nullable=False,
+        unique=True,
     )
     address: Mapped[str] = mapped_column(
         String(150),
