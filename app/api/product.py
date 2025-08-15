@@ -7,7 +7,7 @@ from app.core import db_connector
 from app.crud import ProductAdapter
 from app.models import Product as Product_model
 from app.schemas import ProductInput, ProductOutput
-from app.tools import product_by_id
+from app.tools import product_by_id, date_checker
 
 router = APIRouter()
 
@@ -36,22 +36,16 @@ async def get_products(
     status_code=status.HTTP_200_OK,
 )
 async def get_products_by_date(
-    date_start: datetime = Query(
-        ..., description="Начальная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
-    date_end: datetime = Query(
-        ..., description="Конечная дата (формат: YYYY-MM-DD HH:MM:SS)"
-    ),
+    dates: tuple[datetime, datetime] = Depends(date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[ProductOutput]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех продуктов, добавленных за указанный интервал времени
-    :param date_start: начало интервала времени
-    :param date_end: окончание интервала времени
+    :param dates: кортеж, содержащий начало интервала времени и его окончание
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех продуктов, добавленных за указанный интервал времени
     """
-    return await ProductAdapter.get_added_product_by_date(date_start, date_end, session)
+    return await ProductAdapter.get_added_product_by_date(dates, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае объект ProductOutput,
@@ -62,48 +56,48 @@ async def get_products_by_date(
     status_code=status.HTTP_200_OK,
 )
 async def get_product_by_id(
-    product: ProductOutput = Depends(product_by_id),
+    product_output: ProductOutput = Depends(product_by_id),
 ) -> ProductOutput:
     """
     Обрабатывает запрос с фронт энда на получение продукта по его id
-    :param product: объект ProductOutput, который получается путем выполнения зависимости (метода product_by_id)
+    :param product_output: объект ProductOutput, который получается путем выполнения зависимости (метода product_by_id)
     :return: ProductOutput
     """
-    return product
+    return product_output
 
 
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been added"},
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/",
-    response_model=dict,
+    response_model=ProductOutput,
     status_code=status.HTTP_201_CREATED,
 )
 async def add_product(
-    product: ProductInput,
+    product_input: ProductInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> ProductOutput:
     """
     Обрабатывает запрос с фронт энда на добавление продукта в БД
-    :param product: ProductInput - объект, содержащий данные продукта
+    :param product_input: ProductInput - объект, содержащий данные продукта
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductAdapter.add_product(product, session)
+    return await ProductAdapter.add_product(product_input, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been updated"},
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
     "/{product_id}",
-    response_model=dict,
+    response_model=ProductOutput,
     status_code=status.HTTP_200_OK,
 )
 async def update_product(
     product_input: ProductInput,
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> ProductOutput:
     """
     Обрабатывает запрос с фронт энда на полную замену данных продукта по его id
     :param product_input: ProductInput - объект, содержащий новые данные конкретного продукта
@@ -118,14 +112,14 @@ async def update_product(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
     "/{product_id}",
-    response_model=dict,
+    response_model=ProductOutput,
     status_code=status.HTTP_200_OK,
 )
 async def update_product_partial(
     product_input: ProductInput,
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> ProductOutput:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
     :param product_input: ProductInput - объект, содержащий новые данные конкретного продукта
@@ -134,18 +128,21 @@ async def update_product_partial(
     :return: dict
     """
     return await ProductAdapter.update_product(
-        product_input, product_model, session, partial=True
+        product_input,
+        product_model,
+        session,
+        partial=True,
     )
 
 
 @router.delete(
     "/clear",
-    response_model=dict,
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_products(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict[str, str]:
+) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -158,13 +155,13 @@ async def clear_products(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/{product_id}",
-    response_model=dict,
+    response_model=ProductOutput,
     status_code=status.HTTP_200_OK,
 )
 async def del_product(
     product_model: Product_model = Depends(product_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> dict:
+) -> ProductOutput:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного продукта
     :param product_model: Product_model - конкретный объект в БД, найденный по id

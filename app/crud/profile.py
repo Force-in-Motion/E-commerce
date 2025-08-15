@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Optional
 
 from fastapi import HTTPException
-from sqlalchemy import select, Select, delete, text
+from sqlalchemy import select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Profile as Profile_model, User as User_model
+from app.models import Profile as Profile_model
 from app.schemas import ProfileInput
 
 
@@ -23,7 +23,7 @@ class ProfileAdapter:
         :return: список моделей профилей
         """
         try:
-            stmt = Select(Profile_model).order_by(Profile_model.id)
+            stmt = select(Profile_model).order_by(Profile_model.id)
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
