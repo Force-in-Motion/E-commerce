@@ -23,28 +23,26 @@ class ProfileAdapter:
         :return: список моделей профилей
         """
         try:
-            request = Select(Profile_model).order_by(Profile_model.created_at)
-            response = await session.execute(request)
-            profiles = response.scalars().all()
-            return list(profiles)
+            stmt = Select(Profile_model).order_by(Profile_model.id)
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
 
         except SQLAlchemyError:
             return []
 
     @staticmethod
     async def get_profile_by_id(
-        id: int,
+        profile_id: int,
         session: AsyncSession,
     ) -> Optional[Profile_model]:
         """
         Возвращает профиль по его id
-        :param id: id профиля в БД
+        :param profile_id: id профиля в БД
         :param session: Объект сессии, полученный в качестве аргумента
         :return: модель конкретного профиля
         """
         try:
-            result = await session.get(Profile_model, id)
-            return result
+            return await session.get(Profile_model, profile_id)
 
         except SQLAlchemyError:
             return None
@@ -52,21 +50,19 @@ class ProfileAdapter:
     @classmethod
     async def get_profile_by_user_id(
         cls,
-        session: AsyncSession,
         user_id: int,
+        session: AsyncSession,
     ) -> Optional[Profile_model]:
         """
         Возвращает профиль, соответствующий id пользователя в БД
-        :param session: Объект сессии, полученный в качестве аргумента
         :param user_id: id конкретного пользователя
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: модель конкретного профиля
         """
         try:
-            request = select(Profile_model).where(Profile_model.user_id == user_id)
-            response = await session.execute(request)
-            profile = response.scalars().first()
-
-            return profile
+            stmt = select(Profile_model).where(Profile_model.user_id == user_id)
+            result = await session.execute(stmt)
+            return result.scalars().first()
 
         except SQLAlchemyError:
             return None
@@ -79,19 +75,18 @@ class ProfileAdapter:
     ) -> list[Profile_model]:
         """
         Возвращает список всех профилей пользователей, добавленных за указанный интервал времени
-        :param session: Объект сессии, полученный в качестве аргумента
         :param dates: кортеж, содержащий начало интервала времени и его окончание
+        :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех профилей пользователей, добавленных за указанный интервал времени
         """
         try:
-            date_start, date_end = dates
-            request = (
+            stmt = (
                 select(Profile_model)
-                .where(Profile_model.created_at.between(date_start, date_end))
+                .where(Profile_model.created_at.between(*dates))
                 .order_by(Profile_model.created_at.desc())
             )
 
-            result = await session.execute(request)
+            result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError:
@@ -100,45 +95,33 @@ class ProfileAdapter:
     @classmethod
     async def add_profile(
         cls,
-        user_model: User_model,
-        session: AsyncSession,
         profile_input: ProfileInput,
-    ) -> dict:
+        user_id: int,
+        session: AsyncSession,
+    ) -> Profile_model:
         """
         Создает профиль конкретного пользователя в БД
-        :param user_model: UserModel - объект, содержащий данные пользователя
         :param profile_input: ProfileInput - объект, содержащий данные профиля пользователя
+        :param user_id: UserModel - объект, содержащий данные пользователя
         :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
         # Проверка наличия уже существующего профиля у пользователя
-        profile_model = await cls.get_profile_by_user_id(session, user_model.id)
 
         # Если профиля у пользователя нет, то добавляем
-        if profile_model is None:
 
-            try:
-                profile_model = Profile_model(
-                    user_id=user_model.id, **profile_input.model_dump()
-                )
-                session.add(profile_model)
-                await session.commit()
-                return {
-                    "status": "ok",
-                    "detail": "Profile has been added",
-                }
+        try:
+            profile_model = Profile_model(user_id=user_id, **profile_input.model_dump())
 
-            except SQLAlchemyError:
-                await session.rollback()
-                raise HTTPException(
-                    status_code=500,
-                    detail="Error added Profile",
-                )
+            session.add(profile_model)
+            await session.commit()
+            return profile_model
 
-        else:
+        except SQLAlchemyError:
+            await session.rollback()
             raise HTTPException(
                 status_code=500,
-                detail="Error user profile already exists",
+                detail="Error added Profile",
             )
 
     @classmethod
@@ -148,7 +131,7 @@ class ProfileAdapter:
         profile_input: ProfileInput,
         profile_model: Profile_model,
         partial: bool = False,
-    ) -> dict[str, str] | None:
+    ) -> Profile_model:
         """
         Обновляет данные профиля пользователя в БД полностью или частично
         :param session: Объект сессии, полученный в качестве аргумента
@@ -168,10 +151,7 @@ class ProfileAdapter:
                     setattr(profile_model, key, value)
 
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Profile has been updated",
-            }
+            return profile_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -185,7 +165,7 @@ class ProfileAdapter:
         cls,
         session: AsyncSession,
         profile_model: Profile_model,
-    ) -> dict[str, str]:
+    ) -> Profile_model:
         """
         Удаляет профиль из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -195,10 +175,7 @@ class ProfileAdapter:
         try:
             await session.delete(profile_model)
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "Profile has been deleted",
-            }
+            return profile_model
 
         except SQLAlchemyError:
             await session.rollback()
@@ -208,7 +185,7 @@ class ProfileAdapter:
             )
 
     @classmethod
-    async def clear_profile_db(cls, session: AsyncSession) -> dict[str, str]:
+    async def clear_profile_db(cls, session: AsyncSession) -> list:
         """
         Очищает базу данных пользователя и сбрасывает последовательность id пользователей
         :param session: Объект сессии, полученный в качестве аргумента
@@ -220,10 +197,7 @@ class ProfileAdapter:
                 text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
             )
             await session.commit()
-            return {
-                "status": "ok",
-                "detail": "All Profiles have been deleted",
-            }
+            return []
 
         except SQLAlchemyError:
             await session.rollback()

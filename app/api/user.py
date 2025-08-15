@@ -59,14 +59,14 @@ async def get_users_by_date(
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_id(
-    user: UserOutput = Depends(user_by_id),
+    user_output: UserOutput = Depends(user_by_id),
 ) -> UserOutput:
     """
     Обрабатывает запрос с фронт энда на получение пользователя по его id
-    :param user: объект UserOutput, который получается путем выполнения зависимости (метода product_by_id)
+    :param user_output: объект UserOutput, который получается путем выполнения зависимости (метода product_by_id)
     :return: Конкретного пользователя по его id
     """
-    return user
+    return user_output
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
@@ -77,16 +77,16 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def add_user(
-    user: UserInput,
+    user_input: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserOutput:
     """
     Обрабатывает запрос с фронт энда на добавление пользователя в БД
-    :param user: UserInput - объект, содержащий данные пользователя
+    :param user_input: UserInput - объект, содержащий данные пользователя
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await UserAdapter.add_user(session, user)
+    return await UserAdapter.add_user(user_input, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
@@ -122,7 +122,7 @@ async def update_user_partial(
     user_input: UserInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) ->UserOutput:
+) -> UserOutput:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
     :param user_input: UserInput - объект, содержащий новые данные конкретного пользователя

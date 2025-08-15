@@ -6,6 +6,7 @@ __all__ = [
     "post_by_id",
     "posts_by_user_id",
     "date_checker",
+    "profile_checker",
 ]
 
 
@@ -17,4 +18,5 @@ from .dependencies import (
     post_by_id,
     posts_by_user_id,
     date_checker,
+    profile_checker,
 )
