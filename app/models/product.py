@@ -1,9 +1,13 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
 from sqlalchemy import String, Integer, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base
+from . import Base
+
+if TYPE_CHECKING:
+    from app.models import Order
 
 
 class Product(Base):
@@ -19,7 +23,13 @@ class Product(Base):
     price: Mapped[int] = mapped_column(Integer, nullable=False)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+        DateTime(timezone=True),
+        server_default=func.now(),
+    )
+
+    orders: Mapped[list["Order"]] = relationship(
+        secondary="OrderProducts",
+        back_populates="products",
     )
 
 
@@ -37,5 +47,5 @@ class Product(Base):
 # Получать связанные объекты (например, список постов пользователя через user.posts).
 # Автоматически загружать связанные данные из базы, когда ты обращаешься к этому атрибуту.
 
-# Это говорит SQLAlchemy, что у объекта Post есть атрибут user, который возвращает объект User, связанный с этим постом.
-# back_populates="posts" указывает обратную связь: в модели User есть атрибут posts, который ссылается на объект User.
+# Это говорит SQLAlchemy, что у объекта Product есть атрибут orders, который возвращает список объектов Order, связанные с этим продуктом.
+# back_populates="products" указывает обратную связь: в модели Order есть атрибут products, который ссылается на список объектов Product.

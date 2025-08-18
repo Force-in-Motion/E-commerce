@@ -1,4 +1,4 @@
-from _datetime import datetime
+from datetime import datetime
 from typing import TYPE_CHECKING
 
 from sqlalchemy import String, Text, ForeignKey, DateTime, func

@@ -1,9 +1,19 @@
 from datetime import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer, DateTime, func
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy import (
+    String,
+    Integer,
+    DateTime,
+    func,
+    CheckConstraint,
+)
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base
+from . import Base
+
+if TYPE_CHECKING:
+    from app.models import Product
 
 
 class Order(Base):
@@ -11,16 +21,30 @@ class Order(Base):
 
     __tablename__ = "Order"  # Название таблицы в БД
 
-    # Описание мета информации таблицы
-    promo_code: Mapped[str] = mapped_column(String)
+    __table_args__ = (
+        CheckConstraint("char_length(promo_code) = 10", name="ck_promo_code_length"),
+    )
 
-    description: Mapped[str] = mapped_column(String)
+    # Описание мета информации таблицы
+    promo_code: Mapped[str] = mapped_column(String(10), unique=True)
+
+    comment: Mapped[str] = mapped_column(String)
 
     total_sum: Mapped[int] = mapped_column(Integer)
 
     created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
+        DateTime(timezone=True),
+        server_default=func.now(),
     )
+    products: Mapped[list["Product"]] = relationship(
+        secondary="OrderProducts",
+        back_populates="orders",
+    )
+
+
+# CheckConstraint("length(promo_code) = 10") → гарантирует, что значение будет ровно 10 символов.
+# Если указать name=..., SQLAlchemy (или сама СУБД) сгенерирует при ошибке валидации constraint в БД вы получите ошибку с указанием этого имени
+# Сразу ясно, что это проверка на длину промокода.
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
