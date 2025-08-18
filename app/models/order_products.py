@@ -23,6 +23,7 @@ class OrderProducts(Base):
     product_id: Mapped[int] = mapped_column(
         ForeignKey("Product.id", ondelete="CASCADE"),
     )
+    count: Mapped[int] = mapped_column(default=1, server_default="1")
 
 
 # UniqueConstraint Гарантирует что order_id и product_id в таблице в одной строке будут уникальны,
