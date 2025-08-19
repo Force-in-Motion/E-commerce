@@ -51,6 +51,7 @@ class Profile(Base):
     user_id: Mapped[int] = mapped_column(
         ForeignKey("User.id", ondelete="CASCADE"),
         unique=True,
+        nullable=False,
     )
 
     # Позволяет получать профиль пользователя через атрибут класса user

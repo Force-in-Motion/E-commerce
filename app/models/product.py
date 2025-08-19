@@ -23,14 +23,9 @@ class Product(Base):
 
     price: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(  # Связка на сквозь
+    created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-    )
-
-    orders: Mapped[list["Order"]] = relationship(
-        secondary="OrderProducts",
-        back_populates="products",
     )
 
     product_detail: Mapped["OrderProducts"] = relationship(

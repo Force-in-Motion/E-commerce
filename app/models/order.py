@@ -7,14 +7,14 @@ from sqlalchemy import (
     DateTime,
     func,
     CheckConstraint,
+    ForeignKey,
 )
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
 
 if TYPE_CHECKING:
-    from app.models import Product
-    from app.models import OrderProducts
+    from . import User, Product, OrderProducts
 
 
 class Order(Base):
@@ -27,19 +27,30 @@ class Order(Base):
     )
 
     # Описание мета информации таблицы
-    promo_code: Mapped[str | None] = mapped_column(String(10), unique=True)
+    promo_code: Mapped[str | None] = mapped_column(
+        String(10),
+        unique=True,
+        nullable=True,
+    )
 
-    comment: Mapped[str] = mapped_column(String)
+    comment: Mapped[str] = mapped_column(String, nullable=True)
 
-    total_sum: Mapped[int] = mapped_column(Integer)
+    total_sum: Mapped[int] = mapped_column(Integer, nullable=True)
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
     )
-    products: Mapped[list["Product"]] = relationship(
-        secondary="OrderProducts",
+
+    user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("User.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    user: Mapped["User"] = relationship(
         back_populates="orders",
+        uselist=False,
     )
 
     product_detail: Mapped["OrderProducts"] = relationship(

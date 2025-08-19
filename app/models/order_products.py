@@ -6,8 +6,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from . import Base
 
 if TYPE_CHECKING:
-    from app.models import Order
-    from app.models import Product
+    from . import Order
+    from . import Product
 
 
 class OrderProducts(Base):
@@ -25,14 +25,21 @@ class OrderProducts(Base):
     # Описание мета информации таблицы
     order_id: Mapped[int] = mapped_column(
         ForeignKey("Order.id", ondelete="CASCADE"),
+        nullable=False,
     )
 
     product_id: Mapped[int] = mapped_column(
         ForeignKey("Product.id", ondelete="CASCADE"),
+        nullable=False,
     )
-    count: Mapped[int] = mapped_column(default=1, server_default="1")
+    count: Mapped[int] = mapped_column(
+        default=1,
+        server_default="1",
+        nullable=True,
+    )
 
     order: Mapped[list["Order"]] = relationship(back_populates="order_detail")
+
     product: Mapped[list["Product"]] = relationship(back_populates="product_detail")
 
 

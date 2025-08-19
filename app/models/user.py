@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
-    from app.models import Post, Profile
+    from app.models import Post, Profile, Order
 
 
 class User(Base):
@@ -49,6 +49,12 @@ class User(Base):
         uselist=False,  # uselist: Указывает, является ли связь коллекцией (True для один-ко-многим, False для один-к-одному)
         lazy="select",
         cascade="all, delete",
+    )
+
+    orders: Mapped[list["Order"]] = relationship(
+        back_populates="user",
+        lazy="select",
+        cascade="all, delete-orphan",
     )
 
 
