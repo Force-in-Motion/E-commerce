@@ -14,6 +14,7 @@ from . import Base
 
 if TYPE_CHECKING:
     from app.models import Product
+    from app.models import OrderProducts
 
 
 class Order(Base):
@@ -39,6 +40,10 @@ class Order(Base):
     products: Mapped[list["Product"]] = relationship(
         secondary="OrderProducts",
         back_populates="orders",
+    )
+
+    product_detail: Mapped["OrderProducts"] = relationship(
+        back_populates="order_detail"
     )
 
 

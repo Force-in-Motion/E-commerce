@@ -8,6 +8,7 @@ from . import Base
 
 if TYPE_CHECKING:
     from app.models import Order
+    from app.models import OrderProducts
 
 
 class Product(Base):
@@ -22,7 +23,7 @@ class Product(Base):
 
     price: Mapped[int] = mapped_column(Integer, nullable=False)
 
-    created_at: Mapped[datetime] = mapped_column(
+    created_at: Mapped[datetime] = mapped_column(  # Связка на сквозь
         DateTime(timezone=True),
         server_default=func.now(),
     )
@@ -31,6 +32,10 @@ class Product(Base):
         secondary="OrderProducts",
         back_populates="products",
     )
+
+    product_detail: Mapped["OrderProducts"] = relationship(
+        back_populates="product"
+    )  # Полноценная модель-связка
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
@@ -49,3 +54,15 @@ class Product(Base):
 
 # Это говорит SQLAlchemy, что у объекта Product есть атрибут orders, который возвращает список объектов Order, связанные с этим продуктом.
 # back_populates="products" указывает обратную связь: в модели Order есть атрибут products, который ссылается на список объектов Product.
+
+
+# Сквозная связь через secondary - Удобно, когда таблица-связка (OrderProducts) ничего больше не хранит, кроме order_id и product_id.
+# Тогда ты просто работаешь через order.products или product.orders, и тебе не важно, как устроена связка.
+# Минус: ты не можешь добавить дополнительные данные (например, count или скидку на товар в заказе). Таблица не содержит ничего кроме внешних ключей
+
+# Полноценная модель-связка - Этот вариант нужен, если у связки есть дополнительные поля — например:
+# count (количество товара в заказе),
+# price на момент заказа,
+# discount,
+# статус (например, "подарок").
+# В этом случае OrderProducts становится полноценной ассоциативной сущностью, а не просто связкой.

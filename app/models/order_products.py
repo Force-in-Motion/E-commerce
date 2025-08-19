@@ -1,12 +1,19 @@
+from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint
 
-from sqlalchemy.orm import Mapped, mapped_column
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from . import Base
 
+if TYPE_CHECKING:
+    from app.models import Order
+    from app.models import Product
+
 
 class OrderProducts(Base):
-    """Класс, описывающий мета информацию таблицы OrderProducts, таблица связывающая заказы и продукты"""
+    """Класс, описывающий мета информацию таблицы OrderProducts, таблица связывающая заказы и продукты
+    Ассоциативная модель, поскольку содержит не только внешние ключи, но и дополнительные личные поля и параметры
+    """
 
     __tablename__ = "OrderProducts"  # Название таблицы в БД
 
@@ -24,6 +31,9 @@ class OrderProducts(Base):
         ForeignKey("Product.id", ondelete="CASCADE"),
     )
     count: Mapped[int] = mapped_column(default=1, server_default="1")
+
+    order: Mapped[list["Order"]] = relationship(back_populates="order_detail")
+    product: Mapped[list["Product"]] = relationship(back_populates="product_detail")
 
 
 # UniqueConstraint Гарантирует что order_id и product_id в таблице в одной строке будут уникальны,
