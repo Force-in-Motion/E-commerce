@@ -25,6 +25,12 @@ class DBConnector:
             expire_on_commit=False,  # Отключает сброс (expiration) объектов в сессии после фиксации транзакции (commit).
         )
 
+    def get_session_factory(self):
+        """
+        Возвращает новую асинхронную сессию (async context manager).
+        """
+        return self.__session_factory()
+
     def get_engine(self):
         """
         Возвращает асинхронный движок с указанными настройками

@@ -53,20 +53,16 @@ class Order(Base):
         uselist=False,
     )
 
-    product_detail: Mapped["OrderProducts"] = relationship(
-        back_populates="order_detail"
-    )
+    order_detail: Mapped["OrderProducts"] = relationship(back_populates="order")
 
 
 # CheckConstraint("length(promo_code) = 10") → гарантирует, что значение будет ровно 10 символов.
 # Если указать name=..., SQLAlchemy (или сама СУБД) сгенерирует при ошибке валидации constraint в БД вы получите ошибку с указанием этого имени
 # Сразу ясно, что это проверка на длину промокода.
 
-
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
 # для аннотации типов атрибутов модели. Он указывает, что атрибут класса (например, name)
 # связан с колонкой в базе данных и имеет определённый Python-тип (например, str).
-
 
 # mapped_column — это функция из sqlalchemy.orm, для определения колонок и их параметров (тип, ограничения, индексы)
 # в декларативных моделях. Она создаёт объект колонки и связывает его с атрибутом, аннотированным Mapped.
