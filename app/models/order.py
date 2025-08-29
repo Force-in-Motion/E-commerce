@@ -23,7 +23,7 @@ class Order(Base):
     __tablename__ = "Order"  # Название таблицы в БД
 
     __table_args__ = (
-        CheckConstraint("char_length(promo_code) = 10", name="ck_promo_code_length"),
+        CheckConstraint("char_length(promo_code) = 10", name="err_promo_code_length"),
     )
 
     # Описание мета информации таблицы
@@ -53,7 +53,7 @@ class Order(Base):
         uselist=False,
     )
 
-    order_detail: Mapped["OrderProducts"] = relationship(back_populates="order")
+    product_detail: Mapped[list["OrderProducts"]] = relationship(back_populates="order")
 
 
 # CheckConstraint("length(promo_code) = 10") → гарантирует, что значение будет ровно 10 символов.

@@ -38,9 +38,9 @@ class OrderProducts(Base):
         nullable=True,
     )
 
-    order: Mapped[list["Order"]] = relationship(back_populates="order_detail")
+    order: Mapped["Order"] = relationship(back_populates="product_detail")
 
-    product: Mapped[list["Product"]] = relationship(back_populates="product_detail")
+    product: Mapped["Product"] = relationship(back_populates="order_detail")
 
 
 # UniqueConstraint Гарантирует что order_id и product_id в таблице в одной строке будут уникальны,

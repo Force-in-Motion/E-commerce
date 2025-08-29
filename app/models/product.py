@@ -28,8 +28,8 @@ class Product(Base):
         server_default=func.now(),
     )
 
-    product_detail: Mapped["OrderProducts"] = relationship(
-        back_populates="product"
+    order_detail: Mapped[list["OrderProducts"]] = relationship(
+        back_populates="product",
     )  # Полноценная модель-связка
 
 
