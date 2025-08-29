@@ -28,8 +28,10 @@ class Product(Base):
         server_default=func.now(),
     )
 
-    order_detail: Mapped[list["OrderProducts"]] = relationship(
-        back_populates="product",
+    orders_containing: Mapped[list["OrderProducts"]] = (
+        relationship(  # Заказы, содержащие этот продукт
+            back_populates="product",
+        )
     )  # Полноценная модель-связка
 
 

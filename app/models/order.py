@@ -53,7 +53,9 @@ class Order(Base):
         uselist=False,
     )
 
-    product_detail: Mapped[list["OrderProducts"]] = relationship(back_populates="order")
+    products_contained: Mapped[list["OrderProducts"]] = relationship(
+        back_populates="order"
+    )  # Продукты содержащиеся в этом заказе
 
 
 # CheckConstraint("length(promo_code) = 10") → гарантирует, что значение будет ровно 10 символов.
