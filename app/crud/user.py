@@ -110,7 +110,7 @@ class UserAdapter:
             await session.refresh(
                 user_model
             )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
-            # refresh гарантирует, что post_model содержит актуальное состояние из базы.
+            # refresh гарантирует, что User_model содержит актуальное состояние из базы.
             return user_model
 
         except SQLAlchemyError:
@@ -150,7 +150,7 @@ class UserAdapter:
             await session.refresh(
                 user_model
             )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
-            # refresh гарантирует, что post_model содержит актуальное состояние из базы.
+            # refresh гарантирует, что User_model содержит актуальное состояние из базы.
             return user_model
 
         except SQLAlchemyError:

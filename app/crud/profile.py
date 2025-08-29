@@ -106,9 +106,6 @@ class ProfileAdapter:
         :param session: Объект сессии, полученный в качестве аргумента
         :return: dict
         """
-        # Проверка наличия уже существующего профиля у пользователя
-
-        # Если профиля у пользователя нет, то добавляем
 
         try:
             profile_model = Profile_model(user_id=user_id, **profile_input.model_dump())

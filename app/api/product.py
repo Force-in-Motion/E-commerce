@@ -168,4 +168,4 @@ async def del_product(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductAdapter.del_product(product_model, session)
+    return await ProductAdapter.delete_product(product_model, session)

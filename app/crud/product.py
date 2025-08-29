@@ -136,7 +136,7 @@ class ProductAdapter:
             )
 
     @classmethod
-    async def del_product(
+    async def delete_product(
         cls,
         product_model: Product_model,
         session: AsyncSession,
