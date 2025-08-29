@@ -46,7 +46,7 @@ async def user_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: User_model
     """
-    user_model = await UserAdapter.get_user_by_id(session, user_id)
+    user_model = await UserAdapter.get_user_by_id(user_id, session)
 
     if user_model is None:
         raise HTTPException(
@@ -87,7 +87,7 @@ async def profile_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Profile_model
     """
-    profile_model = await ProfileAdapter.get_profile_by_user_id(session, user_model.id)
+    profile_model = await ProfileAdapter.get_profile_by_user_id(user_model.id, session)
 
     if profile_model is None:
         raise HTTPException(
@@ -108,7 +108,7 @@ async def post_by_id(
     :param session:
     :return:
     """
-    post_model = await PostAdapter.get_post_by_id(session, post_id)
+    post_model = await PostAdapter.get_post_by_id(post_id, session)
 
     if post_model is None:
         raise HTTPException(
@@ -128,7 +128,7 @@ async def posts_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[PostOutput]
     """
-    posts_model = await PostAdapter.get_posts_by_user_id(session, user_model.id)
+    posts_model = await PostAdapter.get_posts_by_user_id(user_model.id, session)
 
     if not posts_model:
         raise HTTPException(
@@ -162,7 +162,7 @@ async def profile_checker(
     user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> int:
-    profile_model = await cls.get_profile_by_user_id(user_id, session)
+    profile_model = await ProfileAdapter.get_profile_by_user_id(user_id, session)
 
     if profile_model:
         raise HTTPException(

@@ -1,7 +1,7 @@
 from datetime import datetime
-from typing import Annotated, Optional
+from typing import Optional
 
-from fastapi import Path, HTTPException, status
+from fastapi import HTTPException
 from sqlalchemy import select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession

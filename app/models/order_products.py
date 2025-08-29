@@ -17,7 +17,7 @@ class OrderProducts(Base):
 
     __tablename__ = "OrderProducts"  # Название таблицы в БД
 
-    __table_args = UniqueConstraint(
+    __table_args__ = UniqueConstraint(
         "order_id",
         "product_id",
         name="idx_unique_order_product",
@@ -32,17 +32,15 @@ class OrderProducts(Base):
         ForeignKey("Product.id", ondelete="CASCADE"),
         nullable=False,
     )
-    count: Mapped[int] = mapped_column(
+    quantity: Mapped[int] = mapped_column(
         default=1,  # Дефолтное значение, работает только на стороне Алхимии
         server_default="1",  # Дефолтное значение, работает только на стороне БД, если указывается одно то должно указываться и другое
-        nullable=True,
+        nullable=False,
     )
 
-    order: Mapped["Order"] = relationship(back_populates="products_contained_in_order")
+    order: Mapped["Order"] = relationship(back_populates="products_contained")
 
-    product: Mapped["Product"] = relationship(
-        back_populates="orders_containing_product"
-    )
+    product: Mapped["Product"] = relationship(back_populates="orders_containing")
 
 
 # UniqueConstraint Гарантирует что order_id и product_id в таблице в одной строке будут уникальны,

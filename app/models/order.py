@@ -23,29 +23,32 @@ class Order(Base):
     __tablename__ = "Order"  # Название таблицы в БД
 
     __table_args__ = (
-        CheckConstraint("char_length(promo_code) = 10", name="err_promo_code_length"),
+        CheckConstraint(
+            "promo_code IS NULL OR char_length(promo_code) = 10",
+            name="err_promo_code_length",
+        ),
     )
 
     # Описание мета информации таблицы
+    user_id: Mapped[int] = mapped_column(
+        Integer,
+        ForeignKey("User.id", ondelete="CASCADE"),
+        nullable=False,
+    )
+
+    total_sum: Mapped[int] = mapped_column(Integer, nullable=True)
+
+    comment: Mapped[str] = mapped_column(String, nullable=True)
+
     promo_code: Mapped[str | None] = mapped_column(
         String(10),
         unique=True,
         nullable=True,
     )
 
-    comment: Mapped[str] = mapped_column(String, nullable=True)
-
-    total_sum: Mapped[int] = mapped_column(Integer, nullable=True)
-
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
-    )
-
-    user_id: Mapped[int] = mapped_column(
-        Integer,
-        ForeignKey("User.id", ondelete="CASCADE"),
-        nullable=False,
     )
 
     user: Mapped["User"] = relationship(
