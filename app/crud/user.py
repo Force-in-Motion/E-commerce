@@ -88,7 +88,6 @@ class UserAdapter:
             return list(result.scalars().all())
 
         except SQLAlchemyError:
-            await session.rollback()
             return []
 
     @classmethod
