@@ -17,10 +17,12 @@ class OrderProducts(Base):
 
     __tablename__ = "OrderProducts"  # Название таблицы в БД
 
-    __table_args__ = UniqueConstraint(
-        "order_id",
-        "product_id",
-        name="idx_unique_order_product",
+    __table_args__ = (
+        UniqueConstraint(
+            "order_id",
+            "product_id",
+            name="idx_unique_order_product",
+        ),
     )
     # Описание мета информации таблицы
     order_id: Mapped[int] = mapped_column(
