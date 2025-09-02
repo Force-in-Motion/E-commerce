@@ -8,7 +8,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models import Base
 
 if TYPE_CHECKING:
-    from . import CartItem
+    from . import CartProduct
 
 
 class Cart(Base):
@@ -24,7 +24,7 @@ class Cart(Base):
         server_default=func.now(),
     )
 
-    items: Mapped[list["CartItem"]] = relationship(
+    product: Mapped[list["CartProduct"]] = relationship(
         back_populates="cart",
         lazy="select",
         cascade="all, delete-orphan",

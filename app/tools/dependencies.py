@@ -171,3 +171,9 @@ async def profile_checker(
         )
 
     return user_id
+
+
+async def get_user_crud(
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> UserAdapter:
+    return UserAdapter(session)

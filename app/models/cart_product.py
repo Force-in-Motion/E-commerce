@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from . import Product
 
 
-class CartItem(Base):
+class CartProduct(Base):
     __tablename__ = "CartItem"
 
     cart_id: Mapped[int] = mapped_column(

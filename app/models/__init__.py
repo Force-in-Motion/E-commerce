@@ -7,7 +7,7 @@ __all__ = [
     "Profile",
     "OrderProducts",
     "Cart",
-    "CartItem",
+    "CartProduct",
 ]
 
 from .base import Base
@@ -18,4 +18,4 @@ from .profile import Profile
 from .user import User
 from .order_products import OrderProducts
 from .cart import Cart
-from .cart_item import CartItem
+from .cart_product import CartProduct

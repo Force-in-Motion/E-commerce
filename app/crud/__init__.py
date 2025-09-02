@@ -1,4 +1,5 @@
 __all__ = [
+    "BaseCrud",
     "UserAdapter",
     "ProductAdapter",
     "ProfileAdapter",
@@ -6,6 +7,7 @@ __all__ = [
     "OrderAdapter",
 ]
 
+from .base import BaseCrud
 from .post import PostAdapter
 from .product import ProductAdapter
 from .profile import ProfileAdapter
