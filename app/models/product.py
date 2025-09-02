@@ -40,11 +40,13 @@ class Product(Base):
     # Заказы, содержащие этот продукт
     orders_containing: Mapped[list["OrderProducts"]] = relationship(
         back_populates="product",
+        lazy="select",
         cascade="all, delete-orphan",
     )  # Полноценная модель-связка
 
-    cart_items = Mapped[list["CartItem"]] = relationship(
+    cart_items: Mapped[list["CartItem"]] = relationship(
         back_populates="product",
+        lazy="select",
         cascade="all, delete-orphan",
     )
 

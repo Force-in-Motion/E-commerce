@@ -43,9 +43,15 @@ class OrderProducts(Base):
         nullable=False,
     )
 
-    order: Mapped["Order"] = relationship(back_populates="products_contained")
+    order: Mapped["Order"] = relationship(
+        back_populates="products_contained",
+        lazy="select",
+    )
 
-    product: Mapped["Product"] = relationship(back_populates="orders_containing")
+    product: Mapped["Product"] = relationship(
+        back_populates="orders_containing",
+        lazy="select",
+    )
 
 
 # UniqueConstraint Гарантирует что order_id и product_id в таблице в одной строке будут уникальны,

@@ -57,6 +57,7 @@ class Profile(Base):
     # Позволяет получать профиль пользователя через атрибут класса user
     user: Mapped["User"] = relationship(
         back_populates="profile",
+        lazy="select",
         uselist=False,
     )
 

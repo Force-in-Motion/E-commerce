@@ -36,7 +36,12 @@ class Order(Base):
         nullable=False,
     )
 
-    total_sum: Mapped[int] = mapped_column(Integer, nullable=False)
+    total_sum: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+        default=0,  # для SQLAlchemy
+        server_default="0",
+    )
 
     comment: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -53,11 +58,12 @@ class Order(Base):
 
     user: Mapped["User"] = relationship(
         back_populates="orders",
-        uselist=False,
+        lazy="select",
     )
 
     products_contained: Mapped[list["OrderProducts"]] = relationship(
         back_populates="order",
+        lazy="select",
         cascade="all, delete-orphan",
     )  # Продукты содержащиеся в этом заказе
 

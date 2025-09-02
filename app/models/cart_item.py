@@ -30,5 +30,11 @@ class CartItem(Base):
         nullable=False,
     )
 
-    cart: Mapped["Cart"] = relationship(back_populates="items")
-    product: Mapped["Product"] = relationship(back_populates="cart_items")
+    cart: Mapped["Cart"] = relationship(
+        back_populates="items",
+        lazy="select",
+    )
+    product: Mapped["Product"] = relationship(
+        back_populates="cart_item",
+        lazy="select",
+    )

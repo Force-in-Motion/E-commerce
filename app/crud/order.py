@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import Optional
 
-from sqlalchemy import select
+from fastapi import HTTPException
+from sqlalchemy import select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -103,4 +104,22 @@ class OrderAdapter:
         cls,
         session: AsyncSession,
     ) -> Order_model:
-        pass
+        """
+        Удаляет все посты пользователей из БД
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: dict
+        """
+        try:
+            await session.execute(delete(Order_model))
+            await session.execute(
+                text('ALTER SEQUENCE "Profile_id_seq" RESTART WITH 1')
+            )
+            await session.commit()
+            return []
+
+        except SQLAlchemyError:
+            await session.rollback()
+            raise HTTPException(
+                status_code=500,
+                detail="Error cleared Post",
+            )

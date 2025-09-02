@@ -42,7 +42,10 @@ class Post(Base):
     )
 
     # Позволяет получать пользователя конкретного поста через атрибут класса user
-    user: Mapped["User"] = relationship(back_populates="posts")
+    user: Mapped["User"] = relationship(
+        back_populates="posts",
+        lazy="select",
+    )
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,
