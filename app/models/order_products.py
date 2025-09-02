@@ -1,5 +1,5 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, UniqueConstraint
+from sqlalchemy import ForeignKey, UniqueConstraint, Integer
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -26,15 +26,18 @@ class OrderProducts(Base):
     )
     # Описание мета информации таблицы
     order_id: Mapped[int] = mapped_column(
+        Integer,
         ForeignKey("Order.id", ondelete="CASCADE"),
         nullable=False,
     )
 
     product_id: Mapped[int] = mapped_column(
+        Integer,
         ForeignKey("Product.id", ondelete="CASCADE"),
         nullable=False,
     )
     quantity: Mapped[int] = mapped_column(
+        Integer,
         default=1,  # Дефолтное значение, работает только на стороне Алхимии
         server_default="1",  # Дефолтное значение, работает только на стороне БД, если указывается одно то должно указываться и другое
         nullable=False,

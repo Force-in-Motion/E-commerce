@@ -49,8 +49,8 @@ class Profile(Base):
 
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
     user_id: Mapped[int] = mapped_column(
+        Integer,
         ForeignKey("User.id", ondelete="CASCADE"),
-        unique=True,
         nullable=False,
     )
 

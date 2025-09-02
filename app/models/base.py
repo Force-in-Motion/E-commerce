@@ -1,3 +1,4 @@
+from sqlalchemy import Integer
 from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
 
 
@@ -14,4 +15,8 @@ class Base(DeclarativeBase):
 
     # id присутствует во всех таблицах, поэтому его можно указать в родительской,
     # чтобы при наследовании он по умолчанию был уже во всех дочерних таблицах
-    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    id: Mapped[int] = mapped_column(
+        Integer,
+        primary_key=True,
+        autoincrement=True,
+    )

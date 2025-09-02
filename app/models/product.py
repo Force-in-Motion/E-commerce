@@ -7,8 +7,9 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from . import Base
 
 if TYPE_CHECKING:
-    from app.models import Order
-    from app.models import OrderProducts
+    from . import Order
+    from . import OrderProducts
+    from . import CartItem
 
 
 class Product(Base):
@@ -17,22 +18,35 @@ class Product(Base):
     __tablename__ = "Product"  # Название таблицы в БД
 
     # Описание мета информации таблицы
-    name: Mapped[str] = mapped_column(String, nullable=False)
+    name: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
 
-    description: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+    )
 
-    price: Mapped[int] = mapped_column(Integer, nullable=False)
+    price: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
 
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True),
         server_default=func.now(),
     )
-
-    orders_containing: Mapped[list["OrderProducts"]] = (
-        relationship(  # Заказы, содержащие этот продукт
-            back_populates="product",
-        )
+    # Заказы, содержащие этот продукт
+    orders_containing: Mapped[list["OrderProducts"]] = relationship(
+        back_populates="product",
+        cascade="all, delete-orphan",
     )  # Полноценная модель-связка
+
+    cart_items = Mapped[list["CartItem"]] = relationship(
+        back_populates="product",
+        cascade="all, delete-orphan",
+    )
 
 
 # Mapped — это обобщённый тип (generic type) из модуля sqlalchemy.orm,

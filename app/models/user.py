@@ -7,7 +7,7 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from app.models.base import Base
 
 if TYPE_CHECKING:
-    from app.models import Post, Profile, Order
+    from . import Post, Profile, Order, Cart
 
 
 class User(Base):
@@ -55,6 +55,12 @@ class User(Base):
         back_populates="user",
         lazy="select",
         cascade="all, delete-orphan",
+    )
+
+    cart: Mapped["Cart"] = relationship(
+        back_populates="user",
+        uselist=False,
+        cascade="all, delete",
     )
 
 

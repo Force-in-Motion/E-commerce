@@ -36,7 +36,7 @@ class Order(Base):
         nullable=False,
     )
 
-    total_sum: Mapped[int] = mapped_column(Integer, nullable=True)
+    total_sum: Mapped[int] = mapped_column(Integer, nullable=False)
 
     comment: Mapped[str] = mapped_column(String, nullable=True)
 
@@ -57,7 +57,8 @@ class Order(Base):
     )
 
     products_contained: Mapped[list["OrderProducts"]] = relationship(
-        back_populates="order"
+        back_populates="order",
+        cascade="all, delete-orphan",
     )  # Продукты содержащиеся в этом заказе
 
 

@@ -1,7 +1,7 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Text, ForeignKey, DateTime, func
+from sqlalchemy import String, Text, ForeignKey, DateTime, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -36,6 +36,7 @@ class Post(Base):
 
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
     user_id: Mapped[int] = mapped_column(
+        Integer,
         ForeignKey("User.id", ondelete="CASCADE"),
         nullable=False,
     )
