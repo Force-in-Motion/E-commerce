@@ -7,7 +7,7 @@ from app.core import db_connector
 from app.crud import PostAdapter
 from app.models import Post as Post_model, User as User_model
 from app.schemas import PostOutput, PostInput
-from app.tools import date_checker
+
 from app.tools.dependencies import posts_by_user_id, post_by_id, user_by_id
 
 router = APIRouter()

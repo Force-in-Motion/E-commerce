@@ -2,10 +2,13 @@ from abc import ABC, abstractmethod
 from datetime import datetime
 from typing import Optional
 
+from fastapi import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.core import db_connector
 
-class BaseCrud(ABC):
+
+class BaseFacade(ABC):
 
     @staticmethod
     @abstractmethod
@@ -24,11 +27,11 @@ class BaseCrud(ABC):
     async def get_by_id(
         id: int,
         session: AsyncSession,
-    ) -> Optional[object]:
+    ) -> object:
         """
         Возвращает модель по её id из БД
-        :param id: идентификатор объекта в БД
         :param session: Объект сессии, полученный в качестве аргумента
+        :param id: Идентификатор объекта, полученный в качестве аргумента
         :return: Модель | None
         """
         pass
