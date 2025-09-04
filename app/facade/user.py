@@ -172,7 +172,7 @@ class UserFacade(BaseFacade):
         """
         result = await UserAdapter.clear(session)
 
-        if result != []:
+        if result:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Error clearing user model",

@@ -1,17 +1,12 @@
-from abc import ABC, abstractmethod
-from datetime import datetime
 from typing import Optional
 
-from fastapi import Depends
-from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core import db_connector
+from app.facade import BaseFacade
+from app.models import Profile as Profile_model
 
 
-class BaseFacade(ABC):
+class ProfileFacade(BaseFacade):
 
     @staticmethod
-    @abstractmethod
     async def get_all(*args, **kwargs) -> list[object]:
         """
         Возвращает все модели категории из БД
@@ -20,7 +15,6 @@ class BaseFacade(ABC):
         pass
 
     @staticmethod
-    @abstractmethod
     async def get_by_id(*args, **kwargs) -> Optional[object]:
         """
         Возвращает модель по её id из БД
@@ -29,7 +23,13 @@ class BaseFacade(ABC):
         pass
 
     @staticmethod
-    @abstractmethod
+    async def get_by_user_id(*args, **kwargs) -> Optional[Profile_model]:
+        """
+        Возвращает модель профиля, соответствующую id пользователя в БД
+        :return: Модель профиля | None
+        """
+
+    @staticmethod
     async def get_by_date(*args, **kwargs) -> list[object]:
         """
         Возвращает список всех моделей, добавленных за указанный интервал времени
@@ -38,7 +38,6 @@ class BaseFacade(ABC):
         pass
 
     @staticmethod
-    @abstractmethod
     async def create(*args, **kwargs) -> object:
         """
         Добавляет модель в БД
@@ -47,7 +46,6 @@ class BaseFacade(ABC):
         pass
 
     @staticmethod
-    @abstractmethod
     async def update(*args, **kwargs) -> object:
         """
         Обновляет данные модели в БД полностью или частично
@@ -56,7 +54,6 @@ class BaseFacade(ABC):
         pass
 
     @staticmethod
-    @abstractmethod
     async def delete(*args, **kwargs) -> object:
         """
         Удаляет модель из БД
@@ -65,7 +62,6 @@ class BaseFacade(ABC):
         pass
 
     @staticmethod
-    @abstractmethod
     async def clear(*args, **kwargs) -> list:
         """
         Очищает базу данных моделей определенной категории и сбрасывает последовательность id моделей
