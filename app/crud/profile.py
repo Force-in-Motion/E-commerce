@@ -1,26 +1,26 @@
 from datetime import datetime
 from typing import Optional
 
-from fastapi import HTTPException
 from sqlalchemy import select, delete, text
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.crud import BaseCrud
 from app.models import Profile as Profile_model
 from app.schemas import ProfileInput
+from app.tools.custom_err import DatabaseError
 
 
-class ProfileAdapter:
+class ProfileAdapter(BaseCrud):
 
-    @classmethod
-    async def get_profiles(
-        cls,
+    @staticmethod
+    async def get_all(
         session: AsyncSession,
     ) -> list[Profile_model]:
         """
-        Возвращает все профили, существующие в БД
+        Возвращает все модели профилей из БД
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: список моделей профилей
+        :return: Список всех моделей профилей
         """
         try:
             stmt = select(Profile_model).order_by(Profile_model.id)
@@ -28,36 +28,35 @@ class ProfileAdapter:
             return list(result.scalars().all())
 
         except SQLAlchemyError:
-            return []
+            raise DatabaseError("Profile table is empty")
 
     @staticmethod
-    async def get_profile_by_id(
+    async def get_by_id(
         profile_id: int,
         session: AsyncSession,
     ) -> Optional[Profile_model]:
         """
-        Возвращает профиль по его id
-        :param profile_id: id профиля в БД
+        Возвращает модель профиля по ее id из БД
+        :param profile_id: id модели профиля в БД
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: модель конкретного профиля
+        :return: Модель профиля | None
         """
         try:
             return await session.get(Profile_model, profile_id)
 
         except SQLAlchemyError:
-            return None
+            raise DatabaseError("Profile model with this id not found")
 
-    @classmethod
-    async def get_profile_by_user_id(
-        cls,
+    @staticmethod
+    async def get_by_user_id(
         user_id: int,
         session: AsyncSession,
     ) -> Optional[Profile_model]:
         """
-        Возвращает профиль, соответствующий id пользователя в БД
-        :param user_id: id конкретного пользователя
+        Возвращает модель профиля, соответствующую id пользователя в БД
+        :param user_id: id Модели конкретного пользователя
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: модель конкретного профиля
+        :return: Модель профиля | None
         """
         try:
             stmt = select(Profile_model).where(Profile_model.user_id == user_id)
@@ -65,19 +64,18 @@ class ProfileAdapter:
             return result.scalars().first()
 
         except SQLAlchemyError:
-            return None
+            raise DatabaseError("Profile model with this user id not found")
 
-    @classmethod
-    async def get_added_profiles_by_date(
-        cls,
+    @staticmethod
+    async def get_by_date(
         dates: tuple[datetime, datetime],
         session: AsyncSession,
     ) -> list[Profile_model]:
         """
-        Возвращает список всех профилей пользователей, добавленных за указанный интервал времени
+        Возвращает список всех моделей профилей пользователей, добавленных за указанный интервал времени
         :param dates: кортеж, содержащий начало интервала времени и его окончание
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: список всех профилей пользователей, добавленных за указанный интервал времени
+        :return: Список всех моделей профилей пользователей, добавленных за указанный интервал времени
         """
         try:
             stmt = (
@@ -90,21 +88,20 @@ class ProfileAdapter:
             return list(result.scalars().all())
 
         except SQLAlchemyError:
-            return []
+            raise DatabaseError("There are no added profile model in this range")
 
-    @classmethod
-    async def add_profile(
-        cls,
+    @staticmethod
+    async def create(
         profile_input: ProfileInput,
         user_id: int,
         session: AsyncSession,
     ) -> Profile_model:
         """
-        Создает профиль конкретного пользователя в БД
-        :param profile_input: ProfileInput - объект, содержащий данные профиля пользователя
-        :param user_id: UserModel - объект, содержащий данные пользователя
+        Создает модель профиля конкретного пользователя в БД
+        :param profile_input: Pydantic Схема - объект, содержащий данные модели профиля пользователя
+        :param user_id: id Модели конкретного пользователя
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: dict
+        :return: Модель профиля пользователя, созданную в БД
         """
 
         try:
@@ -117,31 +114,27 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(
-                status_code=500,
-                detail="Error added Profile",
-            )
+            raise DatabaseError("Error adding profile model")
 
-    @classmethod
-    async def update_profile(
-        cls,
+    @staticmethod
+    async def update(
         session: AsyncSession,
         profile_input: ProfileInput,
         profile_model: Profile_model,
         partial: bool = False,
     ) -> Profile_model:
         """
-        Обновляет данные профиля пользователя в БД полностью или частично
+        Обновляет данные модели профиля пользователя в БД полностью или частично
         :param session: Объект сессии, полученный в качестве аргумента
-        :param profile_input: ProfileInput - объект, содержащий данные профиля пользователя
-        :param profile_model: Profile_model -конкретный объект в БД, найденный по id
+        :param profile_input: Pydantic Схема - объект, содержащий новые данные профиля пользователя
+        :param profile_model: ORM Модель - конкретный объект в БД, найденный по id
         :param partial: partial: Флаг, передаваемое значение True или False,
                значение передается в метод model_dump(exclude_unset=partial),
                параметр exclude_unset означает - "То, что не было передано, исключить",
                по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
                то заменятся только переданные данные объекта. То есть если переданы не все поля объекта UserInput,
                то заменить в базе только переданные, не переданные пропустить
-        :return: dict
+        :return: Модель профиля пользователя, обновленную в БД
         """
         try:
             for key, value in profile_input.model_dump(exclude_unset=partial).items():
@@ -154,22 +147,18 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(
-                status_code=500,
-                detail="Error updated Profile",
-            )
+            raise DatabaseError("Error updating profile model")
 
-    @classmethod
-    async def del_profile(
-        cls,
+    @staticmethod
+    async def delete(
         session: AsyncSession,
         profile_model: Profile_model,
     ) -> Profile_model:
         """
-        Удаляет профиль из БД
+        Удаляет модель профиля из БД
         :param session: Объект сессии, полученный в качестве аргумента
-        :param profile_model: Profile_model -конкретный объект в БД, найденный по id
-        :return: dict
+        :param profile_model: ORM Модель - конкретный объект в БД, найденный по id
+        :return: Модель профиля пользователя, удаленную из БД
         """
         try:
             await session.delete(profile_model)
@@ -178,17 +167,14 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(
-                status_code=500,
-                detail="Error deleted Profile",
-            )
+            raise DatabaseError("Error deleting profile model")
 
-    @classmethod
-    async def clear_profile_db(cls, session: AsyncSession) -> list:
+    @staticmethod
+    async def clear(session: AsyncSession) -> list:
         """
-        Очищает базу данных пользователя и сбрасывает последовательность id пользователей
+        Очищает таблицу профилей пользователей и сбрасывает последовательность id пользователей
         :param session: Объект сессии, полученный в качестве аргумента
-        :return:
+        :return: Пустой список
         """
         try:
             await session.execute(delete(Profile_model))
@@ -200,7 +186,4 @@ class ProfileAdapter:
 
         except SQLAlchemyError:
             await session.rollback()
-            raise HTTPException(
-                status_code=500,
-                detail="Error deleted all Profiles",
-            )
+            raise DatabaseError("Error clearing profile table")

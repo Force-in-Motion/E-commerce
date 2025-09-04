@@ -45,7 +45,7 @@ class UserAdapter(BaseCrud):
             return await session.get(User_model, user_id)
 
         except SQLAlchemyError:
-            raise DatabaseError("User with this id not found")
+            raise DatabaseError("User model with this id not found")
 
     @staticmethod
     async def get_by_name(
@@ -62,7 +62,7 @@ class UserAdapter(BaseCrud):
             return await session.get(User_model, name)
 
         except SQLAlchemyError:
-            raise DatabaseError("User with this name not found")
+            raise DatabaseError("User model with this name not found")
 
     @staticmethod
     async def get_by_date(
@@ -85,18 +85,18 @@ class UserAdapter(BaseCrud):
             return list(result.scalars().all())
 
         except SQLAlchemyError:
-            raise DatabaseError("There are no added users in this range")
+            raise DatabaseError("There are no added users models in this range")
 
     @staticmethod
     async def create(
-        user_input: UserInput,
+        user_input,
         session: AsyncSession,
-    ) -> Optional[User_model]:
+    ) -> User_model:
         """
         Добавляет модель пользователя в БД
         :param user_input: Pydantic Схема - объект, содержащий данные пользователя
         :param session: Объект сессии, полученный в качестве аргумента
-        :return: модель пользователя, добавленную в БД
+        :return: Модель пользователя, добавленную в БД
         """
         try:
             user_model = User_model(**user_input.model_dump())
@@ -109,9 +109,9 @@ class UserAdapter(BaseCrud):
             # refresh гарантирует, что User_model содержит актуальное состояние из базы.
             return user_model
 
-        except SQLAlchemyError as e:
+        except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError("Error adding user")
+            raise DatabaseError("Error adding user model")
 
     @staticmethod
     async def update(
@@ -119,7 +119,7 @@ class UserAdapter(BaseCrud):
         user_model: User_model,
         session: AsyncSession,
         partial: bool = False,
-    ) -> Optional[User_model]:
+    ) -> User_model:
         """
         Обновляет данные модели пользователя в БД полностью или частично
         :param user_input: Pydantic Схема - объект, содержащий данные пользователя
@@ -131,7 +131,7 @@ class UserAdapter(BaseCrud):
                по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
                то заменятся только переданные данные объекта. То есть если переданы не все поля объекта UserInput,
                то заменить в базе только переданные, не переданные пропустить
-        :return: модель пользователя, обновленную в БД
+        :return: Модель пользователя, обновленную в БД
         """
         try:
             for key, value in user_input.model_dump(exclude_unset=partial).items():
@@ -147,13 +147,13 @@ class UserAdapter(BaseCrud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError("Error updating user")
+            raise DatabaseError("Error updating user model")
 
     @staticmethod
     async def delete(
         user_model: User_model,
         session: AsyncSession,
-    ) -> Optional[User_model]:
+    ) -> User_model:
         """
         Удаляет модель пользователя из БД
         :param user_model: ORM Модель - конкретный объект в БД, найденный по id
@@ -167,12 +167,12 @@ class UserAdapter(BaseCrud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError("Error deleting user")
+            raise DatabaseError("Error deleting user model")
 
     @staticmethod
     async def clear(
         session: AsyncSession,
-    ) -> Optional[list]:
+    ) -> list:
         """
         Очищает таблицу моделей пользователей и сбрасывает последовательность id моделей
         :param session: Объект сессии, полученный в качестве аргумента
@@ -186,4 +186,4 @@ class UserAdapter(BaseCrud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError("Error clearing user")
+            raise DatabaseError("Error clearing user table")

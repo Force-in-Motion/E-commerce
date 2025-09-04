@@ -12,7 +12,9 @@ from .base import BaseFacade
 class UserFacade(BaseFacade):
 
     @staticmethod
-    async def get_all(session: AsyncSession) -> list[User_model]:
+    async def get_all(
+        session: AsyncSession,
+    ) -> list[User_model]:
         """
         Возвращает результат выполнения метода получения всех моделей пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -44,7 +46,7 @@ class UserFacade(BaseFacade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User with this id not found",
+                detail="User model with this id not found",
             )
 
         return user_model
@@ -65,7 +67,7 @@ class UserFacade(BaseFacade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User with this name not found",
+                detail="User model with this name not found",
             )
 
         return user_model
@@ -87,14 +89,14 @@ class UserFacade(BaseFacade):
         if not user_models:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="There are no added users in this range",
+                detail="There are no added users models in this range",
             )
 
         return user_models
 
     @staticmethod
     async def create(
-        user_input: UserInput,
+        user_input,
         session: AsyncSession,
     ) -> User_model:
         """
@@ -108,7 +110,7 @@ class UserFacade(BaseFacade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error adding user",
+                detail="Error adding user model",
             )
 
         return user_model
@@ -133,7 +135,7 @@ class UserFacade(BaseFacade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error updating user",
+                detail="Error updating user model",
             )
 
         return user_model
@@ -154,7 +156,7 @@ class UserFacade(BaseFacade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error deleting user",
+                detail="Error deleting user model",
             )
 
         return user_model
@@ -173,7 +175,7 @@ class UserFacade(BaseFacade):
         if result != []:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error clearing user",
+                detail="Error clearing user model",
             )
 
         return result
