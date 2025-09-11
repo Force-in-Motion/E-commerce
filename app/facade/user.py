@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import User as User_model
 from app.schemas import UserInput
 from app.crud import UserAdapter
-from .base import BaseFacade
+from app.interface.facade import BaseFacade
 
 
 class UserFacade(BaseFacade):

@@ -6,7 +6,7 @@ black==25.1.0
 click==8.2.1
 dnspython==2.7.0
 email_validator==2.2.0
-fastapi==0.115.12
+fastapi
 greenlet==3.2.2
 h11==0.16.0
 idna==3.10

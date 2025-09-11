@@ -1,4 +1,4 @@
 __all__ = ["BaseFacade", "UserFacade"]
 
-from .base import BaseFacade
+from app.interface.facade import BaseFacade
 from .user import UserFacade
