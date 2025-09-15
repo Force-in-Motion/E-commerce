@@ -55,8 +55,10 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
-        except SQLAlchemyError:
-            raise DatabaseError(f"{cls_model.__name__} table is empty")
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Database operation failed for {cls_model.__name__}"
+            ) from e
 
     @classmethod
     async def get_by_id(
@@ -75,8 +77,10 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         try:
             return await session.get(cls_model, model_id)
 
-        except SQLAlchemyError:
-            raise DatabaseError(f"{cls_model.__name__} model with this id not found")
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Database operation failed for {cls_model.__name__}"
+            ) from e
 
     @classmethod
     async def get_by_date(
@@ -101,10 +105,11 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
+
             raise DatabaseError(
-                f"There are no added {cls_model.__name__} models in this range"
-            )
+                f"Database operation failed for {cls_model.__name__}"
+            ) from e
 
     @classmethod
     async def create(
@@ -131,9 +136,9 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             # refresh гарантирует, что User_model содержит актуальное состояние из базы.
             return model
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error adding {cls_model.__name__} model")
+            raise DatabaseError(f"Failed to add {cls_model.__name__}") from e
 
     @classmethod
     async def update(
@@ -170,9 +175,9 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             # refresh гарантирует, что User_model содержит актуальное состояние из базы.
             return model
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error updating {cls_model.__name__} model")
+            raise DatabaseError(f"Failed to update {cls_model.__name__}") from e
 
     @classmethod
     async def delete(
@@ -193,9 +198,9 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             await session.commit()
             return model
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error deleting {cls_model.__name__} model")
+            raise DatabaseError(f"Failed to delete {cls_model.__name__}") from e
 
     @classmethod
     async def clear(
@@ -222,6 +227,6 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             await session.commit()
             return []
 
-        except SQLAlchemyError:
+        except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error clearing {cls_model.__name__} table")
+            raise DatabaseError(f"Failed to clear {cls_model.__name__}") from e
