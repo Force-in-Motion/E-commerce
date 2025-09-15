@@ -7,16 +7,15 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interface import Crud
-from app.models import Base
 from app.tools.custom_err import DatabaseError
-from app.types import DBModel
+from app.types import DBModel, PDScheme
 
 
 # DBModel - будет подставляться конкретная ORM модель, наследуемая от Base напрямую или через других предков
 # PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
 
 
-class BaseCrud(Generic[DBModel], Crud):
+class BaseCrud(Generic[DBModel, PDScheme], Crud):
     """
     Базовый CRUD.
     model должен быть определён в наследнике.
@@ -25,13 +24,14 @@ class BaseCrud(Generic[DBModel], Crud):
     # Optional нужен для типовой корректности и работы статического анализа
     # базовый CRUD не может знать заранее модель и схему, которые будут определены в дочерних классах.
     model: Type[DBModel]  # Будет переопределено в наследниках
+    scheme: Type[PDScheme]  # Будет переопределено в наследниках
 
     @classmethod
-    async def _check_model(cls, model: Type[DBModel]) -> Type[DBModel]:
+    async def _check_model(cls, model: Optional[Type[DBModel]]) -> Type[DBModel]:
         """
         Выполняет проверку переопределения переменной окружения,
         в дочернем классе в данном случае модели
-        :return: DBModel
+        :return: БД Модель
         """
         if model is None:
             raise NotImplementedError(f"{cls.__name__} must defined this attribute")
@@ -103,13 +103,13 @@ class BaseCrud(Generic[DBModel], Crud):
 
         except SQLAlchemyError:
             raise DatabaseError(
-                f"{cls_model.__name__}There are no added models in this range"
+                f"There are no added {cls_model.__name__} models in this range"
             )
 
     @classmethod
     async def create(
         cls,
-        scheme_input: BaseModel,
+        scheme_input: PDScheme,
         session: AsyncSession,
     ) -> DBModel:
         """
@@ -133,12 +133,12 @@ class BaseCrud(Generic[DBModel], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls_model.__name__}Error adding model")
+            raise DatabaseError(f"Error adding {cls_model.__name__} model")
 
     @classmethod
     async def update(
         cls,
-        scheme_input: BaseModel,
+        scheme_input: PDScheme,
         model: DBModel,
         session: AsyncSession,
         partial: bool = False,
@@ -172,7 +172,7 @@ class BaseCrud(Generic[DBModel], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls_model.__name__}Error updating model")
+            raise DatabaseError(f"Error updating {cls_model.__name__} model")
 
     @classmethod
     async def delete(
@@ -195,7 +195,7 @@ class BaseCrud(Generic[DBModel], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls_model.__name__}Error deleting model")
+            raise DatabaseError(f"Error deleting {cls_model.__name__} model")
 
     @classmethod
     async def clear(
@@ -224,4 +224,4 @@ class BaseCrud(Generic[DBModel], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls_model.__name__}Error clearing table")
+            raise DatabaseError(f"Error clearing {cls_model.__name__} table")

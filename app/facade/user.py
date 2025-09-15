@@ -9,7 +9,7 @@ from app.schemas import UserInput
 from app.crud import UserAdapter
 
 
-class UserFacade(BaseFacade[User_model, UserAdapter]):
+class UserFacade(BaseFacade[User_model, UserInput, UserAdapter]):
 
     adapter = UserAdapter
 

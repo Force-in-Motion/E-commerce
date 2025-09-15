@@ -25,7 +25,7 @@ class Facade(ABC):
 
     @classmethod
     @abstractmethod
-    async def get_model_by_date(cls, *args, **kwargs) -> list[object]:
+    async def get_models_by_date(cls, *args, **kwargs) -> list[object]:
         """
         Возвращает список всех моделей, добавленных за указанный интервал времени
         :return: список всех моделей, добавленных за указанный интервал времени

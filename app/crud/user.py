@@ -9,9 +9,10 @@ from app.schemas import UserInput
 from app.tools.custom_err import DatabaseError
 
 
-class UserAdapter(BaseCrud[User_model]):
+class UserAdapter(BaseCrud[User_model, UserInput]):
 
     model = User_model
+    scheme = UserInput
 
     @classmethod
     async def get_by_name(
