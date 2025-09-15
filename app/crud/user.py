@@ -27,6 +27,7 @@ class UserAdapter(BaseCrud[User_model, UserInput]):
         :return: Модель пользователя | None
         """
         model_cls = await cls._check_model(cls.model)
+
         try:
             return await session.get(model_cls, name)
 
