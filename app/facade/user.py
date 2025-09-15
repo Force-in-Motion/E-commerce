@@ -3,16 +3,19 @@ from datetime import datetime
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.facade.base import BaseFacade
 from app.models import User as User_model
 from app.schemas import UserInput
 from app.crud import UserAdapter
-from app.interface.facade import BaseFacade
 
 
-class UserFacade(BaseFacade):
+class UserFacade(BaseFacade[User_model, UserAdapter]):
 
-    @staticmethod
+    adapter = UserAdapter
+
+    @classmethod
     async def get_all(
+        cls,
         session: AsyncSession,
     ) -> list[User_model]:
         """
@@ -20,7 +23,7 @@ class UserFacade(BaseFacade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Список всех моделей пользователей
         """
-        user_models = await UserAdapter.get_all(session)
+        user_models = await cls.adapter.get_all(session)
 
         if not user_models:
             raise HTTPException(

@@ -1,25 +1,42 @@
 from datetime import datetime
-from typing import Optional, Type, TypeVar, Generic
+from typing import Optional, Type, TypeVar, Generic, cast
 
 from pydantic import BaseModel
-from sqlalchemy import select, text, delete
+from sqlalchemy import select, text, delete, Table
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.orm import DeclarativeBase
 
 from app.interface import Crud
+from app.models import Base
 from app.tools.custom_err import DatabaseError
+from app.types import DBModel
+
 
 # DBModel - будет подставляться конкретная ORM модель, наследуемая от Base напрямую или через других предков
 # PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
-DBModel = TypeVar("DBModel", bound=DeclarativeBase)
-PDScheme = TypeVar("PDScheme", bound=BaseModel)
 
 
-class BaseCrud(Generic[DBModel, PDScheme], Crud):
+class BaseCrud(Generic[DBModel], Crud):
+    """
+    Базовый CRUD.
+    model должен быть определён в наследнике.
+    """
 
-    model: Optional[Type[DBModel]]
-    scheme: Optional[Type[PDScheme]]
+    # Optional нужен для типовой корректности и работы статического анализа
+    # базовый CRUD не может знать заранее модель и схему, которые будут определены в дочерних классах.
+    model: Type[DBModel]  # Будет переопределено в наследниках
+
+    @classmethod
+    async def _check_model(cls, model: Type[DBModel]) -> Type[DBModel]:
+        """
+        Выполняет проверку переопределения переменной окружения,
+        в дочернем классе в данном случае модели
+        :return: DBModel
+        """
+        if model is None:
+            raise NotImplementedError(f"{cls.__name__} must defined this attribute")
+
+        return model
 
     @classmethod
     async def get_all(
@@ -31,16 +48,15 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Список всех моделей пользователей
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         try:
-            stmt = select(cls.model).order_by(cls.model.id)
+            stmt = select(cls_model).order_by(cls_model.id)
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError:
-            raise DatabaseError(f"{cls.model.__name__} table is empty")
+            raise DatabaseError(f"{cls_model.__name__} table is empty")
 
     @classmethod
     async def get_by_id(
@@ -54,14 +70,13 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         try:
-            return await session.get(cls.model, model_id)
+            return await session.get(cls_model, model_id)
 
         except SQLAlchemyError:
-            raise DatabaseError(f"{cls.model.__name__} model with this id not found")
+            raise DatabaseError(f"{cls_model.__name__} model with this id not found")
 
     @classmethod
     async def get_by_date(
@@ -75,27 +90,26 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех моделей пользователей, добавленных за указанный интервал времени
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         try:
             stmt = (
-                select(cls.model)
-                .where(cls.model.created_at.between(*dates))
-                .order_by(cls.model.created_at.desc())
+                select(cls_model)
+                .where(cls_model.created_at.between(*dates))
+                .order_by(cls_model.created_at.desc())
             )
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError:
             raise DatabaseError(
-                f"{cls.model.__name__}There are no added models in this range"
+                f"{cls_model.__name__}There are no added models in this range"
             )
 
     @classmethod
     async def create(
         cls,
-        scheme_input: PDScheme,
+        scheme_input: BaseModel,
         session: AsyncSession,
     ) -> DBModel:
         """
@@ -104,11 +118,10 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         try:
-            model = cls.model(**scheme_input.model_dump())
+            model = cls_model(**scheme_input.model_dump())
 
             session.add(model)
             await session.commit()
@@ -120,12 +133,12 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls.model.__name__}Error adding model")
+            raise DatabaseError(f"{cls_model.__name__}Error adding model")
 
     @classmethod
     async def update(
         cls,
-        scheme_input: PDScheme,
+        scheme_input: BaseModel,
         model: DBModel,
         session: AsyncSession,
         partial: bool = False,
@@ -143,8 +156,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
                то заменить в базе только переданные, не переданные пропустить
         :return: Модель пользователя, обновленную в БД
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         try:
             for key, value in scheme_input.model_dump(exclude_unset=partial).items():
@@ -160,7 +172,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls.model.__name__}Error updating model")
+            raise DatabaseError(f"{cls_model.__name__}Error updating model")
 
     @classmethod
     async def delete(
@@ -174,8 +186,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, удаленную из БД
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         try:
             await session.delete(model)
@@ -184,7 +195,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls.model.__name__}Error deleting model")
+            raise DatabaseError(f"{cls_model.__name__}Error deleting model")
 
     @classmethod
     async def clear(
@@ -196,22 +207,21 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Пустой список
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
+        cls_model = await cls._check_model(cls.model)
 
         # Имя таблицы.
         # Получаем список первичных ключей и берем колонку id.
         # Формируем строку из названия таблицы, название столбца, счетчик которого нужно сбросить и добавляем _seq
-        table = cls.model.__table__
-        pk = list(table.primary_key)[0]
-        seq_name = f"{table.name}_{pk.name}_seq"
+        table = cast(Table, cls_model.__table__)
+        pk_column = next(iter(table.primary_key.columns))
+        seq_name = f"{table.name}_{pk_column.name}_seq"
 
         try:
-            await session.execute(delete(cls.model))
+            await session.execute(delete(cls_model))
             await session.execute(text(f'ALTER SEQUENCE "{seq_name}" RESTART WITH 1'))
             await session.commit()
             return []
 
         except SQLAlchemyError:
             await session.rollback()
-            raise DatabaseError(f"{cls.model.__name__}Error clearing table")
+            raise DatabaseError(f"{cls_model.__name__}Error clearing table")

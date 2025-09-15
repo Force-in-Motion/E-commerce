@@ -7,7 +7,7 @@ __all__ = [
     "OrderAdapter",
 ]
 
-from app.interface.crud import BaseCrud
+from .base import BaseCrud
 from .post import PostAdapter
 from .product import ProductAdapter
 from .profile import ProfileAdapter

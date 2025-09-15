@@ -1,41 +1,44 @@
 from datetime import datetime
-from typing import Type
+from typing import Type, Generic
 
 from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import User as User_model
-from app.schemas import UserInput
 from app.crud import UserAdapter
 from app.interface.facade import Facade
+from app.models import User as User_model, Base
+from app.schemas import UserInput
+from app.types import DBModel, Adapter
 
 
-class BaseFacade(Facade):
+class BaseFacade(Generic[DBModel, Adapter], Facade):
 
-    model: Type
+    adapter: Type[Adapter]
 
     @classmethod
     async def get_all_models(
         cls,
         session: AsyncSession,
-    ) -> list[User_model]:
+    ) -> list[DBModel]:
         """
         Возвращает результат выполнения метода получения всех моделей пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Список всех моделей пользователей
         """
-        user_models = await UserAdapter.get_all(session)
 
-        if not user_models:
+        models = await cls.adapter.get_all(session)
+
+        if not models:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User table is empty",
+                detail=f"Error, {cls.adapter.model.__name__}table is empty",
             )
 
-        return user_models
+        return models
 
     @classmethod
     async def get_model_by_id(
+        cls,
         user_id: int,
         session: AsyncSession,
     ) -> User_model:
@@ -45,18 +48,19 @@ class BaseFacade(Facade):
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Модель конкретного пользователя
         """
-        user_model = await UserAdapter.get_by_id(user_id, session)
+        user_model = await cls.adapter.get_by_id(user_id, session)
 
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="User model with this id not found",
+                detail="Model with this id not found",
             )
 
         return user_model
 
     @classmethod
     async def get_model_by_date(
+        cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
     ) -> list[User_model]:
@@ -72,13 +76,13 @@ class BaseFacade(Facade):
         if not user_models:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail="There are no added users models in this range",
+                detail="There are no added models in this range",
             )
 
         return user_models
 
     @classmethod
-    async def create(
+    async def register_model(
         user_input,
         session: AsyncSession,
     ) -> User_model:
@@ -93,13 +97,13 @@ class BaseFacade(Facade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error adding user model",
+                detail="Error adding model",
             )
 
         return user_model
 
     @classmethod
-    async def update(
+    async def update_model(
         user_input: UserInput,
         user_model: User_model,
         session: AsyncSession,
@@ -118,7 +122,7 @@ class BaseFacade(Facade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error updating user model",
+                detail="Error updating model",
             )
 
         return user_model
@@ -140,7 +144,7 @@ class BaseFacade(Facade):
         if not user_model:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error deleting user model",
+                detail="Error deleting model",
             )
 
         return user_model
@@ -160,7 +164,7 @@ class BaseFacade(Facade):
         if result:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Error clearing user model",
+                detail="Error clearing model",
             )
 
         return result

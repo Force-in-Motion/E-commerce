@@ -9,10 +9,9 @@ from app.schemas import UserInput
 from app.tools.custom_err import DatabaseError
 
 
-class UserAdapter(BaseCrud[User_model, UserInput]):
+class UserAdapter(BaseCrud[User_model]):
 
     model = User_model
-    scheme = UserInput
 
     @classmethod
     async def get_by_name(
@@ -26,11 +25,9 @@ class UserAdapter(BaseCrud[User_model, UserInput]):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
-        if cls.model is None:
-            raise NotImplementedError("cls.model must be defined in subclass")
-
+        model_cls = await cls._check_model(cls.model)
         try:
-            return await session.get(cls.model, name)
+            return await session.get(model_cls, name)
 
         except SQLAlchemyError:
-            raise DatabaseError(f"{cls.model.__name__}model with this name not found")
+            raise DatabaseError(f"{model_cls.__name__}model with this name not found")
