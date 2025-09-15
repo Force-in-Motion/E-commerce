@@ -151,19 +151,3 @@ class Inspector:
             )
 
         return date_start, date_end
-
-    @classmethod
-    async def profile_checker(
-        cls,
-        user_id: Annotated[int, Path(..., description="User id")],
-        session: AsyncSession = Depends(db_connector.session_dependency),
-    ) -> int:
-        profile_model = await ProfileAdapter.get_profile_by_user_id(user_id, session)
-
-        if profile_model:
-            raise HTTPException(
-                status_code=500,
-                detail="Error user profile already exists",
-            )
-
-        return user_id
