@@ -30,6 +30,21 @@ class Utils:
 
         return wrapper
 
+    @staticmethod
+    def ensure_adapter(func):
+        """
+        Декоратор для методов фасада.
+        Проверяет, что adapter определён, и передаёт его в метод как первый аргумент.
+        """
+
+        async def wrapper(cls, *args, **kwargs):
+            adapter = getattr(cls, "adapter", None)
+            if adapter is None:
+                raise NotImplementedError(f"{cls.__name__} must define 'adapter'")
+            return await func(cls, adapter, *args, **kwargs)
+
+        return wrapper
+
 
 # def map_crud_errors_auto(func):
 # Определяем функцию-декоратор, которая принимает один параметр func.
