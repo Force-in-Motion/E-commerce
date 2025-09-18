@@ -24,7 +24,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def get_all_models(
+    async def _get_all_models(
         cls,
         session: AsyncSession,
     ) -> list[DBModel]:
@@ -39,7 +39,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def get_model_by_id(
+    async def _get_model_by_id(
         cls,
         model_id: int,
         session: AsyncSession,
@@ -56,7 +56,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def get_models_by_date(
+    async def _get_models_by_date(
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
@@ -73,7 +73,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def register_model(
+    async def _register_model(
         cls,
         scheme_in: PDScheme,
         session: AsyncSession,
@@ -90,7 +90,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def update_model(
+    async def _update_model(
         cls,
         scheme_in: PDScheme,
         model_id: int,
@@ -113,7 +113,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def delete_model(
+    async def _delete_model(
         cls,
         model: DBModel,
         session: AsyncSession,
@@ -130,7 +130,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
 
     @classmethod
     @Utils.map_crud_errors_auto
-    async def clear_table(
+    async def _clear_table(
         cls,
         session: AsyncSession,
     ) -> list:

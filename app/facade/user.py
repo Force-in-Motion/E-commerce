@@ -27,5 +27,4 @@ class UserFacade(BaseFacade[User_model, UserInput, UserAdapter]):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
-
         return await cls.adapter.get_by_name(name, session)
