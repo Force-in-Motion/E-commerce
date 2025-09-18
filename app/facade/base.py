@@ -36,8 +36,8 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
     @Utils.map_crud_errors_auto
     async def get_model_by_id(
         cls,
-        model_id: int,
         adapter: Type[Adapter],
+        model_id: int,
         session: AsyncSession,
     ) -> DBModel:
         """
@@ -90,9 +90,9 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
     @Utils.map_crud_errors_auto
     async def update_model(
         cls,
+        adapter: Type[Adapter],
         scheme_in: PDScheme,
         model_id: int,
-        adapter: Type[Adapter],
         session: AsyncSession,
         partial: bool = False,
     ) -> DBModel:
@@ -114,8 +114,8 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
     @Utils.map_crud_errors_auto
     async def delete_model(
         cls,
-        model_id: int,
         adapter: Type[Adapter],
+        model_id: int,
         session: AsyncSession,
     ) -> DBModel:
         """

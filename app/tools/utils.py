@@ -45,6 +45,24 @@ class Utils:
 
         return wrapper
 
+    @staticmethod
+    def ensure_model(func):
+        """
+        Декоратор для методов CRUD.
+        Проверяет, что модель определёна, и передаёт ее в метод как первый аргумент.
+        :param func:
+        :return:
+        """
+
+        async def wrapper(cls, *args, **kwargs):
+            model = getattr(cls, "model", None)
+            if model is None:
+                raise NotImplementedError(f"{cls.__name__} must define 'model'")
+
+            return await func(cls, model, *args, **kwargs)
+
+        return wrapper
+
 
 # def map_crud_errors_auto(func):
 # Определяем функцию-декоратор, которая принимает один параметр func.

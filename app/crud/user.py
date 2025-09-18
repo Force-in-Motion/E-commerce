@@ -26,12 +26,10 @@ class UserAdapter(BaseCrud[User_model, UserInput]):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
-        cls_model = await cls._check_model(cls.model)
-
         try:
-            return await session.get(cls_model, name)
+            return await session.get(cls.model, name)
 
         except SQLAlchemyError as e:
             raise DatabaseError(
-                f"Database operation failed for {cls_model.__name__}"
+                f"Database operation failed for {cls.model.__name__}"
             ) from e
