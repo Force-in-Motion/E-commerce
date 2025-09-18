@@ -115,16 +115,18 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
     @Utils.map_crud_errors_auto
     async def _delete_model(
         cls,
-        model: DBModel,
+        model_id: int,
         session: AsyncSession,
     ) -> DBModel:
         """
         Возвращает результат выполнения метода удаления модели пользователя из БД
-        :param model: ORM Модель - конкретный объект модели в БД, найденный по id
+        :param model_id: ORM Модель - конкретный объект модели в БД, найденный по id
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, удаленную из БД
         """
         cls_adapter = await cls._check_adapter(cls.adapter)
+
+        model = await cls_adapter.get_by_id(model_id, session)
 
         return await cls_adapter.delete(model, session)
 
