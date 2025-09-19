@@ -16,7 +16,7 @@ class UserFacade(BaseFacade[User_model, UserInput, UserAdapter]):
     adapter = UserAdapter
 
     @classmethod
-    async def get_by_name(
+    async def get_model_by_name(
         cls,
         name: str,
         session: AsyncSession,

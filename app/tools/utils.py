@@ -31,37 +31,25 @@ class Utils:
         return wrapper
 
     @staticmethod
-    def ensure_adapter(func):
+    def ensure_attr(attr_name: str):
         """
-        Декоратор для методов фасада.
-        Проверяет, что adapter определён, и передаёт его в метод как первый аргумент.
-        """
-
-        async def wrapper(cls, *args, **kwargs):
-            adapter = getattr(cls, "adapter", None)
-            if adapter is None:
-                raise NotImplementedError(f"{cls.__name__} must define 'adapter'")
-            return await func(cls, adapter, *args, **kwargs)
-
-        return wrapper
-
-    @staticmethod
-    def ensure_model(func):
-        """
-        Декоратор для методов CRUD.
-        Проверяет, что модель определёна, и передаёт ее в метод как первый аргумент.
-        :param func:
-        :return:
+        Универсальный декоратор для методов CRUD/Facade.
+        Проверяет, что у класса определён атрибут (например, 'model' или 'adapter'),
+        и подставляет его в метод как первый аргумент после cls.
         """
 
-        async def wrapper(cls, *args, **kwargs):
-            model = getattr(cls, "model", None)
-            if model is None:
-                raise NotImplementedError(f"{cls.__name__} must define 'model'")
+        def decorator(func):
+            async def wrapper(cls, *args, **kwargs):
+                attr = getattr(cls, attr_name, None)
+                if attr is None:
+                    raise NotImplementedError(
+                        f"{cls.__name__} must define '{attr_name}'"
+                    )
+                return await func(cls, attr, *args, **kwargs)
 
-            return await func(cls, model, *args, **kwargs)
+            return wrapper
 
-        return wrapper
+        return decorator
 
 
 # def map_crud_errors_auto(func):

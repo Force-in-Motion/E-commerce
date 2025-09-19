@@ -28,7 +28,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
     scheme: Type[PDScheme]  # Будет переопределено в наследниках
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def get_all(
         cls,
         model: Type[DBModel],
@@ -51,7 +51,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             ) from e
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def get_by_id(
         cls,
         model: Type[DBModel],
@@ -74,7 +74,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             ) from e
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def get_by_date(
         cls,
         model: Type[DBModel],
@@ -104,7 +104,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             ) from e
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def create(
         cls,
         model: Type[DBModel],
@@ -134,7 +134,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             raise DatabaseError(f"Failed to add {model.__name__}") from e
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def update(
         cls,
         model: Type[DBModel],
@@ -174,7 +174,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             raise DatabaseError(f"Failed to update {model.__name__}") from e
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def delete(
         cls,
         model: Type[DBModel],
@@ -198,7 +198,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
             raise DatabaseError(f"Failed to delete {model.__name__}") from e
 
     @classmethod
-    @Utils.ensure_model
+    @Utils.ensure_attr("model")
     async def clear(
         cls,
         model: Type[DBModel],

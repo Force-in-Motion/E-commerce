@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Type, Generic, Optional
+from typing import Type, Generic
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -15,7 +15,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
     adapter: Type[Adapter]
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def get_all_models(
         cls,
@@ -32,7 +32,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         return await adapter.get_all(session)
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def get_model_by_id(
         cls,
@@ -50,7 +50,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         return await adapter.get_by_id(model_id, session)
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def get_models_by_date(
         cls,
@@ -68,7 +68,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         return await adapter.get_by_date(dates, session)
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def register_model(
         cls,
@@ -86,7 +86,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         return await adapter.create(scheme_in, session)
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def update_model(
         cls,
@@ -110,7 +110,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         return await adapter.update(scheme_in, model, session, partial)
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def delete_model(
         cls,
@@ -131,7 +131,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         return await adapter.delete(model, session)
 
     @classmethod
-    @Utils.ensure_adapter
+    @Utils.ensure_attr("adapter")
     @Utils.map_crud_errors_auto
     async def clear_table(
         cls,
