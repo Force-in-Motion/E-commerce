@@ -7,7 +7,7 @@ from app.core import db_connector
 from app.crud import PostAdapter
 from app.models import Post as Post_model, User as User_model
 from app.schemas import PostOutput, PostInput
-
+from app.tools import Inspector
 
 router = APIRouter()
 
@@ -38,7 +38,7 @@ async def get_posts(
     status_code=status.HTTP_201_CREATED,
 )
 async def get_posts_by_date(
-    dates: tuple[datetime, datetime] = Depends(date_checker),
+    dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[PostOutput]:
     """
@@ -76,11 +76,11 @@ async def get_post_by_id(
     status_code=status.HTTP_200_OK,
 )
 async def get_posts_by_user_id(
-    posts: list[PostOutput] = Depends(posts_by_user_id),
+    user_id: int,
 ) -> list[PostOutput]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
-    :param posts: список объектов PostOutput, который получается путем выполнения зависимости (метода posts_by_user_id)
+    :param user_id: список объектов PostOutput, который получается путем выполнения зависимости (метода posts_by_user_id)
     :return: список всех постов пользователя
     """
     return posts
@@ -93,7 +93,7 @@ async def get_posts_by_user_id(
     response_model=PostOutput,
     status_code=status.HTTP_201_CREATED,
 )
-async def add_post(
+async def register_post(
     post_input: PostInput,
     user_model: User_model = Depends(user_by_id),
     session: AsyncSession = Depends(db_connector.session_dependency),

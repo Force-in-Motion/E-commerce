@@ -116,7 +116,7 @@ async def register_user(
     response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
-async def update_user(
+async def full_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
     user_input: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -138,7 +138,7 @@ async def update_user(
     response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
-async def update_user_partial(
+async def partial_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
     user_input: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
