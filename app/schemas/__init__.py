@@ -7,9 +7,12 @@ __all__ = [
     "PostOutput",
     "ProfileInput",
     "ProfileOutput",
+    "OrderInput",
+    "OrderOutput",
 ]
 
 from .post import PostInput, PostOutput
 from .product import ProductInput, ProductOutput
 from .profile import ProfileInput, ProfileOutput
 from .user import UserInput, UserOutput
+from .order import OrderInput, OrderOutput
