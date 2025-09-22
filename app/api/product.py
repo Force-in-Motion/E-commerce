@@ -172,7 +172,7 @@ async def clear_products(
     response_model=ProductOutput,
     status_code=status.HTTP_200_OK,
 )
-async def del_product(
+async def delete_product(
     product_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> ProductOutput:

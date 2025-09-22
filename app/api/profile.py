@@ -157,7 +157,7 @@ async def full_update_profile(
     response_model=ProfileOutput,
     status_code=status.HTTP_200_OK,
 )
-async def partialupdate_profile(
+async def partial_update_profile(
     user_id: int,
     profile_in: ProfileInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -202,7 +202,7 @@ async def clear_profiles(
     response_model=ProfileOutput,
     status_code=status.HTTP_200_OK,
 )
-async def del_profile(
+async def delete_profile(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> ProfileOutput:

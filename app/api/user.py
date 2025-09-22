@@ -176,7 +176,7 @@ async def clear_users(
     response_model=UserOutput,
     status_code=status.HTTP_200_OK,
 )
-async def del_user(
+async def delete_user(
     user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserOutput:
