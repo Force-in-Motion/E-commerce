@@ -7,7 +7,7 @@ __all__ = [
 ]
 
 
-from dependencies import Inspector
-from custom_err import DatabaseError, NotFoundError
-from err_mapper import CRUD_TO_HTTP_MAP
-from utils import Utils
+from .dependencies import Inspector
+from .custom_err import DatabaseError, NotFoundError
+from .err_mapper import CRUD_TO_HTTP_MAP
+from .utils import Utils

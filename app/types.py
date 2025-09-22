@@ -1,10 +1,10 @@
-from typing import TypeVar
+from typing import TypeVar, TYPE_CHECKING
 
-from pydantic import BaseModel
+if  TYPE_CHECKING:
+    from pydantic import BaseModel
+    from app.crud import BaseCrud
+    from app.models import Base
 
-from app.crud import BaseCrud
-from app.models import Base
-
-DBModel = TypeVar("DBModel", bound=Base)
-Adapter = TypeVar("Adapter", bound=BaseCrud)
-PDScheme = TypeVar("PDScheme", bound=BaseModel)
+DBModel = TypeVar("DBModel", bound='Base')
+Adapter = TypeVar("Adapter", bound='BaseCrud')
+PDScheme = TypeVar("PDScheme", bound='BaseModel')

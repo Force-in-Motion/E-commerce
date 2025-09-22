@@ -1,70 +1,102 @@
 from typing import Optional
 
+from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.crud import ProfileAdapter
 from app.facade import BaseFacade
 from app.models import Profile as Profile_model
+from app.schemas import ProfileInput
 
 
-class ProfileFacade(BaseFacade):
+class ProfileFacade(BaseFacade[Profile_model, ProfileInput, ProfileAdapter]):
 
-    @staticmethod
-    async def get_all(*args, **kwargs) -> list[object]:
-        """
-        Возвращает все модели категории из БД
-        :return: Список всех моделей
-        """
-        pass
+    model: Profile_model
+    scheme: ProfileInput
+    adapter: ProfileAdapter
 
-    @staticmethod
-    async def get_by_id(*args, **kwargs) -> Optional[object]:
-        """
-        Возвращает модель по её id из БД
-        :return: Модель | None
-        """
-        pass
-
-    @staticmethod
-    async def get_by_user_id(*args, **kwargs) -> Optional[Profile_model]:
-        """
-        Возвращает модель профиля, соответствующую id пользователя в БД
-        :return: Модель профиля | None
+    @classmethod
+    async def get_model_by_user_id(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Profile_model:
         """
 
-    @staticmethod
-    async def get_by_date(*args, **kwargs) -> list[object]:
+        :param user_id:
+        :param session:
+        :return:
         """
-        Возвращает список всех моделей, добавленных за указанный интервал времени
-        :return: список всех моделей, добавленных за указанный интервал времени
-        """
-        pass
+        return await cls.adapter.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
 
-    @staticmethod
-    async def create(*args, **kwargs) -> object:
+    @classmethod
+    async def register_model_by_user_id(
+        cls,
+        user_id: int,
+        scheme_in: ProfileInput,
+        session: AsyncSession,
+    ) -> Profile_model:
         """
-        Добавляет модель в БД
-        :return: Модель пользователя, добавленную в БД
-        """
-        pass
 
-    @staticmethod
-    async def update(*args, **kwargs) -> object:
+        :param user_id:
+        :param scheme_in:
+        :param session:
+        :return:
         """
-        Обновляет данные модели в БД полностью или частично
-        :return: Модель, обновленную в БД
-        """
-        pass
+        return await cls.adapter.create_for_user(
+            user_id=user_id,
+            profile_in=scheme_in,
+            session=session,
+        )
 
-    @staticmethod
-    async def delete(*args, **kwargs) -> object:
+    @classmethod
+    async def update_model_by_user_id(
+        cls,
+        user_id: int,
+        scheme_in: ProfileInput,
+        session: AsyncSession,
+        partial: bool = False,
+    ) -> Profile_model:
         """
-        Удаляет модель из БД
-        :return: Модель, удаленную из БД
-        """
-        pass
 
-    @staticmethod
-    async def clear(*args, **kwargs) -> list:
+        :param user_id:
+        :param scheme_in:
+        :param session:
+        :param partial:
+        :return:
         """
-        Очищает базу данных моделей определенной категории и сбрасывает последовательность id моделей
-        :return: Пустой список
+        model = await cls.adapter.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
+
+        return await cls.adapter.update(
+            scheme_in=scheme_in,
+            update_model=model,
+            session=session,
+            partial=partial,
+        )
+
+    @classmethod
+    async def delete_model_by_user_id(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Profile_model:
         """
-        pass
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        model = await cls.adapter.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
+
+        return await cls.adapter.delete(
+            del_model=model,
+            session=session,
+        )

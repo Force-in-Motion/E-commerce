@@ -6,7 +6,6 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.facade import UserFacade
-from app.models import User
 from app.schemas import UserOutput, UserInput
 from app.tools import Inspector
 
@@ -59,14 +58,14 @@ async def get_users_by_date(
 async def get_user_by_name(
     user_name: Annotated[str, Query(..., description="User name")],
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> User:
+) -> UserOutput:
     """
     Обрабатывает запрос с fontend на получение пользователя по его имени
     :param user_name: Имя пользователя
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Пользователя в виде Pydantic схемы
     """
-    return await UserFacade.get_model_by_name(user_name, session)
+    return await UserFacade.get_user_by_name(user_name, session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -96,7 +95,7 @@ async def get_user_by_id(
     response_model=UserOutput,
     status_code=status.HTTP_201_CREATED,
 )
-async def add_user(
+async def register_user(
     user_input: UserInput,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserOutput:

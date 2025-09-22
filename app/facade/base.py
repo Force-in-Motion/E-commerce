@@ -3,12 +3,12 @@ from typing import Type, Generic
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.interface.facade import Facade
+from app.interface.facade import AFacade
 from app.tools import Utils
 from app.types import DBModel, PDScheme, Adapter
 
 
-class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
+class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     model: Type[DBModel]
     scheme: Type[PDScheme]
@@ -28,8 +28,7 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :param adapter: Объект сессии, полученный в качестве аргумента
         :return: Список всех моделей пользователей
         """
-
-        return await adapter.get_all(session)
+        return await adapter.get_all(session=session)
 
     @classmethod
     @Utils.ensure_attr("adapter")
@@ -47,7 +46,10 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Модель конкретного пользователя
         """
-        return await adapter.get_by_id(model_id, session)
+        return await adapter.get_by_id(
+            model_id=model_id,
+            session=session,
+        )
 
     @classmethod
     @Utils.ensure_attr("adapter")
@@ -65,7 +67,10 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список моделей всех пользователей, добавленных за указанный интервал времени
         """
-        return await adapter.get_by_date(dates, session)
+        return await adapter.get_by_date(
+            dates=dates,
+            session=session,
+        )
 
     @classmethod
     @Utils.ensure_attr("adapter")
@@ -83,7 +88,10 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
-        return await adapter.create(scheme_in, session)
+        return await adapter.create(
+            scheme_in=scheme_in,
+            session=session,
+        )
 
     @classmethod
     @Utils.ensure_attr("adapter")
@@ -91,8 +99,8 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
     async def update_model(
         cls,
         adapter: Type[Adapter],
-        scheme_in: PDScheme,
         model_id: int,
+        scheme_in: PDScheme,
         session: AsyncSession,
         partial: bool = False,
     ) -> DBModel:
@@ -105,9 +113,17 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :param partial: Флаг, передаваем значение True или False,
         :return: Модель пользователя, обновленную в БД
         """
-        model = await adapter.get_by_id(model_id, session)
+        model = await adapter.get_by_id(
+            model_id=model_id,
+            session=session,
+        )
 
-        return await adapter.update(scheme_in, model, session, partial)
+        return await adapter.update(
+            scheme_in=scheme_in,
+            update_model=model,
+            session=session,
+            partial=partial,
+        )
 
     @classmethod
     @Utils.ensure_attr("adapter")
@@ -126,9 +142,15 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :return: Модель пользователя, удаленную из БД
         """
 
-        model = await adapter.get_by_id(model_id, session)
+        model = await adapter.get_by_id(
+            model_id=model_id,
+            session=session,
+        )
 
-        return await adapter.delete(model, session)
+        return await adapter.delete(
+            del_model=model,
+            session=session,
+        )
 
     @classmethod
     @Utils.ensure_attr("adapter")
@@ -144,4 +166,4 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], Facade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Пустой список
         """
-        return await adapter.clear(session)
+        return await adapter.clear(session=session)

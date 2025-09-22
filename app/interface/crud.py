@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 
-class Crud(ABC):
+class ACrud(ABC):
 
     @classmethod
     @abstractmethod

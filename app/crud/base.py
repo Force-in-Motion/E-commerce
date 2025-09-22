@@ -1,12 +1,11 @@
 from datetime import datetime
-from typing import Optional, Type, TypeVar, Generic, cast
+from typing import Optional, Type, Generic, cast
 
-from pydantic import BaseModel
 from sqlalchemy import select, text, delete, Table
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.interface import Crud
+from app.interface import ACrud
 from app.tools import Utils
 from app.tools.custom_err import DatabaseError
 from app.types import DBModel, PDScheme
@@ -16,7 +15,7 @@ from app.types import DBModel, PDScheme
 # PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
 
 
-class BaseCrud(Generic[DBModel, PDScheme], Crud):
+class BaseCrud(Generic[DBModel, PDScheme], ACrud):
     """
     Базовый CRUD.
     model должен быть определён в наследнике.
@@ -108,18 +107,18 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
     async def create(
         cls,
         model: Type[DBModel],
-        scheme_input: PDScheme,
+        scheme_in: PDScheme,
         session: AsyncSession,
     ) -> DBModel:
         """
         Добавляет модель пользователя в БД
-        :param scheme_input: Pydantic Схема - объект, содержащий данные пользователя
+        :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
         :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
         try:
-            model = model(**scheme_input.model_dump())
+            model = model(**scheme_in.model_dump())
 
             session.add(model)
             await session.commit()
@@ -138,14 +137,14 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
     async def update(
         cls,
         model: Type[DBModel],
-        scheme_input: PDScheme,
+        scheme_in: PDScheme,
         update_model: DBModel,
         session: AsyncSession,
         partial: bool = False,
     ) -> DBModel:
         """
         Обновляет данные модели пользователя в БД полностью или частично
-        :param scheme_input: Pydantic Схема - объект, содержащий данные пользователя
+        :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
         :param update_model: ORM Модель - конкретный объект в БД, найденный по id
         :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
@@ -158,7 +157,7 @@ class BaseCrud(Generic[DBModel, PDScheme], Crud):
         :return: Модель пользователя, обновленную в БД
         """
         try:
-            for key, value in scheme_input.model_dump(exclude_unset=partial).items():
+            for key, value in scheme_in.model_dump(exclude_unset=partial).items():
                 if value is not None:
                     setattr(update_model, key, value)
 

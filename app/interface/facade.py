@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Optional
 
 
-class Facade(ABC):
+class AFacade(ABC):
 
     @classmethod
     @abstractmethod

@@ -1,6 +1,3 @@
-from datetime import datetime
-
-from fastapi import HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.facade.base import BaseFacade
@@ -12,11 +9,11 @@ from app.crud import UserAdapter
 class UserFacade(BaseFacade[User_model, UserInput, UserAdapter]):
 
     model = User_model
-    schema = UserInput
+    scheme = UserInput
     adapter = UserAdapter
 
     @classmethod
-    async def get_model_by_name(
+    async def get_user_by_name(
         cls,
         name: str,
         session: AsyncSession,

@@ -27,7 +27,7 @@ class DBConnector:
 
     def get_session_factory(self):
         """
-        Возвращает новую асинхронную сессию (async context manager).
+        Возвращает новую асинхронную фабрику сессий (async context manager).
         """
         return self.__session_factory()
 
