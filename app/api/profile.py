@@ -2,15 +2,11 @@ from datetime import datetime
 
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.util import await_only
 
 from app.core import db_connector
-from app.crud import ProfileAdapter
 from app.facade.profile import ProfileFacade
-from app.models import Profile as Profile_model, User as UserModel
 from app.schemas import ProfileOutput, ProfileInput
 from app.tools import Inspector
-
 
 router = APIRouter()
 

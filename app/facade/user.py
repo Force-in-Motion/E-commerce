@@ -8,9 +8,9 @@ from app.crud import UserAdapter
 
 class UserFacade(BaseFacade[User_model, UserInput, UserAdapter]):
 
-    model = User_model
-    scheme = UserInput
-    adapter = UserAdapter
+    model: User_model
+    scheme: UserInput
+    adapter: UserAdapter
 
     @classmethod
     async def get_user_by_name(

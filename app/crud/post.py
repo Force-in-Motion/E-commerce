@@ -1,13 +1,9 @@
-from datetime import datetime
-from typing import Optional
-
-from fastapi import HTTPException
-from sqlalchemy import select, delete, text
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import BaseCrud
-from app.models import Post as Post_model, User as User_model
+from app.models import Post as Post_model
 from app.schemas import PostInput
 from app.tools import DatabaseError
 
