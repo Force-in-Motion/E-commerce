@@ -25,3 +25,10 @@ class Inspector:
             )
 
         return date_start, date_end
+
+    @classmethod
+    async def get_current_user(cls):
+        """
+
+        :return:
+        """

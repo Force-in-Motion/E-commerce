@@ -14,7 +14,7 @@ router = APIRouter()
 # response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/",
+    "/all",
     response_model=list[ProfileOutput],
     status_code=status.HTTP_200_OK,
 )

@@ -4,6 +4,8 @@ from typing import Optional, Annotated
 from annotated_types import MinLen, MaxLen, Ge
 from pydantic import BaseModel, ConfigDict
 
+from app.schemas.order_products import OrderProductOutput
+
 
 class OrderInput(BaseModel):
     """Класс описывающий объект, получаемый от пользователя,
@@ -30,3 +32,4 @@ class OrderOutput(OrderInput):
     user_id: Annotated[int, Ge(1)]
     total_sum: Annotated[int, Ge(0)]
     created_at: datetime
+    products_contained: list[OrderProductOutput]
