@@ -7,9 +7,8 @@ from sqlalchemy.orm import Mapped, mapped_column, relationship
 from . import Base
 
 if TYPE_CHECKING:
-    from . import Order
     from . import OrderProducts
-    from . import CartItem
+    from . import CartProduct
 
 
 class Product(Base):
@@ -38,13 +37,13 @@ class Product(Base):
         server_default=func.now(),
     )
     # Заказы, содержащие этот продукт
-    orders_containing: Mapped[list["OrderProducts"]] = relationship(
+    orders: Mapped[list["OrderProducts"]] = relationship(
         back_populates="product",
         lazy="select",
         cascade="all, delete-orphan",
     )  # Полноценная модель-связка
 
-    cart_items: Mapped[list["CartItem"]] = relationship(
+    carts: Mapped[list["CartProduct"]] = relationship(
         back_populates="product",
         lazy="select",
         cascade="all, delete-orphan",

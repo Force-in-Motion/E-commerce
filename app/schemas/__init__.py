@@ -1,6 +1,6 @@
 __all__ = [
-    "ProductInput",
-    "ProductOutput",
+    "ProductRequest",
+    "ProductResponse",
     "UserInput",
     "UserOutput",
     "PostInput",
@@ -12,7 +12,7 @@ __all__ = [
 ]
 
 from .post import PostInput, PostOutput
-from .product import ProductInput, ProductOutput
+from .product import ProductRequest, ProductResponse
 from .profile import ProfileInput, ProfileOutput
 from .user import UserInput, UserOutput
 from .order import OrderInput, OrderOutput

@@ -24,7 +24,7 @@ class Cart(Base):
         server_default=func.now(),
     )
 
-    product: Mapped[list["CartProduct"]] = relationship(
+    products: Mapped[list["CartProduct"]] = relationship(
         back_populates="cart",
         lazy="select",
         cascade="all, delete-orphan",

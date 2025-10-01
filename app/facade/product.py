@@ -1,10 +1,10 @@
 from app.crud import ProductAdapter
 from app.facade import BaseFacade
 from app.models import Product as Product_model
-from app.schemas import ProductInput
+from app.schemas import ProductRequest
 
 
-class ProductFacade(BaseFacade[Product_model, ProductInput, ProductAdapter]):
+class ProductFacade(BaseFacade[Product_model, ProductRequest, ProductAdapter]):
     model: Product_model
-    scheme: ProductInput
+    scheme: ProductRequest
     adapter: ProductAdapter

@@ -4,7 +4,7 @@ from annotated_types import MaxLen, MinLen, Ge, Le
 from pydantic import BaseModel, ConfigDict
 
 
-class ProductInput(BaseModel):
+class ProductRequest(BaseModel):
     """Класс описывающий объект, получаемый от пользователя,
     содержит аннотацию типов и ограничения ввода пользователем,
     не содержит id потому как id присваивается на уровне логики работы с БД
@@ -18,7 +18,7 @@ class ProductInput(BaseModel):
     price: Optional[Annotated[int, Ge(1), Le(1_000_000)]] = None
 
 
-class ProductOutput(ProductInput):
+class ProductResponse(ProductRequest):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от ProductInput
     для доступа ко всем полям ProductInput, дополнительно содержит id
     поскольку в возвращаемом объекте он обязан быть,
