@@ -16,7 +16,7 @@ class Cart(Base):
 
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("User.id", ondelete="CASCADE"),
+        ForeignKey("User.id"),
         nullable=False,
     )
     created_at: Mapped[datetime] = mapped_column(
