@@ -1,18 +1,21 @@
 __all__ = [
     "ProductRequest",
     "ProductResponse",
-    "UserInput",
-    "UserOutput",
-    "PostInput",
-    "PostOutput",
-    "ProfileInput",
-    "ProfileOutput",
-    "OrderInput",
-    "OrderOutput",
+    "UserRequest",
+    "UserResponse",
+    "PostRequest",
+    "PostResponse",
+    "ProfileRequest",
+    "ProfileResponse",
+    "OrderRequest",
+    "OrderResponse",
+    "CartRequest",
+    "CartResponse",
 ]
 
-from .post import PostInput, PostOutput
+from .post import PostRequest, PostResponse
 from .product import ProductRequest, ProductResponse
-from .profile import ProfileInput, ProfileOutput
-from .user import UserInput, UserOutput
-from .order import OrderInput, OrderOutput
+from .profile import ProfileRequest, ProfileResponse
+from .user import UserRequest, UserResponse
+from .order import OrderRequest, OrderResponse
+from .cart import CartRequest, CartResponse

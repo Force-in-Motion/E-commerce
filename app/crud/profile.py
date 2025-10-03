@@ -6,14 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import BaseCrud
 from app.models import Profile as Profile_model
-from app.schemas import ProfileInput
+from app.schemas import ProfileRequest
 from app.tools.custom_err import DatabaseError
 
 
-class ProfileAdapter(BaseCrud[Profile_model, ProfileInput]):
+class ProfileAdapter(BaseCrud[Profile_model, ProfileRequest]):
 
     model = Profile_model
-    schema = ProfileInput
+    schema = ProfileRequest
 
     @classmethod
     async def get_by_user_id(
@@ -41,7 +41,7 @@ class ProfileAdapter(BaseCrud[Profile_model, ProfileInput]):
     async def create_for_user(
         cls,
         user_id: int,
-        profile_in: ProfileInput,
+        profile_in: ProfileRequest,
         session: AsyncSession,
     ) -> Profile_model:
         """

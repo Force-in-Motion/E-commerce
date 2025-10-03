@@ -5,7 +5,7 @@ from annotated_types import MaxLen, MinLen, Ge
 from pydantic import BaseModel, EmailStr, ConfigDict
 
 
-class UserInput(BaseModel):
+class UserRequest(BaseModel):
     """Класс описывающий объект, получаемый от пользователя,
     содержит аннотацию типов и ограничения ввода пользователем,
     не содержит id потому как id присваивается на уровне логики работы с БД
@@ -19,7 +19,7 @@ class UserInput(BaseModel):
     email: Optional[EmailStr] = None
 
 
-class UserOutput(UserInput):
+class UserResponse(UserRequest):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от UserInput
     для доступа ко всем полям UserInput, дополнительно содержит id
     поскольку в возвращаемом объекте он обязан быть,

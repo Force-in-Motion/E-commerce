@@ -2,15 +2,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.facade.base import BaseFacade
 from app.models import User as User_model
-from app.schemas import UserInput
+from app.schemas import UserRequest
 from app.crud import UserAdapter
 
 
-class UserFacade(BaseFacade[User_model, UserInput, UserAdapter]):
+class UserFacade(BaseFacade[User_model, UserRequest, UserAdapter]):
 
-    model: User_model
-    scheme: UserInput
-    adapter: UserAdapter
+    model = User_model
+    scheme = UserRequest
+    adapter = UserAdapter
 
     @classmethod
     async def get_user_by_name(

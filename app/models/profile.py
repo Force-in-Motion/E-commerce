@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Profile(Base):
     """Класс, описывающий мета информацию таблицы Profile"""
 
-    __tablename__ = "Profile"
+    __tablename__ = "profiles"
 
     # Описание мета информации таблицы
     floor: Mapped[str] = mapped_column(
@@ -50,7 +50,7 @@ class Profile(Base):
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("User.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
 

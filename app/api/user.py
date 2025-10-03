@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.facade import UserFacade
-from app.schemas import UserOutput, UserInput
+from app.schemas import UserResponse, UserRequest
 from app.tools import Inspector
 
 router = APIRouter()
@@ -16,12 +16,12 @@ router = APIRouter()
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/all",
-    response_model=list[UserOutput],
+    response_model=list[UserResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_all_users(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[UserOutput]:
+) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение списка всех пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -34,13 +34,13 @@ async def get_all_users(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/date",
-    response_model=list[UserOutput],
+    response_model=list[UserResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_users_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[UserOutput]:
+) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение всех добавленных в БД пользователей за указанный интервал времени
     :param dates:  кортеж, содержащий начало интервала времени и его окончание
@@ -52,13 +52,13 @@ async def get_users_by_date(
 
 @router.get(
     "/name",
-    response_model=UserOutput,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_name(
     user_name: Annotated[str, Query(..., description="User name")],
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> UserOutput:
+) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его имени
     :param user_name: Имя пользователя
@@ -72,13 +72,13 @@ async def get_user_by_name(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/{user_id}",
-    response_model=UserOutput,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_id(
     user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> UserOutput:
+) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его id
     :param user_id: конкретного пользователя в БД
@@ -92,13 +92,13 @@ async def get_user_by_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/",
-    response_model=UserOutput,
+    response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(
-    user_input: UserInput,
+    user_input: UserRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> UserOutput:
+) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
     :param user_input: Pydantic Схема - объект, содержащий данные пользователя
@@ -113,14 +113,14 @@ async def register_user(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
     "/{user_id}",
-    response_model=UserOutput,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def full_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    user_input: UserInput,
+    user_input: UserRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> UserOutput:
+) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
     :param user_input: Pydantic Схема - объект, содержащий новые данные пользователя
@@ -135,14 +135,14 @@ async def full_update_user(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
     "/{user_id}",
-    response_model=UserOutput,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    user_input: UserInput,
+    user_input: UserRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> UserOutput:
+) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
     :param user_input: Pydantic Схема - объект, содержащий новые данные пользователя
@@ -173,13 +173,13 @@ async def clear_users(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/{user_id}",
-    response_model=UserOutput,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_user(
     user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> UserOutput:
+) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД
     :param user_id: id конкретного пользователя в БД

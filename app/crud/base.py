@@ -45,9 +45,7 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
             return list(result.scalars().all())
 
         except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Database operation failed for {model.__name__}"
-            ) from e
+            raise DatabaseError(f"Table {model.__name__} is empty") from e
 
     @classmethod
     @Utils.ensure_attr("model")
@@ -68,9 +66,7 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
             return await session.get(model, model_id)
 
         except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Database operation failed for {model.__name__}"
-            ) from e
+            raise DatabaseError(f" {model.__name__} not found") from e
 
     @classmethod
     @Utils.ensure_attr("model")
@@ -97,9 +93,8 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
             return list(result.scalars().all())
 
         except SQLAlchemyError as e:
-
             raise DatabaseError(
-                f"Database operation failed for {model.__name__}"
+                f"Not found {model.__name__} in the specified range"
             ) from e
 
     @classmethod
@@ -130,7 +125,7 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Failed to add {model.__name__}") from e
+            raise DatabaseError(f"Error when adding {model.__name__}") from e
 
     @classmethod
     @Utils.ensure_attr("model")
@@ -170,7 +165,7 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Failed to update {model.__name__}") from e
+            raise DatabaseError(f"Error when updating {model.__name__}") from e
 
     @classmethod
     @Utils.ensure_attr("model")
@@ -194,7 +189,7 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Failed to delete {model.__name__}") from e
+            raise DatabaseError(f"Error when deleting {model.__name__}") from e
 
     @classmethod
     @Utils.ensure_attr("model")
@@ -224,4 +219,4 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Failed to clear {model.__name__}") from e
+            raise DatabaseError(f"Error when clearing table {model.__name__}") from e

@@ -1,5 +1,5 @@
 from fastapi import HTTPException, status
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, SQLAlchemyError
 from app.tools.custom_err import DatabaseError, NotFoundError
 
 # Словарь соответствия CRUD ошибок → HTTPException
@@ -9,10 +9,16 @@ CRUD_TO_HTTP_MAP = {
         detail=f"{model.__name__} already exists",
     ),
     NotFoundError: lambda e, model: HTTPException(
-        status_code=status.HTTP_404_NOT_FOUND, detail=str(e)
+        status_code=status.HTTP_404_NOT_FOUND,
+        detail=str(e),
     ),
     DatabaseError: lambda e, model: HTTPException(
-        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e)
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail=f"Database error: {str(e)}",
+    ),
+    SQLAlchemyError: lambda e, model: HTTPException(  # fallback
+        status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+        detail=f"SQLAlchemy error: {type(e).__name__} ({str(e)})",
     ),
 }
 

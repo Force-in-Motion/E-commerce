@@ -5,7 +5,7 @@ from annotated_types import MaxLen, MinLen, Ge, Le
 from pydantic import BaseModel, ConfigDict
 
 
-class ProfileInput(BaseModel):
+class ProfileRequest(BaseModel):
     """Класс описывающий объект, получаемый от пользователя,
     содержит аннотацию типов и ограничения ввода пользователем,
     не содержит id потому как id присваивается на уровне логики работы с БД
@@ -20,7 +20,7 @@ class ProfileInput(BaseModel):
     bio: Optional[Annotated[str, MinLen(5), MaxLen(700)]] = None
 
 
-class ProfileOutput(ProfileInput):
+class ProfileResponse(ProfileRequest):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от ProfileInput
     для доступа ко всем полям ProfileInput, дополнительно содержит id
     поскольку в возвращаемом объекте он обязан быть,

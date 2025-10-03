@@ -4,14 +4,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import BaseCrud
 from app.models import Post as Post_model
-from app.schemas import PostInput
+from app.schemas import PostRequest
 from app.tools import DatabaseError
 
 
-class PostAdapter(BaseCrud[Post_model, PostInput]):
+class PostAdapter(BaseCrud[Post_model, PostRequest]):
 
     model = Post_model
-    scheme = PostInput
+    scheme = PostRequest
 
     @classmethod
     async def get_by_user_id(
@@ -39,7 +39,7 @@ class PostAdapter(BaseCrud[Post_model, PostInput]):
     async def create_for_user(
         cls,
         user_id: int,
-        post_in: PostInput,
+        post_in: PostRequest,
         session: AsyncSession,
     ) -> Post_model:
         """

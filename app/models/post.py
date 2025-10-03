@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class Post(Base):
     """Класс, описывающий мета информацию таблицы Post"""
 
-    __tablename__ = "Post"  # Название таблицы в БД
+    __tablename__ = "posts"  # Название таблицы в БД
 
     # Описание мета информации таблицы
     title: Mapped[str] = mapped_column(
@@ -37,7 +37,7 @@ class Post(Base):
     # Внешний ключ на id таблицы User, пишется в кавычках чтобы не импортировать сюда User и не было циклического импорта
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("User.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
 
@@ -45,6 +45,7 @@ class Post(Base):
     user: Mapped["User"] = relationship(
         back_populates="posts",
         lazy="select",
+        uselist=False,
     )
 
 

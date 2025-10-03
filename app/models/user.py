@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 class User(Base):
     """Класс, описывающий мета информацию таблицы User"""
 
-    __tablename__ = "User"  # Название таблицы в БД
+    __tablename__ = "users"  # Название таблицы в БД
 
     # Описание мета информации таблицы
     name: Mapped[str] = mapped_column(

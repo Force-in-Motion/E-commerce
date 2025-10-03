@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 class Product(Base):
     """Класс, описывающий мета информацию таблицы Product"""
 
-    __tablename__ = "Product"  # Название таблицы в БД
+    __tablename__ = "products"  # Название таблицы в БД
 
     # Описание мета информации таблицы
     name: Mapped[str] = mapped_column(
@@ -36,6 +36,7 @@ class Product(Base):
         DateTime(timezone=True),
         server_default=func.now(),
     )
+
     # Заказы, содержащие этот продукт
     orders: Mapped[list["OrderProducts"]] = relationship(
         back_populates="product",

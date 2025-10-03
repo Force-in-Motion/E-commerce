@@ -3,12 +3,12 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import OrderAdapter
 from app.facade import BaseFacade
 from app.models import Order as Order_model
-from app.schemas import OrderInput
+from app.schemas import OrderRequest
 
 
-class OrderFacade(BaseFacade[Order_model, OrderInput, OrderAdapter]):
+class OrderFacade(BaseFacade[Order_model, OrderRequest, OrderAdapter]):
     model: Order_model
-    scheme: OrderInput
+    scheme: OrderRequest
     adapter: OrderAdapter
 
     @classmethod
@@ -27,7 +27,7 @@ class OrderFacade(BaseFacade[Order_model, OrderInput, OrderAdapter]):
     @classmethod
     async def register_model_for_user(
         cls,
-        order_in: OrderInput,
+        order_in: OrderRequest,
         session: AsyncSession,
     ) -> Order_model:
         """

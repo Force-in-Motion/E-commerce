@@ -24,7 +24,6 @@ async def get_all_carts(
     :param session:
     :return:
     """
-    pass
 
 
 @router.get(

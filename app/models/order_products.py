@@ -15,7 +15,7 @@ class OrderProducts(Base):
     Ассоциативная модель, поскольку содержит не только внешние ключи, но и дополнительные личные поля и параметры
     """
 
-    __tablename__ = "OrderProducts"  # Название таблицы в БД
+    __tablename__ = "order_products"  # Название таблицы в БД
 
     __table_args__ = (
         UniqueConstraint(
@@ -27,13 +27,13 @@ class OrderProducts(Base):
     # Описание мета информации таблицы
     order_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("Order.id", ondelete="CASCADE"),
+        ForeignKey("orders.id", ondelete="CASCADE"),
         nullable=False,
     )
 
     product_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("Product.id", ondelete="CASCADE"),
+        ForeignKey("products.id", ondelete="CASCADE"),
         nullable=False,
     )
     quantity: Mapped[int] = mapped_column(
@@ -44,12 +44,12 @@ class OrderProducts(Base):
     )
 
     order: Mapped["Order"] = relationship(
-        back_populates="products_contained",
+        back_populates="products",
         lazy="select",
     )
 
     product: Mapped["Product"] = relationship(
-        back_populates="orders_containing",
+        back_populates="orders",
         lazy="select",
     )
 

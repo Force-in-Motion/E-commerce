@@ -19,7 +19,7 @@ class Utils:
                 adapter = getattr(cls, "adapter", None)
                 model = getattr(adapter, "model", None)
 
-                # Проходим по всем маппингам ошибок
+                # Ищем ошибку в словаре
                 for exc_type, mapper in CRUD_TO_HTTP_MAP.items():
                     if isinstance(e, exc_type):
                         # Возвращаем HTTPException с нужным кодом и сообщением

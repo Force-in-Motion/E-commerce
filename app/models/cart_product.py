@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
 
 class CartProduct(Base):
-    __tablename__ = "CartProduct"
+    __tablename__ = "cart_products"
 
     __table_args__ = (
         UniqueConstraint(
@@ -23,12 +23,12 @@ class CartProduct(Base):
 
     cart_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("Cart.id", ondelete="CASCADE"),
+        ForeignKey("carts.id", ondelete="CASCADE"),
         nullable=False,
     )
     product_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("Product.id", ondelete="CASCADE"),
+        ForeignKey("products.id", ondelete="CASCADE"),
         nullable=False,
     )
     quantity: Mapped[int] = mapped_column(

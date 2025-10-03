@@ -5,6 +5,6 @@ class DatabaseError(Exception):
 
 
 class NotFoundError(Exception):
-    """Ошибка нахождения элемента."""
+    """Ошибка нахождения данных."""
 
     pass

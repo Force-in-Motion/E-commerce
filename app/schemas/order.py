@@ -7,7 +7,7 @@ from pydantic import BaseModel, ConfigDict
 from app.schemas.order_products import OrderProductOutput
 
 
-class OrderInput(BaseModel):
+class OrderRequest(BaseModel):
     """Класс описывающий объект, получаемый от пользователя,
     содержит аннотацию типов и ограничения ввода пользователем,
     не содержит id потому как id присваивается на уровне логики работы с БД
@@ -19,7 +19,7 @@ class OrderInput(BaseModel):
     comment: Optional[Annotated[str, MinLen(3), MaxLen(200)]] = None
 
 
-class OrderOutput(OrderInput):
+class OrderResponse(OrderRequest):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от UserInput
     для доступа ко всем полям UserInput, дополнительно содержит id
     поскольку в возвращаемом объекте он обязан быть,

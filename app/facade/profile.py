@@ -3,13 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import ProfileAdapter
 from app.facade import BaseFacade
 from app.models import Profile as Profile_model
-from app.schemas import ProfileInput
+from app.schemas import ProfileRequest
 
 
-class ProfileFacade(BaseFacade[Profile_model, ProfileInput, ProfileAdapter]):
+class ProfileFacade(BaseFacade[Profile_model, ProfileRequest, ProfileAdapter]):
 
     model: Profile_model
-    scheme: ProfileInput
+    scheme: ProfileRequest
     adapter: ProfileAdapter
 
     @classmethod
@@ -33,7 +33,7 @@ class ProfileFacade(BaseFacade[Profile_model, ProfileInput, ProfileAdapter]):
     async def register_model_by_user_id(
         cls,
         user_id: int,
-        scheme_in: ProfileInput,
+        scheme_in: ProfileRequest,
         session: AsyncSession,
     ) -> Profile_model:
         """
@@ -53,7 +53,7 @@ class ProfileFacade(BaseFacade[Profile_model, ProfileInput, ProfileAdapter]):
     async def update_model_by_user_id(
         cls,
         user_id: int,
-        scheme_in: ProfileInput,
+        scheme_in: ProfileRequest,
         session: AsyncSession,
         partial: bool = False,
     ) -> Profile_model:

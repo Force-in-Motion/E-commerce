@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.facade.profile import ProfileFacade
-from app.schemas import ProfileOutput, ProfileInput
+from app.schemas import ProfileResponse, ProfileRequest
 from app.tools import Inspector
 
 router = APIRouter()
@@ -15,12 +15,12 @@ router = APIRouter()
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/all",
-    response_model=list[ProfileOutput],
+    response_model=list[ProfileResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_all_profiles(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[ProfileOutput]:
+) -> list[ProfileResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех профилей пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -33,13 +33,13 @@ async def get_all_profiles(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/date",
-    response_model=list[ProfileOutput],
+    response_model=list[ProfileResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_profiles_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[ProfileOutput]:
+) -> list[ProfileResponse]:
     """
     Возвращает всех добавленных в БД пользователей за указанный интервал времени
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -56,13 +56,13 @@ async def get_profiles_by_date(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/by-user/{user_id}",
-    response_model=ProfileOutput,
+    response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_profile_by_user_id(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> ProfileOutput:
+) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
     :param user_id: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
@@ -79,13 +79,13 @@ async def get_profile_by_user_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/by-id/{profile_id}",
-    response_model=ProfileOutput,
+    response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_profile_by_id(
     profile_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> ProfileOutput:
+) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по его id
     :param profile_id: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
@@ -102,14 +102,14 @@ async def get_profile_by_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/by-user/{user_id}",
-    response_model=ProfileOutput,
+    response_model=ProfileResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_profile(
     user_id: int,
-    profile_in: ProfileInput,
+    profile_in: ProfileRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> ProfileOutput:
+) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на создание профиля пользователя в БД
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -128,14 +128,14 @@ async def register_profile(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
     "/by-user/{user_id}",
-    response_model=ProfileOutput,
+    response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
 async def full_update_profile(
     user_id: int,
-    profile_in: ProfileInput,
+    profile_in: ProfileRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> ProfileOutput:
+) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных профиля конкретного пользователя
     :param profile_in: ProfileInput - объект, содержащий новые данные профиля конкретного пользователя
@@ -154,14 +154,14 @@ async def full_update_profile(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
     "/by-user/{user_id}",
-    response_model=ProfileOutput,
+    response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_profile(
     user_id: int,
-    profile_in: ProfileInput,
+    profile_in: ProfileRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> ProfileOutput:
+) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных профиля конкретного пользователя
     :param user_id: ProfileInput - объект, содержащий новые данные профиля конкретного пользователя
@@ -199,13 +199,13 @@ async def clear_profiles(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/by-user/{user_id}",
-    response_model=ProfileOutput,
+    response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_profile(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> ProfileOutput:
+) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного пользователя
     :param user_id: ProfileModel - конкретный объект в БД, найденный по id

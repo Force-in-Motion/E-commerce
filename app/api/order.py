@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.facade.order import OrderFacade
-from app.schemas import OrderOutput, OrderInput, UserOutput
+from app.schemas import OrderResponse, OrderRequest, UserResponse
 from app.tools import Inspector
 
 router = APIRouter()
@@ -14,12 +14,12 @@ router = APIRouter()
 
 @router.get(
     "/all",
-    response_model=list[OrderOutput],
+    response_model=list[OrderResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_all_orders(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[OrderOutput]:
+) -> list[OrderResponse]:
     """
 
     :param session:
@@ -30,13 +30,13 @@ async def get_all_orders(
 
 @router.get(
     "/date",
-    response_model=list[OrderOutput],
+    response_model=list[OrderResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_orders_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[OrderOutput]:
+) -> list[OrderResponse]:
     """
 
     :param dates:
@@ -51,13 +51,13 @@ async def get_orders_by_date(
 
 @router.get(
     "/{order_id}",
-    response_model=OrderOutput,
+    response_model=OrderResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_order_by_id(
     order_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> OrderOutput:
+) -> OrderResponse:
     """
 
     :param order_id:
@@ -72,13 +72,13 @@ async def get_order_by_id(
 
 @router.get(
     "/{user_id}",
-    response_model=OrderOutput,
+    response_model=OrderResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_orders_by_user_id(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[OrderOutput]:
+) -> list[OrderResponse]:
     """
 
     :param user_id:
@@ -93,13 +93,13 @@ async def get_orders_by_user_id(
 
 @router.post(
     "/",
-    response_model=OrderOutput,
+    response_model=OrderResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_order(
-    order_in: OrderInput,
+    order_in: OrderRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> OrderOutput:
+) -> OrderResponse:
     """
 
     :param order_in:
@@ -113,13 +113,13 @@ async def register_order(
 
 @router.delete(
     "/",
-    response_model=OrderOutput,
+    response_model=OrderResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_order(
     order_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> OrderOutput:
+) -> OrderResponse:
     """
 
     :param order_id:

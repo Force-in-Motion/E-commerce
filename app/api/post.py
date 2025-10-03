@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.facade.post import PostFacade
-from app.schemas import PostOutput, PostInput
+from app.schemas import PostResponse, PostRequest
 from app.tools import Inspector
 
 router = APIRouter()
@@ -15,12 +15,12 @@ router = APIRouter()
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/all",
-    response_model=list[PostOutput],
+    response_model=list[PostResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_all_posts(
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[PostOutput]:
+) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
@@ -33,13 +33,13 @@ async def get_all_posts(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/date",
-    response_model=list[PostOutput],
+    response_model=list[PostResponse],
     status_code=status.HTTP_201_CREATED,
 )
 async def get_posts_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[PostOutput]:
+) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
     :param dates: кортеж, содержащий начало интервала времени и его окончание
@@ -56,13 +56,13 @@ async def get_posts_by_date(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/by-id/{post_id}",
-    response_model=PostOutput,
+    response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_post_by_id(
     post_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> PostOutput:
+) -> PostResponse:
     """
      Обрабатывает запрос с фронт энда на получение конкретного поста по его id
     :param post_id: объект PostOutput, который получается путем выполнения зависимости (метода post_by_id)
@@ -79,13 +79,13 @@ async def get_post_by_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/by-user/{user_id}",
-    response_model=list[PostOutput],
+    response_model=list[PostResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_posts_by_user_id(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> list[PostOutput]:
+) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
     :param user_id: список объектов PostOutput, который получается путем выполнения зависимости (метода posts_by_user_id)
@@ -102,14 +102,14 @@ async def get_posts_by_user_id(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/by-user/{user_id}",
-    response_model=PostOutput,
+    response_model=PostResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def register_post(
     user_id: int,
-    post_in: PostInput,
+    post_in: PostRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> PostOutput:
+) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
     :param post_in: PostInput - объект, содержащий данные поста пользователя
@@ -128,14 +128,14 @@ async def register_post(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
     "/by-id/{post_id}",
-    response_model=PostOutput,
+    response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
 async def full_update_post(
     post_id: int,
-    post_in: PostInput,
+    post_in: PostRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> PostOutput:
+) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
     :param post_in:  PostInput - объект, содержащий данные поста пользователя
@@ -154,14 +154,14 @@ async def full_update_post(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
     "/by-id/{post_id}",
-    response_model=PostOutput,
+    response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_post(
     post_id: int,
-    post_in: PostInput,
+    post_in: PostRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> PostOutput:
+) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
     :param post_in:  PostInput - объект, содержащий данные поста пользователя
@@ -199,13 +199,13 @@ async def clear_posts(
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/by-id/{post_id}",
-    response_model=PostOutput,
+    response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_post(
     post_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
-) -> PostOutput:
+) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
     :param post_id: Post_model - конкретный объект в БД, найденный по id

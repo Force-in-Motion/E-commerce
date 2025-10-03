@@ -3,18 +3,18 @@ from sqlalchemy.util import await_only
 
 from app.crud import BaseCrud
 from app.models import Order as Order_model
-from app.schemas.order import OrderInput
+from app.schemas.order import OrderRequest
 
 
-class OrderAdapter(BaseCrud[Order_model, OrderInput]):
+class OrderAdapter(BaseCrud[Order_model, OrderRequest]):
 
     model: Order_model
-    scheme: OrderInput
+    scheme: OrderRequest
 
     @classmethod
     async def create_for_user(
         cls,
-        order_in: OrderInput,
+        order_in: OrderRequest,
         session: AsyncSession,
     ) -> Order_model:
         """

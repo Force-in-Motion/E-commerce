@@ -16,7 +16,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def get_all_models(
         cls,
         adapter: Type[Adapter],
@@ -32,7 +31,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def get_model_by_id(
         cls,
         adapter: Type[Adapter],
@@ -53,7 +51,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def get_models_by_date(
         cls,
         adapter: Type[Adapter],
@@ -74,7 +71,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def register_model(
         cls,
         adapter: Type[Adapter],
@@ -95,7 +91,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def update_model(
         cls,
         adapter: Type[Adapter],
@@ -127,7 +122,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def delete_model(
         cls,
         adapter: Type[Adapter],
@@ -154,7 +148,6 @@ class BaseFacade(Generic[DBModel, PDScheme, Adapter], AFacade):
 
     @classmethod
     @Utils.ensure_attr("adapter")
-    @Utils.map_crud_errors_auto
     async def clear_table(
         cls,
         adapter: Type[Adapter],

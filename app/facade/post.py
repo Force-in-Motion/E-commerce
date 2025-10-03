@@ -3,13 +3,13 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import PostAdapter
 from app.facade import BaseFacade
 from app.models import Post as PostModel
-from app.schemas import PostInput
+from app.schemas import PostRequest
 
 
-class PostFacade(BaseFacade[PostModel, PostInput, PostAdapter]):
+class PostFacade(BaseFacade[PostModel, PostRequest, PostAdapter]):
 
     model: PostModel
-    scheme: PostInput
+    scheme: PostRequest
     adapter: PostAdapter
 
     @classmethod
@@ -31,7 +31,7 @@ class PostFacade(BaseFacade[PostModel, PostInput, PostAdapter]):
     async def register_model_by_user_id(
         cls,
         user_id: int,
-        post_in: PostInput,
+        post_in: PostRequest,
         session: AsyncSession,
     ) -> PostModel:
         """

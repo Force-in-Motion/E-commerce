@@ -5,14 +5,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import BaseCrud
 from app.models import User as User_model
-from app.schemas import UserInput
+from app.schemas import UserRequest
 from app.tools.custom_err import DatabaseError
 
 
-class UserAdapter(BaseCrud[User_model, UserInput]):
+class UserAdapter(BaseCrud[User_model, UserRequest]):
 
     model = User_model
-    scheme = UserInput
+    scheme = UserRequest
 
     @classmethod
     async def get_by_name(
@@ -30,6 +30,4 @@ class UserAdapter(BaseCrud[User_model, UserInput]):
             return await session.get(cls.model, name)
 
         except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Database operation failed for {cls.model.__name__}"
-            ) from e
+            raise DatabaseError(f"User with this name not found") from e

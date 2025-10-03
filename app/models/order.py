@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 class Order(Base):
     """Класс, описывающий мета информацию таблицы Order"""
 
-    __tablename__ = "Order"  # Название таблицы в БД
+    __tablename__ = "orders"  # Название таблицы в БД
 
     __table_args__ = (
         CheckConstraint(
@@ -32,7 +32,7 @@ class Order(Base):
     # Описание мета информации таблицы
     user_id: Mapped[int] = mapped_column(
         Integer,
-        ForeignKey("User.id", ondelete="CASCADE"),
+        ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
 
@@ -57,11 +57,10 @@ class Order(Base):
     )
 
     user: Mapped["User"] = relationship(
-        back_populates="orders",
-        lazy="select",
+        back_populates="orders", lazy="select", uselist=False
     )
 
-    products_contained: Mapped[list["OrderProducts"]] = relationship(
+    products: Mapped[list["OrderProducts"]] = relationship(
         back_populates="order",
         lazy="select",
         cascade="all, delete-orphan",
