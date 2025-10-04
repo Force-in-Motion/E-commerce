@@ -8,10 +8,9 @@ from app.schemas import PostRequest
 from app.tools import DatabaseError
 
 
-class PostAdapter(BaseCrud[Post_model, PostRequest]):
+class PostAdapter(BaseCrud[Post_model]):
 
     model = Post_model
-    scheme = PostRequest
 
     @classmethod
     async def get_by_user_id(

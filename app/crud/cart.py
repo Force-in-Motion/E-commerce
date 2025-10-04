@@ -17,7 +17,6 @@ from app.tools import DatabaseError
 class CartAdapter(BaseCrud[Cart_model]):
 
     model = Cart_model
-    scheme = CartRequest
 
     @classmethod
     async def get_by_user_id(
@@ -162,7 +161,6 @@ class CartAdapter(BaseCrud[Cart_model]):
                 f"Error updating count product in {cls.model.__name__}"
             ) from e
 
-
     @classmethod
     async def delete_product(
         cls,
@@ -189,4 +187,3 @@ class CartAdapter(BaseCrud[Cart_model]):
             raise DatabaseError(
                 f"Error deleting count product in {cls.model.__name__}"
             ) from e
-

@@ -1,5 +1,6 @@
 from typing import Optional
 
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -9,10 +10,9 @@ from app.schemas import UserRequest
 from app.tools.custom_err import DatabaseError
 
 
-class UserAdapter(BaseCrud[User_model, UserRequest]):
+class UserAdapter(BaseCrud[User_model]):
 
     model = User_model
-    scheme = UserRequest
 
     @classmethod
     async def get_by_name(
@@ -27,7 +27,9 @@ class UserAdapter(BaseCrud[User_model, UserRequest]):
         :return: Модель пользователя | None
         """
         try:
-            return await session.get(cls.model, name)
+            stmt = select(cls.model).where(cls.model.name == name)
+            result = await session.execute(stmt)
+            return result.scalars().first()
 
         except SQLAlchemyError as e:
             raise DatabaseError(f"User with this name not found") from e

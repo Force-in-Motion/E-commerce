@@ -6,10 +6,9 @@ from app.models import Profile as Profile_model
 from app.schemas import ProfileRequest
 
 
-class ProfileFacade(BaseFacade[Profile_model, ProfileRequest, ProfileAdapter]):
+class ProfileFacade(BaseFacade[Profile_model, ProfileAdapter]):
 
     model: Profile_model
-    scheme: ProfileRequest
     adapter: ProfileAdapter
 
     @classmethod

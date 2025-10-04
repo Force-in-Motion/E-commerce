@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Annotated, Optional
 
 from annotated_types import MaxLen, MinLen, Ge, Le
@@ -29,3 +30,4 @@ class ProductResponse(ProductRequest):
     model_config = ConfigDict(from_attributes=True)
 
     id: Annotated[int, Ge(1)]
+    created_at: datetime

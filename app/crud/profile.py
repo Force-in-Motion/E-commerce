@@ -10,10 +10,9 @@ from app.schemas import ProfileRequest
 from app.tools.custom_err import DatabaseError
 
 
-class ProfileAdapter(BaseCrud[Profile_model, ProfileRequest]):
+class ProfileAdapter(BaseCrud[Profile_model]):
 
     model = Profile_model
-    schema = ProfileRequest
 
     @classmethod
     async def get_by_user_id(

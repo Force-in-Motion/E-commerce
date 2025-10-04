@@ -6,9 +6,8 @@ from app.models import Order as Order_model
 from app.schemas import OrderRequest
 
 
-class OrderFacade(BaseFacade[Order_model, OrderRequest, OrderAdapter]):
+class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
     model: Order_model
-    scheme: OrderRequest
     adapter: OrderAdapter
 
     @classmethod

@@ -6,10 +6,9 @@ from app.models import Order as Order_model
 from app.schemas.order import OrderRequest
 
 
-class OrderAdapter(BaseCrud[Order_model, OrderRequest]):
+class OrderAdapter(BaseCrud[Order_model]):
 
     model: Order_model
-    scheme: OrderRequest
 
     @classmethod
     async def create_for_user(

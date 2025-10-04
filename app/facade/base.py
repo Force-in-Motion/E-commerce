@@ -4,7 +4,6 @@ from typing import Type, Generic
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interface.facade import AFacade
-from app.tools import Utils
 from app.types import DBModel, PDScheme, Adapter
 
 

@@ -6,10 +6,9 @@ from app.models import Post as PostModel
 from app.schemas import PostRequest
 
 
-class PostFacade(BaseFacade[PostModel, PostRequest, PostAdapter]):
+class PostFacade(BaseFacade[PostModel, PostAdapter]):
 
     model: PostModel
-    scheme: PostRequest
     adapter: PostAdapter
 
     @classmethod

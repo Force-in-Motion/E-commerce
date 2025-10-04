@@ -6,10 +6,9 @@ from app.schemas import UserRequest
 from app.crud import UserAdapter
 
 
-class UserFacade(BaseFacade[User_model, UserRequest, UserAdapter]):
+class UserFacade(BaseFacade[User_model, UserAdapter]):
 
     model = User_model
-    scheme = UserRequest
     adapter = UserAdapter
 
     @classmethod

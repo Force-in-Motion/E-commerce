@@ -32,4 +32,4 @@ class OrderResponse(OrderRequest):
     user_id: Annotated[int, Ge(1)]
     total_sum: Annotated[int, Ge(0)]
     created_at: datetime
-    products_contained: list[OrderProductOutput]
+    products: list[OrderProductOutput]

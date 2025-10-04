@@ -6,7 +6,6 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interface import ACrud
-from app.tools import Utils
 from app.tools.custom_err import DatabaseError
 from app.types import DBModel, PDScheme
 
