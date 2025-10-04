@@ -15,7 +15,7 @@ from app.types import DBModel, PDScheme
 # PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
 
 
-class BaseCrud(Generic[DBModel, PDScheme], ACrud):
+class BaseCrud(Generic[DBModel], ACrud):
     """
     Базовый CRUD.
     model должен быть определён в наследнике.
@@ -24,96 +24,87 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
     # Optional нужен для типовой корректности и работы статического анализа
     # базовый CRUD не может знать заранее модель и схему, которые будут определены в дочерних классах.
     model: Type[DBModel]  # Будет переопределено в наследниках
-    scheme: Type[PDScheme]  # Будет переопределено в наследниках
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def get_all(
         cls,
-        model: Type[DBModel],
         session: AsyncSession,
     ) -> list[DBModel]:
         """
         Возвращает всех моделей пользователей из БД
-        :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Список всех моделей пользователей
         """
         try:
-            stmt = select(model).order_by(model.id)
+            stmt = select(cls.model).order_by(cls.model.id)
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError as e:
-            raise DatabaseError(f"Table {model.__name__} is empty") from e
+            raise DatabaseError(
+                f"Error when receiving all {cls.model.__name__}s"
+            ) from e
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def get_by_id(
         cls,
-        model: Type[DBModel],
         model_id: int,
         session: AsyncSession,
     ) -> Optional[DBModel]:
         """
         Возвращает модель пользователя по его id из БД
         :param model_id: id модели конкретного пользователя
-        :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
         try:
-            return await session.get(model, model_id)
+            return await session.get(cls.model, model_id)
 
         except SQLAlchemyError as e:
-            raise DatabaseError(f" {model.__name__} not found") from e
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by id"
+            ) from e
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def get_by_date(
         cls,
-        model: Type[DBModel],
         dates: tuple[datetime, datetime],
         session: AsyncSession,
     ) -> list[DBModel]:
         """
         Возвращает список всех моделей пользователей, добавленных за указанный интервал времени
         :param dates:  кортеж, содержащий начало интервала времени и его окончание
-        :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список всех моделей пользователей, добавленных за указанный интервал времени
         """
         try:
             stmt = (
-                select(model)
-                .where(model.created_at.between(*dates))
-                .order_by(model.created_at.desc())
+                select(cls.model)
+                .where(cls.model.created_at.between(*dates))
+                .order_by(cls.model.created_at.desc())
             )
             result = await session.execute(stmt)
             return list(result.scalars().all())
 
         except SQLAlchemyError as e:
             raise DatabaseError(
-                f"Not found {model.__name__} in the specified range"
+                f"Error when receiving list {cls.model.__name__}s by dates"
             ) from e
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def create(
         cls,
-        model: Type[DBModel],
         scheme_in: PDScheme,
         session: AsyncSession,
     ) -> DBModel:
         """
         Добавляет модель пользователя в БД
         :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
         try:
-            model = model(**scheme_in.model_dump())
+            model = cls.model(**scheme_in.model_dump())
 
             session.add(model)
             await session.commit()
@@ -125,13 +116,11 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error when adding {model.__name__}") from e
+            raise DatabaseError(f"Error when adding {cls.model.__name__}") from e
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def update(
         cls,
-        model: Type[DBModel],
         scheme_in: PDScheme,
         update_model: DBModel,
         session: AsyncSession,
@@ -141,7 +130,6 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
         Обновляет данные модели пользователя в БД полностью или частично
         :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
         :param update_model: ORM Модель - конкретный объект в БД, найденный по id
-        :param model: Объект сессии, полученный в качестве аргумента
         :param session: Объект сессии, полученный в качестве аргумента
         :param partial: Флаг, передаваем значение True или False,
                значение передается в метод model_dump(exclude_unset=partial),
@@ -165,20 +153,17 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error when updating {model.__name__}") from e
+            raise DatabaseError(f"Error when updating {cls.model.__name__}") from e
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def delete(
         cls,
-        model: Type[DBModel],
         del_model: DBModel,
         session: AsyncSession,
     ) -> DBModel:
         """
         Удаляет модель пользователя из БД
         :param del_model: ORM Модель - конкретный объект в БД, найденный по id для удаления
-        :param model: Модель, которая должна быть определена в потомках, чтобы методы базового CRUD, понимали с какой моделью они работают
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, удаленную из БД
         """
@@ -189,34 +174,33 @@ class BaseCrud(Generic[DBModel, PDScheme], ACrud):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error when deleting {model.__name__}") from e
+            raise DatabaseError(f"Error when deleting {cls.model.__name__}") from e
 
     @classmethod
-    @Utils.ensure_attr("model")
     async def clear(
         cls,
-        model: Type[DBModel],
         session: AsyncSession,
     ) -> list:
         """
         Очищает таблицу моделей пользователей и сбрасывает последовательность id моделей
-        :param model: Модель, которая должна быть определена в потомках, чтобы методы базового CRUD, понимали с какой моделью они работают
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Пустой список
         """
         # Имя таблицы.
         # Получаем список первичных ключей и берем колонку id.
         # Формируем строку из названия таблицы, название столбца, счетчик которого нужно сбросить и добавляем _seq
-        table = cast(Table, model.__table__)
+        table = cast(Table, cls.model.__table__)
         pk_column = next(iter(table.primary_key.columns))
         seq_name = f"{table.name}_{pk_column.name}_seq"
 
         try:
-            await session.execute(delete(model))
+            await session.execute(delete(cls.model))
             await session.execute(text(f'ALTER SEQUENCE "{seq_name}" RESTART WITH 1'))
             await session.commit()
             return []
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error when clearing table {model.__name__}") from e
+            raise DatabaseError(
+                f"Error when clearing table {cls.model.__name__}"
+            ) from e

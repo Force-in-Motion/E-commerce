@@ -34,7 +34,7 @@ class ProfileAdapter(BaseCrud[Profile_model, ProfileRequest]):
 
         except SQLAlchemyError as e:
             raise DatabaseError(
-                f"Database operation failed for {cls.model.__name__}"
+                f"{cls.model.__name__} with this user_id not found"
             ) from e
 
     @classmethod

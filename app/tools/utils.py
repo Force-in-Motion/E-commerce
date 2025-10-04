@@ -1,32 +1,26 @@
-from . import CRUD_TO_HTTP_MAP
+import functools
+
+from fastapi import HTTPException, status
+from sqlalchemy.exc import SQLAlchemyError
 
 
 class Utils:
 
     @staticmethod
-    def map_crud_errors_auto(func):
-        """
-        Декоратор для фасада.
-        Автоматически преобразует все ошибки CRUD в HTTPException.
-        """
+    def db_error_handler(func):
 
-        async def wrapper(cls, *args, **kwargs):
+        @functools.wraps(func)
+        async def wrapper(*args, **kwargs):
+            cls = args[0] if args else None
+            cls_name = getattr(cls, "__name__", "UnknownClass")
+            method_name = func.__name__
             try:
-                # Вызов исходного метода фасада
-                return await func(cls, *args, **kwargs)
-            except Exception as e:
-                # Получаем адаптер и его модель
-                adapter = getattr(cls, "adapter", None)
-                model = getattr(adapter, "model", None)
-
-                # Ищем ошибку в словаре
-                for exc_type, mapper in CRUD_TO_HTTP_MAP.items():
-                    if isinstance(e, exc_type):
-                        # Возвращаем HTTPException с нужным кодом и сообщением
-                        raise mapper(e, model)
-
-                # Если ошибка не в словаре — пробрасываем как есть
-                raise
+                return await func(*args, **kwargs)
+            except SQLAlchemyError as e:
+                detail = f"Database error in {cls_name}.{method_name}: {str(e)}"
+                raise HTTPException(
+                    status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=detail
+                )
 
         return wrapper
 

@@ -33,8 +33,15 @@ class CartProduct(Base):
     )
     quantity: Mapped[int] = mapped_column(
         Integer,
-        default=1,
-        server_default="1",
+        default=0,
+        server_default="0",
+        nullable=False,
+    )
+
+    current_price: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default="0",
         nullable=False,
     )
 

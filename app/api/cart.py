@@ -49,7 +49,7 @@ async def get_carts_by_date(
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
-async def get_count_products_in_cart(
+async def get_count_products(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, int]:
@@ -66,7 +66,7 @@ async def get_count_products_in_cart(
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
-async def get_total_sum_cart(
+async def get_total_sum(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, int]:
@@ -117,7 +117,7 @@ async def get_cart_by_user_id(
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
-async def add_product_in_cart(
+async def add_product(
     user_id: int,
     product_id: int,
     quantity: int,
@@ -138,7 +138,7 @@ async def add_product_in_cart(
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
-async def update_count_product_in_cart(
+async def update_count_product(
     user_id: int,
     product_id: int,
     quantity: int,
@@ -159,7 +159,7 @@ async def update_count_product_in_cart(
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
-async def delete_product_from_cart(
+async def delete_product(
     user_id: int,
     product_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
