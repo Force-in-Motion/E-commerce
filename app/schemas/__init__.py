@@ -9,7 +9,7 @@ __all__ = [
     "ProfileResponse",
     "OrderRequest",
     "OrderResponse",
-    "CartRequest",
+    "ProductAddOrUpdate",
     "CartResponse",
 ]
 
@@ -18,4 +18,4 @@ from .product import ProductRequest, ProductResponse
 from .profile import ProfileRequest, ProfileResponse
 from .user import UserRequest, UserResponse
 from .order import OrderRequest, OrderResponse
-from .cart import CartRequest, CartResponse
+from .cart import ProductAddOrUpdate, CartResponse

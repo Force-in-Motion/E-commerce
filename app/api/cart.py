@@ -1,10 +1,13 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Path
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.annotation import Annotated
 
 from app.core import db_connector
+from app.facade.cart import CartFacade
+from app.schemas import ProductAddOrUpdate
 from app.schemas.cart import CartResponse
 from app.tools import Inspector
 
@@ -24,6 +27,7 @@ async def get_all_carts(
     :param session:
     :return:
     """
+    return await CartFacade.get_all_models(session=session)
 
 
 @router.get(
@@ -41,7 +45,10 @@ async def get_carts_by_date(
     :param session:
     :return:
     """
-    pass
+    return await CartFacade.get_models_by_date(
+        dates=dates,
+        session=session,
+    )
 
 
 @router.get(
@@ -59,6 +66,10 @@ async def get_count_products(
     :param session:
     :return:
     """
+    return await CartFacade.get_count_products_in_cart(
+        user_id=user_id,
+        session=session,
+    )
 
 
 @router.get(
@@ -76,6 +87,10 @@ async def get_total_sum(
     :param session:
     :return:
     """
+    await CartFacade.get_total_sum_cart(
+        user_id=user_id,
+        session=session,
+    )
 
 
 @router.get(
@@ -93,6 +108,10 @@ async def get_cart_by_id(
     :param session:
     :return:
     """
+    return await CartFacade.get_model_by_id(
+        model_id=cart_id,
+        session=session,
+    )
 
 
 @router.get(
@@ -110,6 +129,10 @@ async def get_cart_by_user_id(
     :param session:
     :return:
     """
+    return await CartFacade.get_cart_by_user_id(
+        user_id=user_id,
+        session=session,
+    )
 
 
 @router.post(
@@ -118,19 +141,22 @@ async def get_cart_by_user_id(
     status_code=status.HTTP_200_OK,
 )
 async def add_product(
-    user_id: int,
-    product_id: int,
-    quantity: int,
+    user_id: Annotated[int, Path(..., description="User id")],
+    product_add: ProductAddOrUpdate,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> CartResponse:
     """
 
     :param user_id:
-    :param product_id:
-    :param quantity:
+    :param product_add:
     :param session:
     :return:
     """
+    return await CartFacade.add_product_in_cart(
+        user_id=user_id,
+        product_add=product_add,
+        session=session,
+    )
 
 
 @router.patch(
@@ -140,15 +166,13 @@ async def add_product(
 )
 async def update_count_product(
     user_id: int,
-    product_id: int,
-    quantity: int,
+    product_upd: ProductAddOrUpdate,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> CartResponse:
     """
 
     :param user_id:
-    :param product_id:
-    :param quantity:
+    :param product_upd:
     :param session:
     :return:
     """

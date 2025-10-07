@@ -5,5 +5,5 @@ from app.schemas import ProductRequest
 
 
 class ProductFacade(BaseFacade[Product_model, ProductAdapter]):
-    model: Product_model
-    adapter: ProductAdapter
+    model = Product_model
+    adapter = ProductAdapter

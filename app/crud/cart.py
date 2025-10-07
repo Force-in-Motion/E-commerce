@@ -10,7 +10,9 @@ from app.models import (
     CartProduct as Cart_Product_model,
     Product as Product_model,
 )
-from app.schemas import CartRequest
+from app.schemas import ProductAddOrUpdate
+from app.schemas.cart import CartRequest
+
 from app.tools import DatabaseError
 
 
@@ -99,6 +101,34 @@ class CartAdapter(BaseCrud[Cart_model]):
             ) from e
 
     @classmethod
+    async def get_or_create_cart(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Cart_model:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        cart_model = await cls.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
+
+        if not cart_model:
+
+            cart_schema = CartRequest(user_id=user_id)
+
+            cart_model = await cls.create(
+                scheme_in=cart_schema,
+                session=session,
+            )
+
+        return cart_model
+
+    @classmethod
     async def add_product(
         cls,
         quantity: int,
@@ -134,23 +164,21 @@ class CartAdapter(BaseCrud[Cart_model]):
     @classmethod
     async def update_count_product(
         cls,
-        quantity: int,
-        product_id: int,
+        product_upd: ProductAddOrUpdate,
         cart_in: Cart_model,
         session: AsyncSession,
     ) -> Cart_Product_model:
         """
 
-        :param quantity:
-        :param product_id:
+        :param product_upd:
         :param cart_in:
         :param session:
         :return:
         """
         try:
             for assoc in cart_in.products:
-                if assoc.product_id == product_id:
-                    assoc.quantity = quantity
+                if assoc.product_id == product_upd.product_id:
+                    assoc.quantity = product_upd.quantity
                     await session.commit()
                     await session.refresh(assoc)
                     return assoc
