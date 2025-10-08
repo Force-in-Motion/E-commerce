@@ -11,7 +11,7 @@ class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
     adapter: OrderAdapter
 
     @classmethod
-    async def get_model_by_user_id(
+    async def get_order_by_user_id(
         cls,
         user_id: int,
         session: AsyncSession,
@@ -24,7 +24,7 @@ class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
         """
 
     @classmethod
-    async def register_model_for_user(
+    async def create_order_for_user(
         cls,
         order_in: OrderRequest,
         session: AsyncSession,

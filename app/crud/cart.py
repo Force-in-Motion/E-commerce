@@ -217,22 +217,24 @@ class CartAdapter(BaseCrud[Cart_model]):
             ) from e
 
     @classmethod
-    async def delete_cart_by_user_id(
+    async def clear_cart_by_user_id(
         cls,
         cart_model: Cart_model,
         session: AsyncSession,
     ) -> Optional[Cart_model]:
         """
-
-        :param cart_model:
-        :param session:
-        :return:
+        Очищает корзину пользователя, удаляя все продукты,
+        но сохраняя саму корзину.
         """
         try:
-            await session.delete(cart_model)
+            # Удаляем все связанные продукты из корзины
+            for assoc in list(cart_model.products):
+                await session.delete(assoc)
+
             await session.commit()
+            await session.refresh(cart_model)
             return cart_model
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(f"Error deleting cart in {cls.model.__name__}") from e
+            raise DatabaseError(f"Error clearing cart in {cls.model.__name__}") from e

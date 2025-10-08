@@ -212,7 +212,7 @@ async def delete_product(
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
-async def delete_user_cart(
+async def clear_user_cart(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list:
@@ -222,7 +222,7 @@ async def delete_user_cart(
     :param session:
     :return:
     """
-    return await CartFacade.delete_cart_by_user_id(
+    return await CartFacade.clear_cart_by_user_id(
         user_id=user_id,
         session=session,
     )

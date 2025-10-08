@@ -151,7 +151,7 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         )
 
     @classmethod
-    async def delete_cart_by_user_id(
+    async def clear_cart_by_user_id(
         cls,
         user_id: int,
         session: AsyncSession,
@@ -167,7 +167,7 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         if not cart_model:
             return None
 
-        return await cls.adapter.delete_cart_by_user_id(
+        return await cls.adapter.clear_cart_by_user_id(
             cart_model=cart_model,
             session=session,
         )

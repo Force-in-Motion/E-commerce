@@ -14,4 +14,4 @@ def include_router(app):
     app.include_router(profile_router, prefix="/profile", tags=["Profile"])
     app.include_router(post_router, prefix="/post", tags=["Post"])
     app.include_router(order_router, prefix="/order", tags=["Order"])
-    app.include_router(order_router, prefix="/cart", tags=["Cart"])
+    app.include_router(cart_router, prefix="/cart", tags=["Cart"])
