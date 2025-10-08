@@ -1,8 +1,9 @@
 from datetime import datetime
 
-from fastapi import APIRouter, status
+from fastapi import APIRouter, status, Path
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.sql.annotation import Annotated
 
 from app.core import db_connector
 from app.facade.order import OrderFacade
@@ -55,7 +56,7 @@ async def get_orders_by_date(
     status_code=status.HTTP_200_OK,
 )
 async def get_order_by_id(
-    order_id: int,
+    order_id: Annotated[int, Path(..., description="Order id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> OrderResponse:
     """
@@ -76,7 +77,7 @@ async def get_order_by_id(
     status_code=status.HTTP_200_OK,
 )
 async def get_orders_by_user_id(
-    user_id: int,
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list[OrderResponse]:
     """
@@ -96,7 +97,7 @@ async def get_orders_by_user_id(
     response_model=OrderResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def register_order(
+async def create_order(
     order_in: OrderRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> OrderResponse:
@@ -111,13 +112,30 @@ async def register_order(
     )
 
 
+@router.patch(
+    "/{order_id",
+    response_model=OrderResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def update_order_partial(
+    order_id: Annotated[int, Path(..., description="Order id")],
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> OrderResponse:
+    """
+
+    :param order_id:
+    :param session:
+    :return:
+    """
+
+
 @router.delete(
     "/",
     response_model=OrderResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_order(
-    order_id: int,
+    order_id: Annotated[int, Path(..., description="Order id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> OrderResponse:
     """
