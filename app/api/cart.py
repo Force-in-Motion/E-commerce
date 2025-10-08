@@ -57,7 +57,7 @@ async def get_carts_by_date(
     status_code=status.HTTP_200_OK,
 )
 async def get_count_products(
-    user_id: int,
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, int]:
     """
@@ -78,7 +78,7 @@ async def get_count_products(
     status_code=status.HTTP_200_OK,
 )
 async def get_total_sum(
-    user_id: int,
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> dict[str, int]:
     """
@@ -99,7 +99,7 @@ async def get_total_sum(
     status_code=status.HTTP_200_OK,
 )
 async def get_cart_by_id(
-    cart_id: int,
+    cart_id: Annotated[int, Path(..., description="Cart id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> CartResponse:
     """
@@ -120,7 +120,7 @@ async def get_cart_by_id(
     status_code=status.HTTP_200_OK,
 )
 async def get_cart_by_user_id(
-    user_id: int,
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> CartResponse:
     """
@@ -152,7 +152,7 @@ async def add_product(
     :param session:
     :return:
     """
-    return await CartFacade.add_product_in_cart(
+    return await CartFacade.add_or_update_product_in_cart(
         user_id=user_id,
         product_add=product_add,
         session=session,
@@ -176,6 +176,11 @@ async def update_count_product(
     :param session:
     :return:
     """
+    return CartFacade.add_or_update_product_in_cart(
+        user_id=user_id,
+        product_add=product_upd,
+        session=session,
+    )
 
 
 @router.delete(
@@ -195,6 +200,11 @@ async def delete_product(
     :param session:
     :return:
     """
+    return await CartFacade.del_product_from_cart(
+        user_id=user_id,
+        product_id=product_id,
+        session=session,
+    )
 
 
 @router.delete(
@@ -202,7 +212,7 @@ async def delete_product(
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
-async def clear_user_cart(
+async def delete_user_cart(
     user_id: int,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> list:
@@ -212,3 +222,7 @@ async def clear_user_cart(
     :param session:
     :return:
     """
+    return await CartFacade.delete_cart_by_user_id(
+        user_id=user_id,
+        session=session,
+    )
