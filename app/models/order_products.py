@@ -38,8 +38,15 @@ class OrderProducts(Base):
     )
     quantity: Mapped[int] = mapped_column(
         Integer,
-        default=1,  # Дефолтное значение, работает только на стороне Алхимии
-        server_default="1",  # Дефолтное значение, работает только на стороне БД, если указывается одно то должно указываться и другое
+        default=0,  # Дефолтное значение, работает только на стороне Алхимии
+        server_default="0",  # Дефолтное значение, работает только на стороне БД, если указывается одно то должно указываться и другое
+        nullable=False,
+    )
+
+    current_price: Mapped[int] = mapped_column(
+        Integer,
+        default=0,
+        server_default="0",
         nullable=False,
     )
 
