@@ -25,4 +25,3 @@ class Inspector:
             )
 
         return date_start, date_end
-

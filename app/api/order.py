@@ -93,32 +93,34 @@ async def get_orders_by_user_id(
 
 
 @router.post(
-    "/",
+    "/{user_id}",
     response_model=OrderResponse,
     status_code=status.HTTP_201_CREATED,
 )
 async def create_order(
-    order_in: OrderRequest,
+    user_id: Annotated[int, Path(..., description="User id")],
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> OrderResponse:
     """
 
-    :param order_in:
+    :param user_id:
     :param session:
     :return:
     """
-    return await OrderFacade.register_model_for_user(
+    return await OrderFacade.create_order_for_user(
+        user_id=user_id,
         session=session,
     )
 
 
 @router.patch(
-    "/{order_id",
+    "/{order_id}",
     response_model=OrderResponse,
     status_code=status.HTTP_200_OK,
 )
 async def update_order_partial(
     order_id: Annotated[int, Path(..., description="Order id")],
+    order_scheme: OrderRequest,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> OrderResponse:
     """
@@ -127,10 +129,15 @@ async def update_order_partial(
     :param session:
     :return:
     """
+    return await OrderFacade.update_order_partial(
+        model_id=order_id,
+        order_scheme=order_scheme,
+        session=session,
+    )
 
 
 @router.delete(
-    "/",
+    "/{order_id}",
     response_model=OrderResponse,
     status_code=status.HTTP_200_OK,
 )

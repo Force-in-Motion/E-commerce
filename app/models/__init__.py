@@ -16,6 +16,6 @@ from .product import Product
 from .order import Order
 from .profile import Profile
 from .user import User
-from .order_products import OrderProducts
+from .order_product import OrderProducts
 from .cart import Cart
 from .cart_product import CartProduct

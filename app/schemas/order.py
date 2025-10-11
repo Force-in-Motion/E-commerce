@@ -3,9 +3,11 @@ from typing import Optional, Annotated
 
 from annotated_types import MinLen, MaxLen, Ge
 from pydantic import BaseModel, ConfigDict
+from app.schemas import ProductResponse
 
 
-class OrderProductOutput(BaseModel):
+
+class ProductInOrder(ProductResponse):
     """Класс описывающий объект, получаемый от пользователя,
     содержит аннотацию типов и ограничения ввода пользователем,
     не содержит id потому как id присваивается на уровне логики работы с БД
@@ -13,10 +15,8 @@ class OrderProductOutput(BaseModel):
     этот класс не требует настройки ConfigDict, т.к. его задача это валидация данных,
     полученных от пользователя"""
 
-    product_id: Annotated[int, Ge(1)]
-    quantity: Annotated[int, Ge(1)]
+    quantity: Annotated[int, Ge(0)]
 
-    model_config = ConfigDict(from_attributes=True)
 
 
 class OrderRequest(BaseModel):
@@ -43,6 +43,8 @@ class OrderResponse(OrderRequest):
 
     id: Annotated[int, Ge(1)]
     user_id: Annotated[int, Ge(1)]
-    total_sum: Annotated[int, Ge(0)]
+    total_price: Annotated[int, Ge(0)]
+    comment: Optional[Annotated[str, MinLen(3), MaxLen(200)]] = None
+    promo_code: Optional[Annotated[str, MinLen(10), MaxLen(10)]] = None
     created_at: datetime
-    products: list[OrderProductOutput]
+    products: list[ProductInOrder]

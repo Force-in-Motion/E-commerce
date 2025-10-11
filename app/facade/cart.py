@@ -15,7 +15,6 @@ from app.models import (
     Product as Product_model,
 )
 from app.schemas import ProductAddOrUpdate
-from app.schemas.cart import CartRequest
 
 
 class CartFacade(BaseFacade[Cart_model, CartAdapter]):
@@ -53,12 +52,12 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         :param session:
         :return:
         """
-        cart = await cls.adapter.get_by_user_id(
+        cart_model = await cls.adapter.get_by_user_id(
             user_id=user_id,
             session=session,
         )
 
-        result = await cls.adapter.get_count_products(cart_in=cart)
+        result = await cls.adapter.get_count_products(cart_in=cart_model)
 
         return {"count products in cart": result}
 
@@ -74,12 +73,12 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         :param session:
         :return:
         """
-        cart = await cls.adapter.get_by_user_id(
+        cart_model = await cls.adapter.get_by_user_id(
             user_id=user_id,
             session=session,
         )
 
-        result = await cls.adapter.get_total_sum(cart_in=cart)
+        result = await cls.adapter.get_total_price(cart_in=cart_model)
 
         return {"total sum cart": result}
 
@@ -87,7 +86,7 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
     async def add_or_update_product_in_cart(
         cls,
         user_id: int,
-        product_add: ProductAddOrUpdate,
+        product_scheme: ProductAddOrUpdate,
         session: AsyncSession,
     ) -> Cart_Product_model:
         """
@@ -97,33 +96,39 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         :param session:
         :return:
         """
-        cart_model = await cls.adapter.get_or_create_cart(
-            user_id=user_id,
-            session=session,
-        )
-
-        cart_product = await cls.adapter.get_product(
-            product_id=product_add.product_id,
-            cart_in=cart_model,
-        )
-
-        if not cart_product:
-            product_model = await ProductAdapter.get_by_id(
-                product_add.product_id, session=session
-            )
-
-            return await cls.adapter.add_product(
-                quantity=product_add.quantity,
-                product_in=product_model,
-                cart_in=cart_model,
+        async with session.begin():
+            
+            cart_model = await cls.adapter.get_or_create_cart(
+                user_id=user_id,
                 session=session,
             )
 
-        return await cls.adapter.update_count_product(
-            product_scheme=product_add,
-            cart_in=cart_model,
-            session=session,
-        )
+            cart_product = await cls.adapter.get_product(
+                product_id=product_scheme.product_id,
+                cart_model=cart_model,
+            )
+
+            if not cart_product:
+                product_model = await ProductAdapter.get_by_id(
+                    product_scheme.product_id, session=session
+                )
+
+                cart_product = await cls.adapter.add_product(
+                    quantity=product_scheme.quantity,
+                    product_model=product_model,
+                    cart_model=cart_model,
+                    session=session,
+                )
+            else:
+                cart_product = await cls.adapter.update_count_product(
+                    product_scheme=product_scheme,
+                    cart_model=cart_model,
+                    session=session,
+                )
+
+            
+            
+            return cart_product
 
     @classmethod
     async def del_product_from_cart(
@@ -139,16 +144,18 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         :param session:
         :return:
         """
-        cart_model = await cls.adapter.get_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
+        async with session.begin():
+            
+            cart_model = await cls.adapter.get_by_user_id(
+                user_id=user_id,
+                session=session,
+            )
 
-        return await cls.adapter.delete_product(
-            product_id=product_id,
-            cart_in=cart_model,
-            session=session,
-        )
+            return await cls.adapter.delete_product(
+                product_id=product_id,
+                cart_model=cart_model,
+                session=session,
+            )
 
     @classmethod
     async def clear_cart_by_user_id(
@@ -162,12 +169,14 @@ class CartFacade(BaseFacade[Cart_model, CartAdapter]):
         :param session:
         :return:
         """
-        cart_model = await cls.adapter.get_by_user_id(user_id=user_id, session=session)
+        async with session.begin():
 
-        if not cart_model:
-            return None
+            cart_model = await cls.adapter.get_by_user_id(user_id=user_id, session=session)
 
-        return await cls.adapter.clear_cart_by_user_id(
-            cart_model=cart_model,
-            session=session,
-        )
+            if not cart_model:
+                return None
+
+            return await cls.adapter.clear_cart(
+                cart_model=cart_model,
+                session=session,
+            )

@@ -36,7 +36,7 @@ class Order(Base):
         nullable=False,
     )
 
-    total_sum: Mapped[int] = mapped_column(
+    total_price: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
         default=0,  # для SQLAlchemy

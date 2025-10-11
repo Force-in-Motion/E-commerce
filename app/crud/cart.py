@@ -61,7 +61,7 @@ class CartAdapter(BaseCrud[Cart_model]):
             ) from e
 
     @classmethod
-    async def get_total_sum(
+    async def get_total_price(
         cls,
         cart_in: Cart_model,
     ) -> int:
@@ -132,7 +132,7 @@ class CartAdapter(BaseCrud[Cart_model]):
     async def add_product(
         cls,
         quantity: int,
-        product_in: Product_model,
+        product_model: Product_model,
         cart_in: Cart_model,
         session: AsyncSession,
     ) -> Cart_Product_model:
@@ -147,25 +147,24 @@ class CartAdapter(BaseCrud[Cart_model]):
         try:
             assoc = Cart_Product_model(
                 cart_id=cart_in.id,
-                product_id=product_in.id,
+                product_id=product_model.id,
                 quantity=quantity,
-                current_price=product_in.price,
+                current_price=product_model.price,
             )
 
             session.add(assoc)
-            await session.commit()
             await session.refresh(assoc)
+
             return assoc
 
         except SQLAlchemyError as e:
-            await session.rollback()
             raise DatabaseError(f"Error adding product in {cls.model.__name__}") from e
 
     @classmethod
     async def update_count_product(
         cls,
         product_scheme: ProductAddOrUpdate,
-        cart_in: Cart_model,
+        cart_model: Cart_model,
         session: AsyncSession,
     ) -> Cart_Product_model:
         """
@@ -176,15 +175,14 @@ class CartAdapter(BaseCrud[Cart_model]):
         :return:
         """
         try:
-            for assoc in cart_in.products:
+            for assoc in cart_model.products:
                 if assoc.product_id == product_scheme.product_id:
                     assoc.quantity = product_scheme.quantity
-                    await session.commit()
                     await session.refresh(assoc)
+
                     return assoc
 
         except SQLAlchemyError as e:
-            await session.rollback()
             raise DatabaseError(
                 f"Error updating count product in {cls.model.__name__}"
             ) from e
@@ -193,7 +191,7 @@ class CartAdapter(BaseCrud[Cart_model]):
     async def delete_product(
         cls,
         product_id: int,
-        cart_in: Cart_model,
+        cart_model: Cart_model,
         session: AsyncSession,
     ) -> Optional[Cart_Product_model]:
         """
@@ -204,20 +202,19 @@ class CartAdapter(BaseCrud[Cart_model]):
         :return:
         """
         try:
-            for assoc in cart_in.products:
+            for assoc in cart_model.products:
                 if assoc.product_id == product_id:
                     await session.delete(assoc)
-                    await session.commit()
+
                     return assoc
 
         except SQLAlchemyError as e:
-            await session.rollback()
             raise DatabaseError(
                 f"Error deleting count product in {cls.model.__name__}"
             ) from e
 
     @classmethod
-    async def clear_cart_by_user_id(
+    async def clear_cart(
         cls,
         cart_model: Cart_model,
         session: AsyncSession,
@@ -231,10 +228,9 @@ class CartAdapter(BaseCrud[Cart_model]):
             for assoc in list(cart_model.products):
                 await session.delete(assoc)
 
-            await session.commit()
             await session.refresh(cart_model)
+
             return cart_model
 
         except SQLAlchemyError as e:
-            await session.rollback()
             raise DatabaseError(f"Error clearing cart in {cls.model.__name__}") from e
