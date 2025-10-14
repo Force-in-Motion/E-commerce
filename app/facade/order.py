@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.crud import OrderAdapter
 from app.crud.cart import CartAdapter
 from app.facade import BaseFacade
-from app.models import Order as Order_model, OrderProducts
+from app.models import Order as Order_model
 from app.schemas import OrderRequest
 
 
@@ -41,7 +41,7 @@ class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
         :return:
         """
         async with session.begin():
-           
+
             cart_model = await CartAdapter.get_by_user_id(
                 user_id=user_id,
                 session=session,
@@ -49,11 +49,11 @@ class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
 
             total_price = await CartAdapter.get_total_price(cart_model)
 
-            order_model = await cls.adapter.add_order(
+            order_model = await cls.adapter.create_order(
                 user_id=user_id,
                 total_price=total_price,
                 session=session,
-            )   
+            )
 
             await cls.adapter.add_product_to_order(
                 cart_in=cart_model,
@@ -64,7 +64,7 @@ class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
             await CartAdapter.clear_cart(
                 cart_id=cart_model.id,
                 session=session,
-            )       
+            )
 
             return order_model
 
@@ -97,4 +97,3 @@ class OrderFacade(BaseFacade[Order_model, OrderAdapter]):
             )
 
             return updated_order_model
-

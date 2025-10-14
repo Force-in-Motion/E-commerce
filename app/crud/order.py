@@ -5,7 +5,11 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.crud import BaseCrud
-from app.models import Order as Order_model, OrderProducts as OrderProducts_model, Cart as Cart_model
+from app.models import (
+    Order as Order_model,
+    OrderProducts as OrderProducts_model,
+    Cart as Cart_model,
+)
 from app.tools import DatabaseError
 
 
@@ -36,7 +40,7 @@ class OrderAdapter(BaseCrud[Order_model]):
             ) from e
 
     @classmethod
-    async def add_order(
+    async def create_order(
         cls,
         user_id: int,
         total_price: int,
@@ -60,12 +64,9 @@ class OrderAdapter(BaseCrud[Order_model]):
             await session.refresh(order_model)
 
             return order_model
-        
+
         except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Error when adding {cls.model.__name__}"
-            ) from e
-        
+            raise DatabaseError(f"Error when adding {cls.model.__name__}") from e
 
     @classmethod
     async def add_product_to_order(
