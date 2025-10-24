@@ -28,35 +28,35 @@ class JWTOperations:
     @staticmethod
     async def jwt_encode(
         payload: dict,
-        privat_key: str = JWTSettings.private_key.read_text(),
+        private_key: str = JWTSettings.private_key.read_text(),
         algoritm: str = JWTSettings.algoritm,
     ):
         """
-        Кодирует токен
+        Кодирует (подписывает) данные payload в JWT-токен.
         :param param:
         :param param:
         :return:
         """
         return jwt.encode(
             payload=payload,
-            key=privat_key,
+            key=private_key,
             algorithm=algoritm,
         )
 
     @staticmethod
     async def jwt_decode(
-        token,
+        jwt_token,
         public_key: str = JWTSettings.public_key.read_text(),
         algoritm=JWTSettings.algoritm,
     ):
         """
-        Кодирует токен
+        Декодирует (проверяет) JWT-токен и возвращает payload.
         :param param:
         :param param:
         :return:
         """
         return jwt.decode(
-            token=token,
+            token=jwt_token,
             key=public_key,
             algorithms=[algoritm],
         )
