@@ -1,4 +1,8 @@
+
+from pathlib import Path
 from pydantic_settings import BaseSettings
+
+BASE_DIR = Path(__file__).parrent.parent
 
 
 class DBSettings(BaseSettings):
@@ -12,3 +16,19 @@ class DBSettings(BaseSettings):
 
 
 db_settings = DBSettings()
+
+
+class JWTSettings(BaseSettings):
+    # Содержит в себе пути к публичному и приватному ключу, а так же алгоритм шифрования
+
+    # Путь к приватному ключу
+    private_key : Path = BASE_DIR / 'tokens' / 'jwt-private.pem'
+
+    # Путь к публичному ключу
+    public_key : Path = BASE_DIR / 'tokens' / 'jwt-public.pem'
+
+    # Алгоритм шифрования
+    algoritm: str = 'RS256'
+
+
+jwt_settings = JWTSettings()
