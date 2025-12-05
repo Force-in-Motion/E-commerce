@@ -40,7 +40,7 @@ class Order(Base):
         Integer,
         nullable=False,
         default=0,  # для SQLAlchemy
-        server_default="0",
+        server_default="0", # для сервера
     )
 
     comment: Mapped[str] = mapped_column(String, nullable=True)

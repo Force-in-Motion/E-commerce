@@ -1,7 +1,8 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, DateTime, func
+from pydantic import EmailStr
+from sqlalchemy import Boolean, String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -16,20 +17,23 @@ class User(Base):
     __tablename__ = "users"  # Название таблицы в БД
 
     # Описание мета информации таблицы
-    name: Mapped[str] = mapped_column(
+    login: Mapped[EmailStr] = mapped_column(
         String,
         nullable=False,
         unique=True,
     )
-    address: Mapped[str] = mapped_column(
-        String(150),
+
+    password: Mapped[str] = mapped_column(
+        String(64),
         nullable=False,
     )
-    email: Mapped[str] = mapped_column(
-        String,
+
+    is_active: Mapped[bool] = mapped_column(
+        Boolean,
         nullable=False,
-        unique=True,
-    )
+        default=True,  # дефолт в Python/ORM
+        server_default="true", # дефолт в БД)
+    )  
 
     # Автоматически записывает дату создания пользователя
     created_at: Mapped[datetime] = mapped_column(

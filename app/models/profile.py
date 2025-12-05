@@ -16,24 +16,32 @@ class Profile(Base):
     __tablename__ = "profiles"
 
     # Описание мета информации таблицы
+    name: Mapped[str] = mapped_column(
+        String,
+        nullable=False,
+        unique=True,
+    )
+
+    address: Mapped[str] = mapped_column(
+        String(150),
+        nullable=False,
+    )
+
     floor: Mapped[str] = mapped_column(
         String,
         nullable=True,
         default=None,
         server_default=None,
     )
+
     age: Mapped[int] = mapped_column(
         Integer,
         nullable=True,
         default=None,
         server_default=None,
     )
-    married: Mapped[bool] = mapped_column(
-        Boolean,
-        nullable=True,
-        default=None,
-        server_default=None,
-    )
+
+
     bio: Mapped[str] = mapped_column(
         String,
         nullable=True,

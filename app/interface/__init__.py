@@ -1,4 +1,4 @@
-__all__ = ["ACrud", "AFacade"]
+__all__ = ["ARepo", "AFacade"]
 
-from .crud import ACrud
+from .repository import ARepo
 from .facade import AFacade

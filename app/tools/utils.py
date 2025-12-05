@@ -1,7 +1,4 @@
-from functools import wraps
 import jwt
-from typing import Callable
-
 from app.core.config import JWTSettings
 
 
@@ -23,7 +20,7 @@ class Utils:
         return Wrapper
 
 
-class JWTOperations:
+class JWTUtils:
 
     @staticmethod
     async def jwt_encode(

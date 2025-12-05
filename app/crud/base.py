@@ -5,16 +5,16 @@ from sqlalchemy import select, text, delete, Table
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.interface import ACrud
+from app.interface import ARepo
 from app.tools.custom_err import DatabaseError
-from app.types import DBModel, PDScheme
+from app.tools.types import DBModel, PDScheme
 
 
 # DBModel - будет подставляться конкретная ORM модель, наследуемая от Base напрямую или через других предков
 # PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
 
 
-class BaseCrud(Generic[DBModel], ACrud):
+class BaseCrud(Generic[DBModel], ARepo):
     """
     Базовый CRUD.
     model должен быть определён в наследнике.
