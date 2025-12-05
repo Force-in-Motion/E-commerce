@@ -1,6 +1,6 @@
 from sqlalchemy.util import await_only
 
-from app.crud.cart import CartAdapter
+from app.repositories.cart import CartAdapter
 from app.service import BaseFacade
 
 from typing import Optional
@@ -8,7 +8,7 @@ from typing import Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import ProductAdapter
+from app.repositories import ProductAdapter
 from app.models import (
     Cart as Cart_model,
     CartProduct as Cart_Product_model,

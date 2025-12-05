@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import PostAdapter
+from app.repositories import PostAdapter
 from app.service import BaseFacade
 from app.models import Post as PostModel
 from app.schemas import PostRequest

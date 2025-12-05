@@ -6,6 +6,6 @@ __all__ = [
 ]
 
 
-from .dependencies import Inspector
+from ..api.depends.inspect import Inspector
 from .custom_err import DatabaseError, NotFoundError
 

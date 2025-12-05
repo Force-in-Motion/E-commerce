@@ -2,7 +2,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import BaseCrud
+from app.repositories import BaseCrud
 from app.models import Post as Post_model
 from app.schemas import PostRequest
 from app.tools import DatabaseError

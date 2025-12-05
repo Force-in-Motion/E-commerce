@@ -1,4 +1,4 @@
-from app.crud import BaseCrud
+from app.repositories import BaseCrud
 from app.models import Product as Product_model
 
 

@@ -1,4 +1,4 @@
-from app.crud import ProductAdapter
+from app.repositories import ProductAdapter
 from app.service import BaseFacade
 from app.models import Product as Product_model
 from app.schemas import ProductRequest

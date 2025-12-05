@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.service.base import BaseFacade
 from app.models import User as User_model
 from app.schemas import UserRequest
-from app.crud import UserAdapter
+from app.repositories import UserAdapter
 
 
 class UserFacade(BaseFacade[User_model, UserAdapter]):

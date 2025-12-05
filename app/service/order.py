@@ -1,7 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import OrderAdapter
-from app.crud.cart import CartAdapter
+from app.repositories import OrderAdapter
+from app.repositories.cart import CartAdapter
 from app.service import BaseFacade
 from app.models import Order as Order_model
 from app.schemas import OrderRequest

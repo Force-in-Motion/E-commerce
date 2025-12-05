@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import BaseCrud
+from app.repositories import BaseCrud
 from app.models import User as User_model
 from app.schemas import UserRequest
 from app.tools.custom_err import DatabaseError

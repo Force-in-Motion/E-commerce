@@ -1,6 +1,6 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.crud import ProfileAdapter
+from app.repositories import ProfileAdapter
 from app.service import BaseFacade
 from app.models import Profile as Profile_model
 from app.schemas import ProfileRequest
