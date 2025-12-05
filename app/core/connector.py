@@ -8,16 +8,14 @@ from sqlalchemy.ext.asyncio import (
 from . import db_settings
 
 
-
-
-
 class DBConnector:
 
     def __init__(self, url, echo):
         """При инициализации объекта, создает движок- create_async_engine и фабрику сессий - async_sessionmaker"""
 
         self.__engine = create_async_engine(  # Асинхронный движок, обязательным параметром ожидает url - путь к базе данных, в данном случае получаемый из db_settings
-            url=url, echo=echo
+            url=url,
+            echo=echo,
         )
 
         self.__session_factory = async_sessionmaker(  # Фабрика сессий, ожидает:

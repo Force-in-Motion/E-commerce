@@ -4,14 +4,17 @@ from pydantic_settings import BaseSettings
 
 
 class DBSettings(BaseSettings):
-    # Содержит в себе настройки и конфиги для подключения к БД
+    # Содержит в себе настройки и конфиги для подключения к БД.
+    # Все константы хранятся в файле .env, оттуда pydantic_settings их и возьмет при помощи класса Config
 
     # URL для подключения к базе # dialect+driver://username:password@host:port/database
-    url: str = "postgresql+asyncpg://gsa:0502@localhost:8080/E-Commerce"
+    url: str
 
     # Параметр, отвечающий за вывод логов в консоль при работе с БД
-    echo: bool = True
+    echo: bool
 
+    class Config:
+        env_file = '.env'
 
 db_settings = DBSettings()
 

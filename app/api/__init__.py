@@ -1,11 +1,11 @@
 __all__ = ["include_router"]
 
-from app.api.cart import router as cart_router
-from app.api.order import router as order_router
-from app.api.post import router as post_router
-from app.api.product import router as product_router
-from app.api.profile import router as profile_router
-from app.api.user import router as user_router
+from app.api.view.cart import router as cart_router
+from app.api.view.order import router as order_router
+from app.api.view.post import router as post_router
+from app.api.view.product import router as product_router
+from app.api.view.profile import router as profile_router
+from app.api.view.user import router as user_router
 
 
 def include_router(app):
