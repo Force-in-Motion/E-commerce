@@ -1,18 +1,16 @@
 from asyncio import current_task
 
-from sqlalchemy import SingletonThreadPool
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
     async_scoped_session,
 )
 from . import db_settings
-from app.tools.utils import Utils
 
 
 
 
-@Utils.singleton
+
 class DBConnector:
 
     def __init__(self, url, echo):

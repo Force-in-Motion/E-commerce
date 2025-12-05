@@ -17,7 +17,7 @@ class User(Base):
     __tablename__ = "users"  # Название таблицы в БД
 
     # Описание мета информации таблицы
-    login: Mapped[EmailStr] = mapped_column(
+    login: Mapped[str] = mapped_column(
         String,
         nullable=False,
         unique=True,
