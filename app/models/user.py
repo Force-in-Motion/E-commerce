@@ -1,11 +1,11 @@
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from pydantic import EmailStr
-from sqlalchemy import Boolean, String, DateTime, func
+from sqlalchemy import Boolean, Enum, String, DateTime, func
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
+from app.tools.types import UserRole
 
 if TYPE_CHECKING:
     from . import Post, Profile, Order, Cart
@@ -28,12 +28,18 @@ class User(Base):
         nullable=False,
     )
 
+    role: Mapped[UserRole] = mapped_column(
+        Enum(UserRole),
+        default=UserRole.user,
+        nullable=False,
+    )
+    
     is_active: Mapped[bool] = mapped_column(
         Boolean,
         nullable=False,
         default=True,  # дефолт в Python/ORM
-        server_default="true", # дефолт в БД)
-    )  
+        server_default="true",  # дефолт в БД)
+    )
 
     # Автоматически записывает дату создания пользователя
     created_at: Mapped[datetime] = mapped_column(
