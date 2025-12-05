@@ -41,7 +41,6 @@ class Profile(Base):
         server_default=None,
     )
 
-
     bio: Mapped[str] = mapped_column(
         String,
         nullable=True,

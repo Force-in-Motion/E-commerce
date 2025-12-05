@@ -1,7 +1,7 @@
 import uvicorn
 from fastapi import FastAPI
 
-from app.view import include_router
+from app.api import include_router
 
 app = FastAPI()
 include_router(app)
