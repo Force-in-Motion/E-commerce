@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.service import UserFacade
-from app.schemas import UserResponse, UserRequest
+from app.schemas import UserResponse, UserCreate
 from app.tools import Inspector
 
 router = APIRouter()
@@ -105,7 +105,7 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(
-    user_in: UserRequest,
+    user_in: UserCreate,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
     """
@@ -130,7 +130,7 @@ async def register_user(
 )
 async def full_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    user_in: UserRequest,
+    user_in: UserCreate,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
     """
@@ -156,7 +156,7 @@ async def full_update_user(
 )
 async def partial_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    user_in: UserRequest,
+    user_in: UserCreate,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
     """

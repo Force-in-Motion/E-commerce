@@ -2,7 +2,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.service.base import BaseFacade
 from app.models import User as User_model
-from app.schemas import UserRequest
+from app.schemas import UserCreate
 from app.repositories import UserAdapter
 
 

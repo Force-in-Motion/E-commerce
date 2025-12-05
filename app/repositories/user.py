@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.repositories import BaseCrud
 from app.models import User as User_model
-from app.schemas import UserRequest
+from app.schemas import UserCreate
 from app.tools.custom_err import DatabaseError
 
 
