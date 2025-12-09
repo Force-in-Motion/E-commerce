@@ -1,15 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories import ProfileAdapter
-from app.service import BaseFacade
+from app.repositories import ProfileRepo
+from app.service import BaseService
 from app.models import Profile as Profile_model
 from app.schemas import ProfileRequest
 
 
-class ProfileFacade(BaseFacade[Profile_model, ProfileAdapter]):
+class ProfileFacade(BaseService[Profile_model, ProfileRepo]):
 
     model: Profile_model
-    adapter: ProfileAdapter
+    repo: ProfileRepo
 
     @classmethod
     async def get_model_by_user_id(
@@ -23,7 +23,7 @@ class ProfileFacade(BaseFacade[Profile_model, ProfileAdapter]):
         :param session:
         :return:
         """
-        return await cls.adapter.get_by_user_id(
+        return await cls.repo.get_by_user_id(
             user_id=user_id,
             session=session,
         )
@@ -42,7 +42,7 @@ class ProfileFacade(BaseFacade[Profile_model, ProfileAdapter]):
         :param session:
         :return:
         """
-        return await cls.adapter.create_for_user(
+        return await cls.repo.create_for_user(
             user_id=user_id,
             profile_in=scheme_in,
             session=session,
@@ -64,12 +64,12 @@ class ProfileFacade(BaseFacade[Profile_model, ProfileAdapter]):
         :param partial:
         :return:
         """
-        model = await cls.adapter.get_by_user_id(
+        model = await cls.repo.get_by_user_id(
             user_id=user_id,
             session=session,
         )
 
-        return await cls.adapter.update(
+        return await cls.repo.update(
             scheme_in=scheme_in,
             update_model=model,
             session=session,
@@ -88,12 +88,12 @@ class ProfileFacade(BaseFacade[Profile_model, ProfileAdapter]):
         :param session:
         :return:
         """
-        model = await cls.adapter.get_by_user_id(
+        model = await cls.repo.get_by_user_id(
             user_id=user_id,
             session=session,
         )
 
-        return await cls.adapter.delete(
+        return await cls.repo.delete(
             del_model=model,
             session=session,
         )

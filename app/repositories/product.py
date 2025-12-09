@@ -1,7 +1,7 @@
-from app.repositories import BaseCrud
+from app.repositories import BaseRepo
 from app.models import Product as Product_model
 
 
-class ProductAdapter(BaseCrud[Product_model]):
+class ProductRepo(BaseRepo[Product_model]):
 
     model: Product_model

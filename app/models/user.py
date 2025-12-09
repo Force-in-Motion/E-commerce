@@ -9,7 +9,7 @@ from app.models.mixin import TimestampMixin
 from app.tools.types import UserRole
 
 if TYPE_CHECKING:
-    from app.models import Post, Profile, Order, Cart
+    from app.models import Post, Profile, Order, Cart, RefreshToken
 
 
 class User(Base, TimestampMixin):
@@ -64,6 +64,13 @@ class User(Base, TimestampMixin):
     )
 
     cart: Mapped["Cart"] = relationship(
+        back_populates="user",
+        cascade="all, delete",
+        lazy="select",
+        uselist=False,
+    )
+
+    refresh_token: Mapped["RefreshToken"] = relationship(
         back_populates="user",
         cascade="all, delete",
         lazy="select",

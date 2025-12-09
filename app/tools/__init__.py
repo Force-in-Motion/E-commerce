@@ -1,9 +1,9 @@
 __all__ = [
     "DatabaseError",
-    "NotFoundError",
+    "HTTPExeption",
 
 ]
 
 
-from .custom_err import DatabaseError, NotFoundError
+from app.tools.exeptions import DatabaseError, HTTPExeption
 

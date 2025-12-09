@@ -4,13 +4,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories import BaseCrud
+from app.repositories import BaseRepo
 from app.models import Profile as Profile_model
 from app.schemas import ProfileRequest
-from app.tools.custom_err import DatabaseError
+from app.tools.exeptions import DatabaseError
 
 
-class ProfileAdapter(BaseCrud[Profile_model]):
+class ProfileRepo(BaseRepo[Profile_model]):
 
     model = Profile_model
 

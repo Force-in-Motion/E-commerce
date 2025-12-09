@@ -6,7 +6,7 @@ from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interface import ARepo
-from app.tools.custom_err import DatabaseError
+from app.tools.exeptions import DatabaseError
 from app.tools.types import DBModel, PDScheme
 
 
@@ -14,7 +14,7 @@ from app.tools.types import DBModel, PDScheme
 # PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
 
 
-class BaseCrud(Generic[DBModel], ARepo):
+class BaseRepo(Generic[DBModel], ARepo):
     """
     Базовый CRUD.
     model должен быть определён в наследнике.

@@ -7,6 +7,7 @@ __all__ = [
     "Product",
     "Profile",
     "CartProduct",
+    "RefreshToken",
     "OrderProducts",
 ]
 
@@ -17,5 +18,6 @@ from app.models.cart import Cart
 from app.models.order import Order
 from app.models.product import Product
 from app.models.profile import Profile
+from app.models.token import RefreshToken
 from app.models.cart_product import CartProduct
 from app.models.order_product import OrderProducts

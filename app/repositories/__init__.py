@@ -1,15 +1,15 @@
 __all__ = [
-    "BaseCrud",
-    "UserAdapter",
-    "ProductAdapter",
-    "ProfileAdapter",
-    "PostAdapter",
-    "OrderAdapter",
+    "BaseRepo",
+    "UserRepo",
+    "ProductRepo",
+    "ProfileRepo",
+    "PostRepo",
+    "OrderRepo",
 ]
 
-from .base import BaseCrud
-from .post import PostAdapter
-from .product import ProductAdapter
-from .profile import ProfileAdapter
-from .user import UserAdapter
-from .order import OrderAdapter
+from .base import BaseRepo
+from .post import PostRepo
+from .product import ProductRepo
+from .profile import ProfileRepo
+from .user import UserRepo
+from .order import OrderRepo

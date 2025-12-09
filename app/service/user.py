@@ -1,20 +1,20 @@
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.service.base import BaseFacade
+from app.service.base import BaseService
 from app.models import User as User_model
-from app.schemas import UserCreate
-from app.repositories import UserAdapter
+from app.repositories import UserRepo
 
 
-class UserFacade(BaseFacade[User_model, UserAdapter]):
+class UserService(BaseService[User_model, UserRepo]):
 
     model = User_model
-    adapter = UserAdapter
+    repo = UserRepo
 
     @classmethod
-    async def get_user_by_name(
+    async def get_user_by_login(
         cls,
-        name: str,
+        login: EmailStr,
         session: AsyncSession,
     ) -> User_model:
         """
@@ -23,4 +23,4 @@ class UserFacade(BaseFacade[User_model, UserAdapter]):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
-        return await cls.adapter.get_by_name(name=name, session=session)
+        return await cls.repo.get_by_login(login=login, session=session)

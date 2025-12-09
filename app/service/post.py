@@ -1,15 +1,15 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories import PostAdapter
-from app.service import BaseFacade
+from app.repositories import PostRepo
+from app.service import BaseService
 from app.models import Post as PostModel
 from app.schemas import PostRequest
 
 
-class PostFacade(BaseFacade[PostModel, PostAdapter]):
+class PostFacade(BaseService[PostModel, PostRepo]):
 
     model: PostModel
-    adapter: PostAdapter
+    repo: PostRepo
 
     @classmethod
     async def get_models_by_user_id(
@@ -21,7 +21,7 @@ class PostFacade(BaseFacade[PostModel, PostAdapter]):
         :param session:
         :return:
         """
-        return await cls.adapter.get_by_user_id(
+        return await cls.repo.get_by_user_id(
             user_id=user_id,
             session=session,
         )
@@ -40,7 +40,7 @@ class PostFacade(BaseFacade[PostModel, PostAdapter]):
         :param session:
         :return:
         """
-        return await PostAdapter.create_for_user(
+        return await PostRepo.create_for_user(
             user_id=user_id,
             post_in=post_in,
             session=session,

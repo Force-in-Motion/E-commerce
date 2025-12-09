@@ -3,14 +3,14 @@ from typing import Type, Generic
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.interface.facade import AFacade
+from app.interface.service import AService
 from app.tools.types import DBModel, PDScheme, Adapter
 
 
-class BaseFacade(Generic[DBModel, Adapter], AFacade):
+class BaseService(Generic[DBModel, Adapter], AService):
 
     model: Type[DBModel]
-    adapter: Type[Adapter]
+    repo: Type[Adapter]
 
     @classmethod
     async def get_all_models(
@@ -22,7 +22,7 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Список всех моделей пользователей
         """
-        return await cls.adapter.get_all(session=session)
+        return await cls.repo.get_all(session=session)
 
     @classmethod
     async def get_model_by_id(
@@ -36,7 +36,7 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Модель конкретного пользователя
         """
-        return await cls.adapter.get_by_id(
+        return await cls.repo.get_by_id(
             model_id=model_id,
             session=session,
         )
@@ -53,7 +53,7 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: список моделей всех пользователей, добавленных за указанный интервал времени
         """
-        return await cls.adapter.get_by_date(
+        return await cls.repo.get_by_date(
             dates=dates,
             session=session,
         )
@@ -70,7 +70,7 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
-        return await cls.adapter.create(
+        return await cls.repo.create(
             scheme_in=scheme_in,
             session=session,
         )
@@ -91,12 +91,12 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :param partial: Флаг, передаваем значение True или False,
         :return: Модель пользователя, обновленную в БД
         """
-        model = await cls.adapter.get_by_id(
+        model = await cls.repo.get_by_id(
             model_id=model_id,
             session=session,
         )
 
-        return await cls.adapter.update(
+        return await cls.repo.update(
             scheme_in=scheme_in,
             update_model=model,
             session=session,
@@ -116,12 +116,12 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :return: Модель пользователя, удаленную из БД
         """
 
-        model = await cls.adapter.get_by_id(
+        model = await cls.repo.get_by_id(
             model_id=model_id,
             session=session,
         )
 
-        return await cls.adapter.delete(
+        return await cls.repo.delete(
             del_model=model,
             session=session,
         )
@@ -136,4 +136,4 @@ class BaseFacade(Generic[DBModel, Adapter], AFacade):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Пустой список
         """
-        return await cls.adapter.clear(session=session)
+        return await cls.repo.clear(session=session)

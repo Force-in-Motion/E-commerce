@@ -4,7 +4,7 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories import BaseCrud
+from app.repositories import BaseRepo
 from app.models import (
     Order as Order_model,
     OrderProducts as OrderProducts_model,
@@ -13,7 +13,7 @@ from app.models import (
 from app.tools import DatabaseError
 
 
-class OrderAdapter(BaseCrud[Order_model]):
+class OrderRepo(BaseRepo[Order_model]):
 
     model: Order_model
 

@@ -5,20 +5,19 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories import BaseCrud
+from app.repositories import BaseRepo
 from app.models import User as User_model
-from app.schemas import UserCreate
-from app.tools.custom_err import DatabaseError
+from app.tools.exeptions import DatabaseError
 
 
-class UserAdapter(BaseCrud[User_model]):
+class UserRepo(BaseRepo[User_model]):
 
     model = User_model
 
     @classmethod
     async def get_by_login(
         cls,
-        email: EmailStr,
+        login: EmailStr,
         session: AsyncSession,
     ) -> Optional[User_model]:
         """
@@ -28,9 +27,11 @@ class UserAdapter(BaseCrud[User_model]):
         :return: Модель пользователя | None
         """
         try:
-            stmt = select(cls.model).where(cls.model.email == email)
+            stmt = select(cls.model).where(cls.model.login == login)
             result = await session.execute(stmt)
-            return result.scalars().first()
+            return result.scalar_one_or_none()
 
         except SQLAlchemyError as e:
-            raise DatabaseError(f"User with this name not found") from e
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by login"
+            ) from e

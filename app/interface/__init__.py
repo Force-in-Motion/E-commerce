@@ -1,4 +1,4 @@
-__all__ = ["ARepo", "AFacade"]
+__all__ = ["ARepo", "AService"]
 
 from .repository import ARepo
-from .facade import AFacade
+from .service import AService

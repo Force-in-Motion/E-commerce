@@ -1,9 +1,9 @@
-from app.repositories import ProductAdapter
-from app.service import BaseFacade
+from app.repositories import ProductRepo
+from app.service import BaseService
 from app.models import Product as Product_model
 from app.schemas import ProductRequest
 
 
-class ProductFacade(BaseFacade[Product_model, ProductAdapter]):
+class ProductFacade(BaseService[Product_model, ProductRepo]):
     model = Product_model
-    adapter = ProductAdapter
+    repo = ProductRepo

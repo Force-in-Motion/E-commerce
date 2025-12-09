@@ -2,13 +2,13 @@ from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.repositories import BaseCrud
+from app.repositories import BaseRepo
 from app.models import Post as Post_model
 from app.schemas import PostRequest
 from app.tools import DatabaseError
 
 
-class PostAdapter(BaseCrud[Post_model]):
+class PostRepo(BaseRepo[Post_model]):
 
     model = Post_model
 

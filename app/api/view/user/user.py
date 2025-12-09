@@ -4,12 +4,10 @@ from fastapi import APIRouter, status, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
-from app.service import UserFacade
+from app.service import UserService
 from app.schemas import UserResponse, UserCreate
 
 router = APIRouter()
-
-
 
 
 # response_model определяет модель ответа пользователю, в данном случае UserResponse
@@ -30,21 +28,14 @@ async def register_user(
     :return: Добавленного в БД пользователя в виде Pydantic схемы
     """
 
-    return await UserFacade.register_model(
+    return await UserService.register_model(
         scheme_in=user_in,
         session=session,
     )
 
 
-
 @router.post("/login")
-
-
-
-
 @router.post("/refresh")
-
-
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
@@ -65,7 +56,7 @@ async def full_update_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Полностью обновленного в БД пользователя в виде Pydantic схемы
     """
-    return await UserFacade.update_model(
+    return await UserService.update_model(
         model_id=user_id,
         scheme_in=user_in,
         session=session,
@@ -91,7 +82,7 @@ async def partial_update_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Частично обновленного в БД пользователя в виде Pydantic схемы
     """
-    return await UserFacade.update_model(
+    return await UserService.update_model(
         model_id=user_id,
         scheme_in=user_in,
         session=session,
@@ -116,7 +107,7 @@ async def delete_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Удаленного пользователя в виде Pydantic схемы
     """
-    return await UserFacade.delete_model(
+    return await UserService.delete_model(
         model_id=user_id,
         session=session,
     )
