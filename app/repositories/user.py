@@ -1,5 +1,6 @@
 from typing import Optional
 
+from pydantic import EmailStr
 from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -15,9 +16,9 @@ class UserAdapter(BaseCrud[User_model]):
     model = User_model
 
     @classmethod
-    async def get_by_name(
+    async def get_by_login(
         cls,
-        name: str,
+        email: EmailStr,
         session: AsyncSession,
     ) -> Optional[User_model]:
         """
@@ -27,7 +28,7 @@ class UserAdapter(BaseCrud[User_model]):
         :return: Модель пользователя | None
         """
         try:
-            stmt = select(cls.model).where(cls.model.name == name)
+            stmt = select(cls.model).where(cls.model.email == email)
             result = await session.execute(stmt)
             return result.scalars().first()
 

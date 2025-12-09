@@ -17,7 +17,7 @@ class User(Base, TimestampMixin):
 
     __tablename__ = "users"
 
-    email: Mapped[EmailStr] = mapped_column(
+    login: Mapped[EmailStr] = mapped_column(
         String,
         nullable=False,
         unique=True,
