@@ -5,24 +5,19 @@ from datetime import datetime
 from sqlalchemy import ForeignKey, DateTime, func, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base
+from app.models import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from . import User
-    from . import CartProduct
+    from app.models import User, CartProduct
 
 
-class Cart(Base):
+class Cart(Base, TimestampMixin):
     __tablename__ = "carts"
 
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("users.id"),
         nullable=False,
-    )
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        server_default=func.now(),
     )
 
     user: Mapped["User"] = relationship(
@@ -34,4 +29,5 @@ class Cart(Base):
         back_populates="cart",
         lazy="select",
         cascade="all, delete-orphan",
+        uselist=True,
     )

@@ -44,6 +44,7 @@ class User(Base, TimestampMixin):
         back_populates="user",
         lazy="select",
         cascade="all, delete-orphan",
+        uselist=True,
     )
 
     profile: Mapped["Profile"] = relationship(

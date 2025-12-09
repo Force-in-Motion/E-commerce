@@ -34,10 +34,12 @@ class Product(Base, TimestampMixin):
         back_populates="product",
         cascade="all, delete-orphan",
         lazy="select",
+        uselist=True,
     )
 
     carts: Mapped[list["CartProduct"]] = relationship(
         back_populates="product",
         cascade="all, delete-orphan",
         lazy="select",
+        uselist=True,
     )

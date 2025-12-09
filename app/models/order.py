@@ -59,4 +59,5 @@ class Order(Base, TimestampMixin):
         back_populates="order",
         lazy="select",
         cascade="all, delete-orphan",
+        uselist=True,
     )
