@@ -19,24 +19,12 @@ class DBConnector:
         )
 
         self.__session_factory = async_sessionmaker(  # Фабрика сессий, ожидает:
-            bind=self.__engine,  # движок
-            autoflush=False,  # Отключает автоматическую отправку изменений в базу данных перед выполнением запросов
-            autocommit=False,  # транзакции не завершаются автоматически.
-            expire_on_commit=False,  # Отключает сброс (expiration) объектов в сессии после фиксации транзакции (commit).
+            bind=self.__engine,
+            autoflush=False,
+            autocommit=False,
+            expire_on_commit=False,
         )
 
-    def get_session_factory(self):
-        """
-        Возвращает новую асинхронную фабрику сессий (async context manager).
-        """
-        return self.__session_factory()
-
-    def get_engine(self):
-        """
-        Возвращает асинхронный движок с указанными настройками
-        :return: self.__engine
-        """
-        return self.__engine
 
     def __get_scoped_session(self):
         """
@@ -55,7 +43,6 @@ class DBConnector:
     async def session_dependency(self):
         """
         Асинхронный генератор, который предоставляет сессию для FastAPI-маршрутов и автоматически закрывает её после использования.
-         Простыми словами: Он берёт сессию из __get_scoped_session.
         "Отдаёт" её маршруту (через yield), чтобы тот мог работать с базой.
         После завершения запроса закрывает сессию (await session.remove()) и возвращает ее в пул соединений
         :return:
@@ -66,10 +53,3 @@ class DBConnector:
 
 
 db_connector = DBConnector(url=db_settings.url, echo=db_settings.echo)
-
-
-# Когда expire_on_commit=True (по умолчанию), SQLAlchemy помечает все объекты в сессии как "устаревшие" после commit,
-# и их данные будут запрошены из базы при следующем обращении. Это может вызвать дополнительные запросы.
-
-# С expire_on_commit=False объекты остаются в кэше сессии (Identity Map),
-# и можно продолжать работать с ними без лишних запросов.
