@@ -3,7 +3,8 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Integer, UniqueConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base, TimestampMixin
+from app.models import Base
+from app.models.mixin import TimestampMixin
 
 if TYPE_CHECKING:
     from app.models import Cart, Product

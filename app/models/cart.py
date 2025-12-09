@@ -1,11 +1,10 @@
 from typing import TYPE_CHECKING
 
-from datetime import datetime
-
-from sqlalchemy import ForeignKey, DateTime, func, Integer
+from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base, TimestampMixin
+from app.models import Base
+from app.models.mixin import TimestampMixin
 
 if TYPE_CHECKING:
     from app.models import User, CartProduct

@@ -4,10 +4,12 @@ from pydantic import EmailStr
 from sqlalchemy import Boolean, Enum, String, true
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base, TimestampMixin
+from app.models import Base
+from app.models.mixin import TimestampMixin
+from app.tools.types import UserRole
 
 if TYPE_CHECKING:
-    from app.models import Post, Profile, Order, Cart, UserRole
+    from app.models import Post, Profile, Order, Cart
 
 
 class User(Base, TimestampMixin):
