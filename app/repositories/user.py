@@ -35,3 +35,26 @@ class UserRepo(BaseRepo[User_model]):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by login"
             ) from e
+
+
+    @classmethod
+    async def get_refresh_token(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Optional[User_model]:
+        """
+        Возвращает модель пользователя по его имени из БД
+        :param name: Имя пользователя
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: Модель пользователя | None
+        """
+        try:
+            stmt = select(cls.model.refresh_token).where(cls.model.id == user_id)
+            result = await session.execute(stmt)
+            return result.scalars().first()
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by id"
+            ) from e
