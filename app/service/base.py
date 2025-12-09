@@ -7,9 +7,8 @@ from app.interface.service import AService
 from app.tools.types import DBModel, PDScheme, Adapter
 
 
-class BaseService(Generic[DBModel, Adapter], AService):
+class BaseService(Generic[Adapter], AService):
 
-    model: Type[DBModel]
     repo: Type[Adapter]
 
     @classmethod
