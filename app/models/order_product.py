@@ -1,16 +1,16 @@
 from typing import TYPE_CHECKING
-from sqlalchemy import ForeignKey, UniqueConstraint, Integer
+from sqlalchemy import ForeignKey, UniqueConstraint, Integer, String
 
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from . import Base
+from app.models import Base, TimestampMixin
+
 
 if TYPE_CHECKING:
-    from . import Order
-    from . import Product
+    from app.models import Order, Product
 
 
-class OrderProducts(Base):
+class OrderProducts(Base, TimestampMixin):
     """Класс, описывающий мета информацию таблицы OrderProducts, таблица связывающая заказы и продукты
     Ассоциативная модель, поскольку содержит не только внешние ключи, но и дополнительные личные поля и параметры
     """
@@ -38,15 +38,11 @@ class OrderProducts(Base):
     )
     quantity: Mapped[int] = mapped_column(
         Integer,
-        default=0,  # Дефолтное значение, работает только на стороне Алхимии
-        server_default="0",  # Дефолтное значение, работает только на стороне БД, если указывается одно то должно указываться и другое
         nullable=False,
     )
 
-    current_price: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        server_default="0",
+    current_price: Mapped[str] = mapped_column(
+        String(255),
         nullable=False,
     )
 
