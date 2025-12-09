@@ -1,16 +1,15 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Integer, UniqueConstraint
+from sqlalchemy import ForeignKey, Integer, UniqueConstraint, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models import Base
+from app.models import Base, TimestampMixin
 
 if TYPE_CHECKING:
-    from . import Cart
-    from . import Product
+    from app.models import Cart, Product
 
 
-class CartProduct(Base):
+class CartProduct(Base, TimestampMixin):
     __tablename__ = "cart_products"
 
     __table_args__ = (
@@ -26,22 +25,20 @@ class CartProduct(Base):
         ForeignKey("carts.id", ondelete="CASCADE"),
         nullable=False,
     )
+
     product_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("products.id", ondelete="CASCADE"),
         nullable=False,
     )
+
     quantity: Mapped[int] = mapped_column(
         Integer,
-        default=0,
-        server_default="0",
         nullable=False,
     )
 
-    current_price: Mapped[int] = mapped_column(
-        Integer,
-        default=0,
-        server_default="0",
+    current_price: Mapped[str] = mapped_column(
+        String(255),
         nullable=False,
     )
 
@@ -49,6 +46,7 @@ class CartProduct(Base):
         back_populates="products",
         lazy="select",
     )
+    
     product: Mapped["Product"] = relationship(
         back_populates="carts",
         lazy="select",
