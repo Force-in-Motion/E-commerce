@@ -3,9 +3,11 @@ from typing import TYPE_CHECKING
 from sqlalchemy import String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
+from app.models import Base, TimestampMixin
+
 
 if TYPE_CHECKING:
-    from app.models import Base, OrderProducts, CartProduct, TimestampMixin
+    from app.models import OrderProducts, CartProduct
 
 
 class Product(Base, TimestampMixin):
