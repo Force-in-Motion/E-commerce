@@ -1,14 +1,11 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Integer, Boolean, ForeignKey, DateTime, Text, func
+from sqlalchemy import String, Integer, ForeignKey, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from app.models.base import Base
-from app.models.mixin import TimestampMixin
 
 if TYPE_CHECKING:
-    from app.models import User
+    from app.models import Base, User, TimestampMixin
 
 
 class Profile(Base, TimestampMixin):
