@@ -29,3 +29,9 @@ class HTTPExeption(Exception):
         status_code=status.HTTP_403_FORBIDDEN,
         detail="User inactive",
     )
+
+
+    token_invalid = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Invalid token",
+    )

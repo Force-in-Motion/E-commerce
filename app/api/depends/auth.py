@@ -3,9 +3,12 @@ from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from pydantic import EmailStr
 from app.models.user import User as User_model
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserResponse
 from app.service.user import UserService
 from app.tools import HTTPExeption
+
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 class AuthUtils:
@@ -68,8 +71,22 @@ class AuthUtils:
 
         return user_model.is_active
     
+
     @classmethod
-    def validate_user(cls, form_data: OAuth2PasswordRequestForm = Depends()) -> UserResponse:
+    async def check_token_type(cls, payload: dict, token_type: str) -> bool:
+        """
+        Проверяет тип полученного токена на соответствие тому, который указан в полученном payload
+        :param payload: Полезная нагрузка, полученная из токена
+        :return: bool
+        """
+        if payload.get("type") == token_type:
+            return True
+
+        raise HTTPExeption.token_invalid 
+    
+    
+    @classmethod
+    async def validate_user(cls, form_data: OAuth2PasswordRequestForm = Depends()) -> UserResponse:
         """
         Выполняет валидацию пользователя, если все проверки пройдены то возвращает его
         :param form_data: При помощи Depends() создается объект OAuth2PasswordRequestForm, содержащий данные, введенные в форме клиента form_data.username и form_data.password
@@ -84,3 +101,43 @@ class AuthUtils:
             raise HTTPExeption.unauthorized
 
         return cls.check_user_status(user_model=user_model)
+    
+
+    @staticmethod
+    async def get_current_user_by_access(cls, token: str = Depends(oauth2_scheme)) -> UserPublicSchema:
+        """
+        Через зависимость oauth2_scheme извлекает токен из заголовка запроса, затем парсит данные, извлеченные из токена и выполняет проверки
+        :param token: Токен, полученный через зависимость из заголовка запроса
+        :return: Возвращает пользователя, если такой существует в БД
+        """
+        payload = JWTUtils.decode_jwt(token)  # Декодирует токен и достает payload
+
+        AuthUtils.check_token_type(payload=payload, token_type=jwt_settings.access_name) # Проверяет тип токена в payload на соответствие переданному в jwt_settings.access_name
+
+        username = payload.get("name")  # Получает имя пользователя из payload
+
+        user = AuthUtils.check_current_user(username) # Проверка наличия пользователя в базе по его имени 
+
+        user = AuthUtils.check_user_status(user=user)  # Проверяет статус пользователя, если True - возвращает пользователя, иначе выбросит исключение
+
+        return user
+
+
+
+    @staticmethod
+    async def get_current_user_by_refresh(cls, token: str = Depends(oauth2_scheme)) -> UserPublicSchema:
+        """
+        Через зависимость oauth2_scheme извлекает токен из заголовка запроса, затем парсит данные, извлеченные из токена и выполняет проверки
+        :return: Возвращает пользователя, если такой существует в БД
+        """
+        payload = JWTUtils.decode_jwt(token)  # Декодирует токен и достает payload
+
+        AuthUtils.check_token_type(payload=payload, token_type=jwt_settings.refresh_name) # Проверяет тип токена в payload на соответствие переданному в jwt_settings.access_name
+
+        username = payload.get("name")  # Получает имя пользователя из payload
+ 
+        user = AuthUtils.check_current_user(username) # Проверка наличия пользователя в базе по его имени 
+
+        user = AuthUtils.check_user_status(user=user)  # Проверяет статус пользователя, если True - возвращает пользователя, иначе выбросит исключение
+
+        return user

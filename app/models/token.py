@@ -27,11 +27,6 @@ class RefreshToken(Base, TimestampMixin):
         unique=True,
     )
 
-    expires_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True),
-        nullable=False,
-    )
-
     user: Mapped["User"] = relationship(
         back_populates="refresh_tokens",
         lazy="select",
