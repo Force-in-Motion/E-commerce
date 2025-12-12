@@ -39,6 +39,7 @@ class UserDepends:
 
         return user_model
 
+
     @classmethod
     async def get_user_by_id(
         cls,
@@ -61,6 +62,7 @@ class UserDepends:
 
         return user_model
 
+
     @classmethod
     async def get_refresh_by_user_id(
         cls,
@@ -82,6 +84,7 @@ class UserDepends:
             raise HTTPExeption.unauthorized
 
         return refresh_model
+
 
     @classmethod
     async def validate_user(
@@ -110,6 +113,7 @@ class UserDepends:
 
         return user_model
 
+
     @classmethod
     async def create_access(
         cls,
@@ -121,6 +125,7 @@ class UserDepends:
         :return: access_token
         """
         return JWTUtils.create_access_token(user_model=user_model)
+
 
     @classmethod
     async def create_refresh(
@@ -145,6 +150,7 @@ class UserDepends:
             raise HTTPExeption.db_error
 
         return refresh
+
 
     @classmethod
     async def generate_tokens(
@@ -174,6 +180,7 @@ class UserDepends:
             refresh_token=refresh,
         )
 
+
     @classmethod
     async def get_current_user_by_access(
         cls,
@@ -198,9 +205,11 @@ class UserDepends:
             user_id=user_id,
             session=session,
         )
-        user_model = AuthUtils.check_user_status(user_model=user_model)
+        if not AuthUtils.check_user_status(user_model=user_model):
+            raise HTTPExeption.user_inactive
 
         return user_model
+
 
     @classmethod
     async def get_current_user_by_refresh(
@@ -227,14 +236,15 @@ class UserDepends:
         )
 
         if refresh_model.token != token:
-            raise HTTPExeption.unauthorized
+            raise HTTPExeption.token_invalid
 
         user_model = await cls.get_user_by_id(
             user_id=user_id,
             session=session,
         )
 
-        user_model = AuthUtils.check_user_status(user_model=user_model)
+        if not AuthUtils.check_user_status(user_model=user_model):
+            raise HTTPExeption.user_inactive
 
         return user_model
 
