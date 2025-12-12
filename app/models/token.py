@@ -21,14 +21,14 @@ class RefreshToken(Base, TimestampMixin):
         index=True,
     )
 
-    token_hash: Mapped[str] = mapped_column(
+    token: Mapped[str] = mapped_column(
         Text,
         nullable=False,
         unique=True,
     )
 
     user: Mapped["User"] = relationship(
-        back_populates="refresh_tokens",
+        back_populates="refresh_token",
         lazy="select",
         uselist=False,
     )

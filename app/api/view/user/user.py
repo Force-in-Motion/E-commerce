@@ -1,17 +1,61 @@
 from typing import Annotated
 
 from fastapi import APIRouter, status, Depends, Path
+from requests import session
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.service import UserService
-from app.schemas import UserResponse, UserCreate
+from app.models import User as User_model
+from app.api.depends.user import UserDepends
+from app.schemas import UserResponse, UserCreate, TokenResponse
 
 router = APIRouter()
 
 
-# response_model определяет модель ответа пользователю, в данном случае UserResponse
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+@router.post(
+    "/login",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def login_user(
+    user_model: User_model = Depends(UserDepends.validate_user),
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> TokenResponse:
+    """
+
+    :param param:
+    :param param:
+    :return:
+    """
+    return UserDepends.generate_tokens(
+        user_model=user_model,
+        session=session,
+        refresh_status=True,
+    )
+
+
+@router.post(
+    "/refresh",
+    response_model=TokenResponse,
+    status_code=status.HTTP_200_OK,
+)
+async def give_access(
+    user_model: User_model = Depends(UserDepends.get_current_user_by_refresh),
+    session: AsyncSession = Depends(db_connector.session_dependency),
+) -> TokenResponse:
+    """
+
+    :param param:
+    :param param:
+    :return:
+    """
+    return UserDepends.generate_tokens(
+        user_model=user_model,
+        session=session,
+    )
+
+
 @router.post(
     "/",
     response_model=UserResponse,
@@ -28,18 +72,12 @@ async def register_user(
     :return: Добавленного в БД пользователя в виде Pydantic схемы
     """
 
-    return await UserService.register_model(
-        scheme_in=user_in,
+    return await UserDepends.create_user(
+        user_in=user_in,
         session=session,
     )
 
 
-@router.post("/login")
-@router.post("/refresh")
-
-
-# response_model определяет модель ответа пользователю, в данном случае словарь
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
     "/",
     response_model=dict,
@@ -47,6 +85,7 @@ async def register_user(
 )
 async def full_update_user(
     user_in: UserCreate,
+    user_model: User_model = Depends(UserDepends.get_current_user_by_access),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
     """
@@ -57,22 +96,20 @@ async def full_update_user(
     :return: Полностью обновленного в БД пользователя в виде Pydantic схемы
     """
     return await UserService.update_model(
-        model_id=user_id,
+        model_id=user_model.id,
         scheme_in=user_in,
         session=session,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае словарь
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/{user_id}",
+    "/",
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_user(
-    user_id: Annotated[int, Path(..., description="User id")],
     user_in: UserCreate,
+    user_model: User_model = Depends(UserDepends.get_current_user_by_refresh),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
     """
@@ -83,7 +120,7 @@ async def partial_update_user(
     :return: Частично обновленного в БД пользователя в виде Pydantic схемы
     """
     return await UserService.update_model(
-        model_id=user_id,
+        model_id=user_model.id,
         scheme_in=user_in,
         session=session,
         partial=True,
@@ -93,12 +130,12 @@ async def partial_update_user(
 # response_model определяет модель ответа пользователю, в данном случае словарь
 # status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/{user_id}",
+    "/",
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_user(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_model: User_model = Depends(UserDepends.get_current_user_by_refresh),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
     """
@@ -108,6 +145,6 @@ async def delete_user(
     :return: Удаленного пользователя в виде Pydantic схемы
     """
     return await UserService.delete_model(
-        model_id=user_id,
+        model_id=user_model.id,
         session=session,
     )

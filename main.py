@@ -1,10 +1,12 @@
 import uvicorn
 from fastapi import FastAPI
 
-from app.api import include_router
+from app.api.view.user import include_user_routers
+from app.api.view.admin import include_admin_routers
 
 app = FastAPI()
-include_router(app)
+include_user_routers(app)
+include_admin_routers(app)
 
 
 if __name__ == "__main__":

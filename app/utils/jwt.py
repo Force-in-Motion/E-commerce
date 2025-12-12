@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta, timezone
 import jwt
 from app.models import User as User_model
-from app.core.config import jwt_settings
+from app.core import jwt_settings
 
 
 
@@ -90,27 +90,27 @@ class JWTUtils:
 
 
     @classmethod
-    def create_access_token(cls, user: User_model) -> str:
+    def create_access_token(cls, user_model: User_model) -> str:
         """
         Создает конкретно access_token
         :param user: схема пользователя с данными изи БД
         :return: access_token
         """
         return cls.create_jwt(
-            user=user,
+            user_model==user_model,
             token_type=jwt_settings.access_name,
             expire_minuts=jwt_settings.access_token_expire,
         )
 
     @classmethod
-    def create_refresh_token(cls, user: User_model) -> str:
+    def create_refresh_token(cls, user_model: User_model) -> str:
         """
         Создает конкретно refresh_token
         :param user: схема пользователя с данными изи БД
         :return: refresh_token
         """
         return cls.create_jwt(
-            user=user,
+            user_model=user_model,
             token_type=jwt_settings.refresh_name,
             expire_minuts=jwt_settings.refresh_token_expire,
         )
