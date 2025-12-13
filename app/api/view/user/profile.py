@@ -5,7 +5,7 @@ from fastapi.security import OAuth2PasswordBearer
 from app.core import db_connector
 from app.schemas import ProfileResponse
 from app.api.depends.user.user import UserAuth
-from app.api.depends.user.profile import ProfileCrud
+from app.api.depends.user import ProfileCrud
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 
 

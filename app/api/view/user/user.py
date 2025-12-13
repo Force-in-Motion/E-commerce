@@ -4,7 +4,7 @@ from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 from app.core import db_connector
 from app.schemas.user import UserUpdate
-from app.api.depends.user.user import UserAuth, UserCrud
+from app.api.depends.user import UserAuth, UserCrud
 from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
