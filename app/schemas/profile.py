@@ -47,3 +47,4 @@ class ProfileResponse(ProfileCreate):
     user_id: Annotated[int, Ge(1)]
     id: Annotated[int, Ge(1)]
     created_at: datetime
+    updated_at: datetime

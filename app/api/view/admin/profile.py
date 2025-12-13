@@ -4,7 +4,7 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
-from app.service.profile import ProfileFacade
+from app.service.profile import ProfileService
 from app.schemas import ProfileResponse, ProfileRequest
 from app.tools import Inspector
 
@@ -26,7 +26,7 @@ async def get_all_profiles(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Список всех профилей пользователей
     """
-    return await ProfileFacade.get_all_models(session=session)
+    return await ProfileService.get_all_models(session=session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -46,7 +46,7 @@ async def get_profiles_by_date(
     :param dates: окончание интервала времени
     :return: Список пользователей за указанную дату
     """
-    return await ProfileFacade.get_models_by_date(
+    return await ProfileService.get_models_by_date(
         session=session,
         dates=dates,
     )
@@ -69,7 +69,7 @@ async def get_profile_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Профиль конкретного пользователя
     """
-    return await ProfileFacade.get_model_by_user_id(
+    return await ProfileService.get_model_by_user_id(
         user_id=user_id,
         session=session,
     )
@@ -92,7 +92,7 @@ async def get_profile_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Профиль конкретного пользователя
     """
-    return await ProfileFacade.get_model_by_id(
+    return await ProfileService.get_model_by_id(
         model_id=profile_id,
         session=session,
     )
@@ -117,7 +117,7 @@ async def register_profile(
     :param user_id: Profile_model - объект, содержащий данные профиля пользователя
     :return: dict
     """
-    return await ProfileFacade.register_model_by_user_id(
+    return await ProfileService.register_model_by_user_id(
         user_id=user_id,
         scheme_in=profile_in,
         session=session,
@@ -143,7 +143,7 @@ async def full_update_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileFacade.update_model_by_user_id(
+    return await ProfileService.update_model_by_user_id(
         user_id=user_id,
         scheme_in=profile_in,
         session=session,
@@ -169,7 +169,7 @@ async def partial_update_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileFacade.update_model_by_user_id(
+    return await ProfileService.update_model_by_user_id(
         user_id=user_id,
         scheme_in=profile_in,
         session=session,
@@ -192,7 +192,7 @@ async def clear_profiles(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileFacade.clear_table(session=session)
+    return await ProfileService.clear_table(session=session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -212,7 +212,7 @@ async def delete_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileFacade.delete_model_by_user_id(
+    return await ProfileService.delete_model_by_user_id(
         user_id=user_id,
         session=session,
     )

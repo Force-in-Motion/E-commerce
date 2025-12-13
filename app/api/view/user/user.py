@@ -8,9 +8,9 @@ from app.schemas import UserResponse, UserCreate, TokenResponse
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+router = APIRouter(prefix='/user/auth')
 
-router = APIRouter()
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
 
 
 @router.post(

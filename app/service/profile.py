@@ -6,7 +6,7 @@ from app.models import Profile as Profile_model
 from app.schemas import ProfileRequest
 
 
-class ProfileFacade(BaseService[Profile_model, ProfileRepo]):
+class ProfileService(BaseService[Profile_model, ProfileRepo]):
 
     model: Profile_model
     repo: ProfileRepo

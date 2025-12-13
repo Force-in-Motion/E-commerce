@@ -9,7 +9,7 @@ from app.service import UserService
 from app.schemas import UserResponse, UserCreate
 from app.tools import Inspector
 
-router = APIRouter()
+router = APIRouter(prefix='/user/admin')
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
