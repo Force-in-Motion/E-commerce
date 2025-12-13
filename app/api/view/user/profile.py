@@ -2,6 +2,7 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer
 
+from app.api.depends.user.profile import ProfileCrud
 from app.core import db_connector
 from app.api.depends.user.user import UserAuth, UserCrud
 from app.schemas.profile import ProfileCreate, ProfileUpdate
@@ -32,7 +33,7 @@ async def get_user_profile(
         token=token,
         session=session,
     )
-    return await ProfileService.get_model_by_user_id(
+    return await ProfileCrud.get_model_by_user_id(
         user_id=user_id,
         session=session,
     )
