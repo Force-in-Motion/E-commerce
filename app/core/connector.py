@@ -1,55 +1,36 @@
-from asyncio import current_task
-
 from sqlalchemy.ext.asyncio import (
     create_async_engine,
     async_sessionmaker,
-    async_scoped_session,
+    AsyncSession,
 )
 from . import db_settings
+from typing import AsyncGenerator
 
 
 class DBConnector:
 
-    def __init__(self, url, echo):
-        """При инициализации объекта, создает движок- create_async_engine и фабрику сессий - async_sessionmaker"""
-
-        self.__engine = create_async_engine(  # Асинхронный движок, обязательным параметром ожидает url - путь к базе данных, в данном случае получаемый из db_settings
+    def __init__(self, url: str, echo: bool):
+        self.engine = create_async_engine(
             url=url,
             echo=echo,
         )
 
-        self.__session_factory = async_sessionmaker(  # Фабрика сессий, ожидает:
-            bind=self.__engine,
+        self.session_factory = async_sessionmaker(
+            bind=self.engine,
             autoflush=False,
             autocommit=False,
             expire_on_commit=False,
         )
 
-
-    def __get_scoped_session(self):
-        """
-        Создаёт "scoped" сессию для работы с базой данных,
-        Привязана к текущей задаче (task) в асинхронном приложении через scopefunc=current_task,
-        session_factory=self.__session_factory: Указывает, какая фабрика будет создавать сессии (AsyncSession)
-        scopefunc=current_task: Гарантирует, что каждая асинхронная задача (например, обработка HTTP-запроса в FastAPI) получает свою уникальную сессию
-        :return:Объект async_scoped_session, который следит за тем, чтобы каждая задача использовала свою сессию, не мешая другим задачам
-        """
-        session = async_scoped_session(
-            session_factory=self.__session_factory, scopefunc=current_task
-        )
-
-        return session
-
-    async def session_dependency(self):
+    async def get_session(self) -> AsyncGenerator[AsyncSession, None]:
         """
         Асинхронный генератор, который предоставляет сессию для FastAPI-маршрутов и автоматически закрывает её после использования.
         "Отдаёт" её маршруту (через yield), чтобы тот мог работать с базой.
-        После завершения запроса закрывает сессию (await session.remove()) и возвращает ее в пул соединений
+        После завершения запроса закрывает сессию и возвращает ее в пул соединений
         :return:
         """
-        session = self.__get_scoped_session()
-        yield session
-        await session.close()
+        async with self.session_factory() as session:
+            yield session
 
 
 db_connector = DBConnector(url=db_settings.url, echo=db_settings.echo)

@@ -20,7 +20,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_all_carts(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[CartResponse]:
     """
 
@@ -37,7 +37,7 @@ async def get_all_carts(
 )
 async def get_carts_by_date(
     dates: datetime = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[CartResponse]:
     """
 
@@ -58,7 +58,7 @@ async def get_carts_by_date(
 )
 async def get_count_products(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> dict[str, int]:
     """
 
@@ -79,7 +79,7 @@ async def get_count_products(
 )
 async def get_total_sum(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> dict[str, int]:
     """
 
@@ -100,7 +100,7 @@ async def get_total_sum(
 )
 async def get_cart_by_id(
     cart_id: Annotated[int, Path(..., description="Cart id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
 
@@ -121,7 +121,7 @@ async def get_cart_by_id(
 )
 async def get_cart_by_user_id(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
 
@@ -143,7 +143,7 @@ async def get_cart_by_user_id(
 async def add_product(
     user_id: Annotated[int, Path(..., description="User id")],
     product_add: ProductAddOrUpdate,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
 
@@ -167,7 +167,7 @@ async def add_product(
 async def update_count_product(
     user_id: int,
     product_upd: ProductAddOrUpdate,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
 
@@ -191,7 +191,7 @@ async def update_count_product(
 async def delete_product(
     user_id: int,
     product_id: int,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
 
@@ -214,7 +214,7 @@ async def delete_product(
 )
 async def clear_user_cart(
     user_id: int,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list:
     """
 

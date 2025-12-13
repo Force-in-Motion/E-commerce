@@ -1,6 +1,7 @@
 __all__ = [
     "TokenResponse",
     "UserCreate",
+    "UserUpdate",
     "PostRequest",
     "PostResponse",
     "UserResponse",
@@ -15,7 +16,7 @@ __all__ = [
 ]
 
 from app.schemas.token import TokenResponse
-from app.schemas.user import UserCreate, UserResponse
+from app.schemas.user import UserCreate, UserUpdate, UserResponse
 from app.schemas.post import PostRequest, PostResponse
 from app.schemas.order import OrderRequest, OrderResponse
 from app.schemas.cart import ProductAddOrUpdate, CartResponse

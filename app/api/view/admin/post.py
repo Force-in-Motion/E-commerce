@@ -19,7 +19,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_all_posts(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей
@@ -38,7 +38,7 @@ async def get_all_posts(
 )
 async def get_posts_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
@@ -61,7 +61,7 @@ async def get_posts_by_date(
 )
 async def get_post_by_id(
     post_id: int,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
      Обрабатывает запрос с фронт энда на получение конкретного поста по его id
@@ -84,7 +84,7 @@ async def get_post_by_id(
 )
 async def get_posts_by_user_id(
     user_id: int,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
@@ -108,7 +108,7 @@ async def get_posts_by_user_id(
 async def register_post(
     user_id: int,
     post_in: PostRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
@@ -134,7 +134,7 @@ async def register_post(
 async def full_update_post(
     post_id: int,
     post_in: PostRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
@@ -160,7 +160,7 @@ async def full_update_post(
 async def partial_update_post(
     post_id: int,
     post_in: PostRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
@@ -185,7 +185,7 @@ async def partial_update_post(
     status_code=status.HTTP_200_OK,
 )
 async def clear_posts(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех постов пользователей из БД
@@ -204,7 +204,7 @@ async def clear_posts(
 )
 async def delete_post(
     post_id: int,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД

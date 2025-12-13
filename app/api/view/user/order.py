@@ -19,7 +19,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_all_orders(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[OrderResponse]:
     """
 
@@ -36,7 +36,7 @@ async def get_all_orders(
 )
 async def get_orders_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[OrderResponse]:
     """
 
@@ -57,7 +57,7 @@ async def get_orders_by_date(
 )
 async def get_order_by_id(
     order_id: Annotated[int, Path(..., description="Order id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> OrderResponse:
     """
 
@@ -78,7 +78,7 @@ async def get_order_by_id(
 )
 async def get_orders_by_user_id(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[OrderResponse]:
     """
 
@@ -99,7 +99,7 @@ async def get_orders_by_user_id(
 )
 async def create_order(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> OrderResponse:
     """
 
@@ -121,7 +121,7 @@ async def create_order(
 async def update_order_partial(
     order_id: Annotated[int, Path(..., description="Order id")],
     order_scheme: OrderRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> OrderResponse:
     """
 
@@ -143,7 +143,7 @@ async def update_order_partial(
 )
 async def delete_order(
     order_id: Annotated[int, Path(..., description="Order id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> OrderResponse:
     """
 

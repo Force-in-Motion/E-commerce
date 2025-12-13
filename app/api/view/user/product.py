@@ -19,7 +19,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_all_products(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[ProductResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех продуктов
@@ -36,7 +36,7 @@ async def get_all_products(
 )
 async def get_products_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[ProductResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех продуктов, добавленных за указанный интервал времени
@@ -59,7 +59,7 @@ async def get_products_by_date(
 )
 async def get_product_by_id(
     product_id,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на получение продукта по его id
@@ -82,7 +82,7 @@ async def get_product_by_id(
 )
 async def register_product(
     product_in: ProductRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на добавление продукта в БД
@@ -106,7 +106,7 @@ async def register_product(
 async def update_product(
     product_id: int,
     product_in: ProductRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных продукта по его id
@@ -132,7 +132,7 @@ async def update_product(
 async def update_product_partial(
     product_id: int,
     product_in: ProductRequest,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
@@ -155,7 +155,7 @@ async def update_product_partial(
     status_code=status.HTTP_200_OK,
 )
 async def clear_products(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех пользователей
@@ -174,7 +174,7 @@ async def clear_products(
 )
 async def delete_product(
     product_id: int,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного продукта

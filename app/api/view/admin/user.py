@@ -20,7 +20,7 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_all_users(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение списка всех пользователей
@@ -39,7 +39,7 @@ async def get_all_users(
 )
 async def get_users_by_date(
     dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение всех добавленных в БД пользователей за указанный интервал времени
@@ -60,7 +60,7 @@ async def get_users_by_date(
 )
 async def get_user_by_name(
     user_name: Annotated[str, Query(..., description="User name")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его имени
@@ -83,7 +83,7 @@ async def get_user_by_name(
 )
 async def get_user_by_id(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его id
@@ -106,7 +106,7 @@ async def get_user_by_id(
 )
 async def register_user(
     user_in: UserCreate,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -131,7 +131,7 @@ async def register_user(
 async def full_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
     user_in: UserCreate,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -157,7 +157,7 @@ async def full_update_user(
 async def partial_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
     user_in: UserCreate,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -180,7 +180,7 @@ async def partial_update_user(
     status_code=status.HTTP_200_OK,
 )
 async def clear_users(
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> list:
     """
     Обрабатывает запрос с fontend на полную очистку таблицы пользователей
@@ -199,7 +199,7 @@ async def clear_users(
 )
 async def delete_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД
