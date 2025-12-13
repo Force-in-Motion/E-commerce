@@ -2,12 +2,12 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer
 
-from app.api.depends.user.profile import ProfileCrud
 from app.core import db_connector
-from app.api.depends.user.user import UserAuth, UserCrud
-from app.schemas.profile import ProfileCreate, ProfileUpdate
-from app.service.profile import ProfileService
 from app.schemas import ProfileResponse
+from app.api.depends.user.user import UserAuth
+from app.api.depends.user.profile import ProfileCrud
+from app.schemas.profile import ProfileCreate, ProfileUpdate
+
 
 router = APIRouter(prefix="/user/profile")
 
@@ -33,8 +33,9 @@ async def get_user_profile(
         token=token,
         session=session,
     )
-    return await ProfileCrud.get_model_by_user_id(
-        user_id=user_id,
+
+    return await ProfileCrud.get_profile_by_user_id(
+        user_model=user_model,
         session=session,
     )
 
@@ -61,9 +62,9 @@ async def create_profile(
         session=session,
     )
 
-    return await ProfileService.register_model_by_user_id(
-        user_id=user_id,
-        scheme_in=profile_in,
+    return await ProfileCrud.create_user_profile(
+        user_model=user_model,
+        profile_in=profile_in,
         session=session,
     )
 
@@ -90,10 +91,11 @@ async def full_update_profile(
         session=session,
     )
 
-    return await ProfileService.update_model_by_user_id(
-        user_id=user_id,
-        scheme_in=profile_in,
+    return await ProfileCrud.update_user_profile(
+        user_model=user_model,
+        profile_in=profile_in,
         session=session,
+        partial=True,
     )
 
 
@@ -113,17 +115,14 @@ async def partial_update_profile(
     :param profile_in: ProfileModel - конкретный объект в БД, найденный по id
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
-    """    
+    """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
         session=session,
     )
 
-    return await ProfileService.update_model_by_user_id(
-        user_id=user_id,
-        scheme_in=profile_in,
-        session=session,
-        partial=True,
+    return await ProfileCrud.update_user_profile(
+        user_model=user_model, profile_in=profile_in, session=session
     )
 
 
@@ -147,7 +146,7 @@ async def delete_profile(
         session=session,
     )
 
-    return await ProfileService.delete_model_by_user_id(
-        user_id=user_id,
+    return await ProfileCrud.delete_user_profile(
+        user_model=user_model,
         session=session,
     )
