@@ -4,15 +4,14 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
-from app.service.post import PostFacade
+from app.service.post import PostService
 from app.schemas import PostResponse, PostRequest
 from app.tools import Inspector
 
 router = APIRouter()
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+
 @router.get(
     "/all",
     response_model=list[PostResponse],
@@ -26,7 +25,7 @@ async def get_all_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Список всех постов пользователей
     """
-    return await PostFacade.get_all_models(session=session)
+    return await PostService.get_all_models(session=session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -46,7 +45,7 @@ async def get_posts_by_date(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех постов, созданных за указанный интервал времени
     """
-    return await PostFacade.get_models_by_date(
+    return await PostService.get_all_models_by_date(
         dates=dates,
         session=session,
     )
@@ -69,7 +68,7 @@ async def get_post_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: конкретный пост по его id
     """
-    return await PostFacade.get_model_by_id(
+    return await PostService.get_model_by_id(
         model_id=post_id,
         session=session,
     )
@@ -92,7 +91,7 @@ async def get_posts_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех постов пользователя
     """
-    return await PostFacade.get_models_by_user_id(
+    return await PostService.get_all_models_by_user_id(
         user_id=user_id,
         session=session,
     )
@@ -117,7 +116,7 @@ async def register_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.register_model_by_user_id(
+    return await PostService.register_model_by_user_id(
         user_id=user_id,
         post_in=post_in,
         session=session,
@@ -143,7 +142,7 @@ async def full_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.update_model(
+    return await PostService.update_model(
         model_id=post_id,
         post_in=post_in,
         session=session,
@@ -169,7 +168,7 @@ async def partial_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.update_model(
+    return await PostService.update_model(
         model_id=post_id,
         post_in=post_in,
         session=session,
@@ -192,7 +191,7 @@ async def clear_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.clear_table(session=session)
+    return await PostService.clear_table(session=session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -212,7 +211,7 @@ async def delete_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostFacade.delete_model(
+    return await PostService.delete_model(
         model_id=post_id,
         session=session,
     )

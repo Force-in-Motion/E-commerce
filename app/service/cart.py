@@ -17,9 +17,9 @@ from app.models import (
 from app.schemas import ProductAddOrUpdate
 
 
-class CartFacade(BaseService[Cart_model, CartRepo]):
+class CartService(BaseService[CartRepo]):
 
-    model = Cart_model
+
     repo = CartRepo
 
     @classmethod

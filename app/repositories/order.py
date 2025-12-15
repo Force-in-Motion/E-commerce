@@ -17,27 +17,6 @@ class OrderRepo(BaseRepo[Order_model]):
 
     model: Order_model
 
-    @classmethod
-    async def get_by_user_id(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> list[Order_model]:
-        """
-
-        :param user_id:
-        :param session:
-        :return:
-        """
-        try:
-            stmt = select(cls.model).where(cls.model.user_id == user_id)
-            result = await session.execute(stmt)
-            return list(result.scalars().all())
-
-        except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Error when receiving {cls.model.__name__} by user id"
-            ) from e
 
     @classmethod
     async def create_order(

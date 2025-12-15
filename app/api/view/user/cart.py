@@ -1,63 +1,29 @@
-from datetime import datetime
-
 from fastapi import APIRouter, status, Path
 from fastapi.params import Depends
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.annotation import Annotated
 
 from app.core import db_connector
-from app.service.cart import CartFacade
+from app.service.cart import CartService
 from app.schemas import ProductAddOrUpdate
 from app.schemas.cart import CartResponse
-from app.tools import Inspector
-
-router = APIRouter()
+from app.api.depends.user import  UserAuth
 
 
-@router.get(
-    "/all",
-    response_model=list[CartResponse],
-    status_code=status.HTTP_200_OK,
-)
-async def get_all_carts(
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> list[CartResponse]:
-    """
+router = APIRouter(prefix="/user/cart", tags=["User Cart"])
 
-    :param session:
-    :return:
-    """
-    return await CartFacade.get_all_models(session=session)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
+
 
 
 @router.get(
-    "/date",
-    response_model=list[CartResponse],
-    status_code=status.HTTP_200_OK,
-)
-async def get_carts_by_date(
-    dates: datetime = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> list[CartResponse]:
-    """
-
-    :param dates:
-    :param session:
-    :return:
-    """
-    return await CartFacade.get_models_by_date(
-        dates=dates,
-        session=session,
-    )
-
-
-@router.get(
-    "/count/{user_id}",
+    "/count",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
 async def get_count_products(
-    user_id: Annotated[int, Path(..., description="User id")],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> dict[str, int]:
     """
@@ -66,19 +32,25 @@ async def get_count_products(
     :param session:
     :return:
     """
-    return await CartFacade.get_count_products_in_cart(
+
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await CartService.get_count_products_in_cart(
         user_id=user_id,
         session=session,
     )
 
 
 @router.get(
-    "/sum/{user_id}",
+    "/sum",
     response_model=dict,
     status_code=status.HTTP_200_OK,
 )
 async def get_total_sum(
-    user_id: Annotated[int, Path(..., description="User id")],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> dict[str, int]:
     """
@@ -87,19 +59,24 @@ async def get_total_sum(
     :param session:
     :return:
     """
-    await CartFacade.get_total_sum_cart(
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    await CartService.get_total_sum_cart(
         user_id=user_id,
         session=session,
     )
 
 
 @router.get(
-    "/{cart_id}",
+    "/",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_cart_by_id(
-    cart_id: Annotated[int, Path(..., description="Cart id")],
+async def get_my_cart(
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
@@ -108,41 +85,25 @@ async def get_cart_by_id(
     :param session:
     :return:
     """
-    return await CartFacade.get_model_by_id(
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await CartService.get_model_by_id(
         model_id=cart_id,
         session=session,
     )
 
 
-@router.get(
-    "/{user_id}",
-    response_model=CartResponse,
-    status_code=status.HTTP_200_OK,
-)
-async def get_cart_by_user_id(
-    user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> CartResponse:
-    """
-
-    :param user_id:
-    :param session:
-    :return:
-    """
-    return await CartFacade.get_cart_by_user_id(
-        user_id=user_id,
-        session=session,
-    )
-
-
 @router.post(
-    "/{user_id}",
+    "/",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def add_product(
-    user_id: Annotated[int, Path(..., description="User id")],
     product_add: ProductAddOrUpdate,
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
@@ -152,7 +113,12 @@ async def add_product(
     :param session:
     :return:
     """
-    return await CartFacade.add_or_update_product_in_cart(
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await CartService.add_or_update_product_in_cart(
         user_id=user_id,
         product_add=product_add,
         session=session,
@@ -160,13 +126,13 @@ async def add_product(
 
 
 @router.patch(
-    "/{user_id}",
+    "/",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def update_count_product(
-    user_id: int,
     product_upd: ProductAddOrUpdate,
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
@@ -176,7 +142,12 @@ async def update_count_product(
     :param session:
     :return:
     """
-    return CartFacade.add_or_update_product_in_cart(
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return CartService.add_or_update_product_in_cart(
         user_id=user_id,
         product_add=product_upd,
         session=session,
@@ -184,13 +155,13 @@ async def update_count_product(
 
 
 @router.delete(
-    "/{user_id}",
+    "/",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_product(
-    user_id: int,
     product_id: int,
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> CartResponse:
     """
@@ -200,7 +171,12 @@ async def delete_product(
     :param session:
     :return:
     """
-    return await CartFacade.del_product_from_cart(
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await CartService.del_product_from_cart(
         user_id=user_id,
         product_id=product_id,
         session=session,
@@ -208,12 +184,12 @@ async def delete_product(
 
 
 @router.delete(
-    "/{user_id}",
+    "/",
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
-async def clear_user_cart(
-    user_id: int,
+async def clear_my_cart(
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> list:
     """
@@ -222,7 +198,12 @@ async def clear_user_cart(
     :param session:
     :return:
     """
-    return await CartFacade.clear_cart_by_user_id(
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await CartService.clear_cart_by_user_id(
         user_id=user_id,
         session=session,
     )

@@ -9,13 +9,11 @@ if TYPE_CHECKING:
 
 # Абстрактные типы модели, схемы, адаптера
 DBModel = TypeVar("DBModel", bound="Base")
-Adapter = TypeVar("Adapter", bound="ARepo")
+Repo = TypeVar("Repo", bound="ARepo")
 PDScheme = TypeVar("PDScheme", bound="BaseModel")
 
 
 # Определяет возможные роли пользователей
 class UserRole(str, enum.Enum):
-    god = 'god'
     user = "user"
     admin = "admin"
-    moderator = "moderator"

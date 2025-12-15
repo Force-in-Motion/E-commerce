@@ -4,6 +4,6 @@ from app.models import Product as Product_model
 from app.schemas import ProductRequest
 
 
-class ProductFacade(BaseService[Product_model, ProductRepo]):
+class ProductService(BaseService[Product_model, ProductRepo]):
     model = Product_model
     repo = ProductRepo

@@ -1,19 +1,19 @@
-
 from pydantic import EmailStr
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import jwt_settings
-from app.schemas.user import UserUpdate
+from app.schemas import UserUpdate
+from app.schemas.token import RefreshCreate
+from app.service.token import TokenService
 from app.tools import HTTPExeption
-from app.service.user import UserService
+from app.service import UserService
 from app.utils import JWTUtils, AuthUtils
-from app.models import User as User_model
+from app.models import User as User_model, RefreshToken as Refresh_model
 from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
 class UserCrud:
-
 
     @classmethod
     async def get_user_by_login(
@@ -37,7 +37,6 @@ class UserCrud:
 
         return user_model
 
-
     @classmethod
     async def get_user_by_id(
         cls,
@@ -59,7 +58,6 @@ class UserCrud:
             raise HTTPExeption.unauthorized
 
         return user_model
-
 
     @classmethod
     async def create_user(
@@ -83,23 +81,44 @@ class UserCrud:
 
         return created_user_model
 
-
     @classmethod
-    async def create_refresh(
+    async def get_refresh(
         cls,
-        user_model: User_model,
-        refresh: str,
+        user_id: int,
         session: AsyncSession,
-    ) -> UserResponse:
+    ) -> Refresh_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        refresh_model = await UserService.add_refresh(
-            user_id=user_model.id,
-            refresh=refresh,
+
+        refresh_model = await TokenService.get_model_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
+
+        return refresh_model
+
+    @classmethod
+    async def create_refresh(
+        cls,
+        user_id: int,
+        refresh: str,
+        session: AsyncSession,
+    ) -> Refresh_model:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        refresh_schema = RefreshCreate(token=refresh)
+
+        refresh_model = await TokenService.register_model(
+            scheme_in=refresh_schema,
+            user_id=user_id,
             session=session,
         )
 
@@ -108,14 +127,35 @@ class UserCrud:
 
         return refresh_model
 
+    @classmethod
+    async def delete_refresh(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Refresh_model:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        refresh_model = await TokenService.delete_model(
+            session=session,
+            user_id=user_id,
+        )
+
+        if not refresh_model:
+            raise HTTPExeption.db_error
+
+        return refresh_model
 
     @classmethod
     async def update_user(
         cls,
         user_in: UserUpdate,
-        user_model: User_model,
+        user_id: int,
         session: AsyncSession,
-        partial: bool,
+        partial: bool = False,
     ) -> UserResponse:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -124,7 +164,7 @@ class UserCrud:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
         updated_user_model = await UserService.update_model(
-            model_id=user_model.id,
+            model_id=user_id,
             scheme_in=user_in,
             session=session,
             partial=partial,
@@ -135,11 +175,10 @@ class UserCrud:
 
         return updated_user_model
 
-
     @classmethod
     async def delete_user(
         cls,
-        user_model: User_model,
+        user_id: int,
         session: AsyncSession,
     ) -> UserResponse:
         """
@@ -149,7 +188,7 @@ class UserCrud:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
         deleted_user_model = await UserService.delete_model(
-            model_id=user_model.id,
+            model_id=user_id,
             session=session,
         )
 
@@ -161,13 +200,12 @@ class UserCrud:
 
 class UserAuth:
 
-
     @classmethod
     async def validate_user(
         cls,
-        session: AsyncSession,
         login: str,
         password: str,
+        session: AsyncSession,
     ) -> User_model:
         """
         Выполняет валидацию пользователя, если все проверки пройдены то возвращает его
@@ -190,7 +228,6 @@ class UserAuth:
 
         return user_model
 
-
     @classmethod
     async def create_access(
         cls,
@@ -203,9 +240,8 @@ class UserAuth:
         """
         return JWTUtils.create_access_token(user_model=user_model)
 
-
     @classmethod
-    async def create_refresh(
+    async def update_refresh(
         cls,
         user_model: User_model,
         session: AsyncSession,
@@ -217,14 +253,23 @@ class UserAuth:
         """
         refresh = JWTUtils.create_refresh_token(user_model=user_model)
 
+        if await UserCrud.get_refresh(
+            user_id=user_model.id,
+            session=session,
+        ):
+
+            await UserCrud.delete_refresh(
+                user_id=user_model.id,
+                session=session,
+            )
+
         await UserCrud.create_refresh(
-            user_model=user_model,
+            user_id=user_model.id,
             refresh=refresh,
             session=session,
         )
 
         return refresh
-
 
     @classmethod
     async def generate_tokens(
@@ -244,7 +289,7 @@ class UserAuth:
         access = await cls.create_access(user_model)
 
         if refresh_status:
-            refresh = await cls.create_refresh(
+            refresh = await cls.update_refresh(
                 user_model=user_model,
                 session=session,
             )
@@ -253,7 +298,6 @@ class UserAuth:
             access_token=access,
             refresh_token=refresh,
         )
-
 
     @classmethod
     async def get_current_user_by_access(
@@ -275,15 +319,15 @@ class UserAuth:
 
         user_id = int(payload.get("sub"))
 
-        user_model = await cls.get_user_by_id(
+        user_model = await UserCrud.get_user_by_id(
             user_id=user_id,
             session=session,
         )
+
         if not AuthUtils.check_user_status(user_model=user_model):
             raise HTTPExeption.user_inactive
 
         return user_model
-
 
     @classmethod
     async def get_current_user_by_refresh(
@@ -304,15 +348,15 @@ class UserAuth:
 
         user_id = int(payload.get("sub"))
 
-        refresh_model = await UserService.get_refresh_token(
+        refresh_model = await UserCrud.get_refresh(
             user_id=user_id,
             session=session,
         )
 
-        if refresh_model.token != token:
+        if not refresh_model or refresh_model.token != token:
             raise HTTPExeption.token_invalid
 
-        user_model = await cls.get_user_by_id(
+        user_model = await UserCrud.get_user_by_id(
             user_id=user_id,
             session=session,
         )

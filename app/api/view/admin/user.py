@@ -9,7 +9,7 @@ from app.service import UserService
 from app.schemas import UserResponse, UserCreate
 from app.tools import Inspector
 
-router = APIRouter(prefix='/user/admin')
+router = APIRouter(prefix="/user/admin")
 
 
 # response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
@@ -47,7 +47,7 @@ async def get_users_by_date(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Список пользователей в виде Pydantic схем за указанную дату в виде Pydantic схем
     """
-    return await UserService.get_models_by_date(
+    return await UserService.get_all_models_by_date(
         dates=dates,
         session=session,
     )

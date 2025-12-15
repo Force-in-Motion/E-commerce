@@ -65,6 +65,50 @@ class BaseRepo(Generic[DBModel], ARepo):
             ) from e
 
     @classmethod
+    async def get_all_by_user_id(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> list[DBModel]:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        try:
+            stmt = select(cls.model).where(cls.model.user_id == user_id)
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by user id"
+            ) from e
+        
+    @classmethod
+    async def get_by_user_id(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Optional[DBModel]:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        try:
+            stmt = select(cls.model).where(cls.model.user_id == user_id)
+            result = await session.execute(stmt)
+            return result.scalars().one_or_none()
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by user id"
+            ) from e
+
+    @classmethod
     async def get_by_date(
         cls,
         dates: tuple[datetime, datetime],

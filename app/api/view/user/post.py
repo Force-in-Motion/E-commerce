@@ -1,24 +1,26 @@
-from datetime import datetime
+from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Path
+from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
-from app.service.post import PostFacade
-from app.schemas import PostResponse, PostRequest
-from app.tools import Inspector
-
-router = APIRouter()
+from app.api.depends.user import PostCrud, UserAuth
+from app.schemas import PostResponse, PostCreate, PostUpdate
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+router = APIRouter(prefix="/user/posts", tags=["User posts"])
+
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
+
+
 @router.get(
     "/all",
     response_model=list[PostResponse],
     status_code=status.HTTP_200_OK,
 )
-async def get_all_posts(
+async def get_all_my_posts(
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[PostResponse]:
     """
@@ -26,88 +28,53 @@ async def get_all_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Список всех постов пользователей
     """
-    return await PostFacade.get_all_models(session=session)
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
 
-
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get(
-    "/date",
-    response_model=list[PostResponse],
-    status_code=status.HTTP_201_CREATED,
-)
-async def get_posts_by_date(
-    dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> list[PostResponse]:
-    """
-    Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
-    :param dates: кортеж, содержащий начало интервала времени и его окончание
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: список всех постов, созданных за указанный интервал времени
-    """
-    return await PostFacade.get_models_by_date(
-        dates=dates,
+    return await PostCrud.get_all_user_posts(
+        user_id=user_model.id,
         session=session,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
-    "/by-id/{post_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_post_by_id(
-    post_id: int,
+async def get_my_post(
+    post_id: Annotated[int, Path(..., description="Post ID")],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
-    """
-     Обрабатывает запрос с фронт энда на получение конкретного поста по его id
-    :param post_id: объект PostOutput, который получается путем выполнения зависимости (метода post_by_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: конкретный пост по его id
-    """
-    return await PostFacade.get_model_by_id(
-        model_id=post_id,
-        session=session,
-    )
-
-
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.get(
-    "/by-user/{user_id}",
-    response_model=list[PostResponse],
-    status_code=status.HTTP_200_OK,
-)
-async def get_posts_by_user_id(
-    user_id: int,
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
     :param user_id: список объектов PostOutput, который получается путем выполнения зависимости (метода posts_by_user_id)
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех постов пользователя
     """
-    return await PostFacade.get_models_by_user_id(
-        user_id=user_id,
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostCrud.get_user_post(
+        post_id=post_id,
+        user_id=user_model.id,
         session=session,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
-    "/by-user/{user_id}",
+    "/",
     response_model=PostResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def register_post(
-    user_id: int,
-    post_in: PostRequest,
+async def register_my_post(
+    post_in: PostCreate,
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
@@ -117,23 +84,27 @@ async def register_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.register_model_by_user_id(
-        user_id=user_id,
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostCrud.create_user_post(
+        user_id=user_model.id,
         post_in=post_in,
         session=session,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
-    "/by-id/{post_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
-async def full_update_post(
-    post_id: int,
-    post_in: PostRequest,
+async def full_update_my_post(
+    post_in: PostUpdate,
+    post_id: Annotated[int, Path(..., description="Post ID")],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
@@ -143,23 +114,28 @@ async def full_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.update_model(
-        model_id=post_id,
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostCrud.update_user_post(
+        user_id=user_model.id,
+        post_id=post_id,
         post_in=post_in,
         session=session,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
-    "/by-id/{post_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
-async def partial_update_post(
-    post_id: int,
-    post_in: PostRequest,
+async def partial_update_my_post(
+    post_in: PostUpdate,
+    post_id: Annotated[int, Path(..., description="Post ID")],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
@@ -169,41 +145,28 @@ async def partial_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostFacade.update_model(
-        model_id=post_id,
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostCrud.update_user_post(
+        user_id=user_model.id,
+        post_id=post_id,
         post_in=post_in,
         session=session,
         partial=True,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
-    "/clear",
-    response_model=list,
-    status_code=status.HTTP_200_OK,
-)
-async def clear_posts(
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> list:
-    """
-    Обрабатывает запрос с фронт энда на удаление всех постов пользователей из БД
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
-    """
-    return await PostFacade.clear_table(session=session)
-
-
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
-@router.delete(
-    "/by-id/{post_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
-async def delete_post(
-    post_id: int,
+async def delete_my_post(
+    post_id: Annotated[int, Path(..., description="Post ID")],
+    token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> PostResponse:
     """
@@ -212,7 +175,39 @@ async def delete_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostFacade.delete_model(
-        model_id=post_id,
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostCrud.delete_user_post(
+        user_id=user_model.id,
+        post_id=post_id,
+        session=session,
+    )
+
+
+@router.delete(
+    "/all",
+    response_model=list,
+    status_code=status.HTTP_200_OK,
+)
+async def delete_all_my_post(
+    token: str = Depends(oauth2_scheme),
+    session: AsyncSession = Depends(db_connector.get_session),
+) -> list:
+    """
+    Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
+    :param post_id: Post_model - конкретный объект в БД, найденный по id
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return:
+    """
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostCrud.delete_all_user_post(
+        user_id=user_model.id,
         session=session,
     )

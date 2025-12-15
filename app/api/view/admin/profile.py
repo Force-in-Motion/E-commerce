@@ -46,7 +46,7 @@ async def get_profiles_by_date(
     :param dates: окончание интервала времени
     :return: Список пользователей за указанную дату
     """
-    return await ProfileService.get_models_by_date(
+    return await ProfileService.get_all_models_by_date(
         session=session,
         dates=dates,
     )

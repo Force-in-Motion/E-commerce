@@ -8,9 +8,9 @@ from app.api.depends.user import UserAuth, UserCrud
 from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
-router = APIRouter(prefix='/user/auth')
+router = APIRouter(prefix="/user/auth", tags=["User"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 
 
 @router.post(
@@ -61,7 +61,7 @@ async def give_access(
         session=session,
     )
 
-    return UserAuth.generate_tokens(
+    return await UserAuth.generate_tokens(
         user_model=user_model,
         session=session,
     )
@@ -72,7 +72,7 @@ async def give_access(
     response_model=UserResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def register_user(
+async def register_me(
     user_in: UserCreate,
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
@@ -91,10 +91,10 @@ async def register_user(
 
 @router.put(
     "/",
-    response_model=dict,
+    response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def full_update_user(
+async def full_update_me(
     user_in: UserUpdate,
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -113,9 +113,8 @@ async def full_update_user(
 
     return await UserCrud.update_user(
         user_in=user_in,
-        user_model=user_model,
+        user_id=user_model.id,
         session=session,
-        partial=True,
     )
 
 
@@ -124,7 +123,7 @@ async def full_update_user(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def partial_update_user(
+async def partial_update_me(
     user_in: UserUpdate,
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.session_dependency),
@@ -143,8 +142,9 @@ async def partial_update_user(
 
     return await UserCrud.update_user(
         user_in=user_in,
-        user_model=user_model,
+        user_id=user_model.id,
         session=session,
+        partial=True,
     )
 
 
@@ -153,7 +153,7 @@ async def partial_update_user(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def delete_user(
+async def delete_me(
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.session_dependency),
 ) -> UserResponse:
@@ -169,6 +169,6 @@ async def delete_user(
     )
 
     return await UserCrud.delete_user(
-        user_model=user_model,
+        user_id=user_model.id,
         session=session,
     )

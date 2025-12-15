@@ -24,7 +24,25 @@ class AService(ABC):
 
     @classmethod
     @abstractmethod
-    async def get_models_by_date(cls, *args, **kwargs) -> list[object]:
+    async def get_all_models_by_user_id(cls, *args, **kwargs) -> Optional[object]:
+        """
+        Возвращает модель по её id из БД
+        :return: Модель | None
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    async def get_model_by_user_id(cls, *args, **kwargs) -> Optional[object]:
+        """
+        Возвращает модель по её id из БД
+        :return: Модель | None
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
+    async def get_all_models_by_date(cls, *args, **kwargs) -> list[object]:
         """
         Возвращает список всех моделей, добавленных за указанный интервал времени
         :return: список всех моделей, добавленных за указанный интервал времени

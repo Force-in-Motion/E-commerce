@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.annotation import Annotated
 
 from app.core import db_connector
-from app.service.cart import CartFacade
+from app.service.cart import CartService
 from app.schemas import ProductAddOrUpdate
 from app.schemas.cart import CartResponse
 from app.tools import Inspector
@@ -27,7 +27,7 @@ async def get_all_carts(
     :param session:
     :return:
     """
-    return await CartFacade.get_all_models(session=session)
+    return await CartService.get_all_models(session=session)
 
 
 @router.get(
@@ -45,7 +45,7 @@ async def get_carts_by_date(
     :param session:
     :return:
     """
-    return await CartFacade.get_models_by_date(
+    return await CartService.get_all_models_by_date(
         dates=dates,
         session=session,
     )
@@ -66,7 +66,7 @@ async def get_count_products(
     :param session:
     :return:
     """
-    return await CartFacade.get_count_products_in_cart(
+    return await CartService.get_count_products_in_cart(
         user_id=user_id,
         session=session,
     )
@@ -87,7 +87,7 @@ async def get_total_sum(
     :param session:
     :return:
     """
-    await CartFacade.get_total_sum_cart(
+    await CartService.get_total_sum_cart(
         user_id=user_id,
         session=session,
     )
@@ -108,7 +108,7 @@ async def get_cart_by_id(
     :param session:
     :return:
     """
-    return await CartFacade.get_model_by_id(
+    return await CartService.get_model_by_id(
         model_id=cart_id,
         session=session,
     )
@@ -129,7 +129,7 @@ async def get_cart_by_user_id(
     :param session:
     :return:
     """
-    return await CartFacade.get_cart_by_user_id(
+    return await CartService.get_cart_by_user_id(
         user_id=user_id,
         session=session,
     )
@@ -152,7 +152,7 @@ async def add_product(
     :param session:
     :return:
     """
-    return await CartFacade.add_or_update_product_in_cart(
+    return await CartService.add_or_update_product_in_cart(
         user_id=user_id,
         product_add=product_add,
         session=session,
@@ -176,7 +176,7 @@ async def update_count_product(
     :param session:
     :return:
     """
-    return CartFacade.add_or_update_product_in_cart(
+    return CartService.add_or_update_product_in_cart(
         user_id=user_id,
         product_add=product_upd,
         session=session,
@@ -200,7 +200,7 @@ async def delete_product(
     :param session:
     :return:
     """
-    return await CartFacade.del_product_from_cart(
+    return await CartService.del_product_from_cart(
         user_id=user_id,
         product_id=product_id,
         session=session,
@@ -222,7 +222,7 @@ async def clear_user_cart(
     :param session:
     :return:
     """
-    return await CartFacade.clear_cart_by_user_id(
+    return await CartService.clear_cart_by_user_id(
         user_id=user_id,
         session=session,
     )

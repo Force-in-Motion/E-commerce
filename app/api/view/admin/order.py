@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.annotation import Annotated
 
 from app.core import db_connector
-from app.service.order import OrderFacade
+from app.service.order import OrderService
 from app.schemas import OrderResponse, OrderRequest, UserResponse
 from app.tools import Inspector
 
@@ -26,7 +26,7 @@ async def get_all_orders(
     :param session:
     :return:
     """
-    return await OrderFacade.get_all_models(session=session)
+    return await OrderService.get_all_models(session=session)
 
 
 @router.get(
@@ -44,7 +44,7 @@ async def get_orders_by_date(
     :param session:
     :return:
     """
-    return await OrderFacade.get_models_by_date(
+    return await OrderService.get_all_models_by_date(
         dates=dates,
         session=session,
     )
@@ -65,7 +65,7 @@ async def get_order_by_id(
     :param session:
     :return:
     """
-    return await OrderFacade.get_model_by_id(
+    return await OrderService.get_model_by_id(
         model_id=order_id,
         session=session,
     )
@@ -86,7 +86,7 @@ async def get_orders_by_user_id(
     :param session:
     :return:
     """
-    return await OrderFacade.get_orders_by_user_id(
+    return await OrderService.get_orders_by_user_id(
         user_id=user_id,
         session=session,
     )
@@ -107,7 +107,7 @@ async def create_order(
     :param session:
     :return:
     """
-    return await OrderFacade.create_order_for_user(
+    return await OrderService.create_order_for_user(
         user_id=user_id,
         session=session,
     )
@@ -129,7 +129,7 @@ async def update_order_partial(
     :param session:
     :return:
     """
-    return await OrderFacade.update_order_partial(
+    return await OrderService.update_order_partial(
         model_id=order_id,
         order_scheme=order_scheme,
         session=session,
@@ -151,7 +151,7 @@ async def delete_order(
     :param session:
     :return:
     """
-    return await OrderFacade.delete_model(
+    return await OrderService.delete_model(
         model_id=order_id,
         session=session,
     )

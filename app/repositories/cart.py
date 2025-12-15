@@ -21,28 +21,6 @@ class CartRepo(BaseRepo[Cart_model]):
     model = Cart_model
 
     @classmethod
-    async def get_by_user_id(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> Optional[Cart_model]:
-        """
-
-        :param user_id:
-        :param session:
-        :return:
-        """
-        try:
-            stmt = select(cls.model).where(cls.model.user_id == user_id)
-            result = await session.execute(stmt)
-            return result.scalars().first()
-
-        except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Error when receiving {cls.model.__name__} by user id"
-            ) from e
-
-    @classmethod
     async def get_count_products(
         cls,
         cart_in: Cart_model,
@@ -112,7 +90,7 @@ class CartRepo(BaseRepo[Cart_model]):
         :param session:
         :return:
         """
-        cart_model = await cls.get_by_user_id(
+        cart_model = await cls.get_all_by_user_id(
             user_id=user_id,
             session=session,
         )

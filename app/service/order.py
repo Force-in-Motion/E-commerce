@@ -7,7 +7,7 @@ from app.models import Order as Order_model
 from app.schemas import OrderRequest
 
 
-class OrderFacade(BaseService[Order_model, OrderRepo]):
+class OrderService(BaseService[Order_model, OrderRepo]):
     model: Order_model
     repo: OrderRepo
 
@@ -23,7 +23,7 @@ class OrderFacade(BaseService[Order_model, OrderRepo]):
         :param session:
         :return:
         """
-        return await cls.repo.get_by_user_id(
+        return await cls.repo.get_all_by_user_id(
             user_id=user_id,
             session=session,
         )
@@ -42,7 +42,7 @@ class OrderFacade(BaseService[Order_model, OrderRepo]):
         """
         async with session.begin():
 
-            cart_model = await CartRepo.get_by_user_id(
+            cart_model = await CartRepo.get_all_by_user_id(
                 user_id=user_id,
                 session=session,
             )

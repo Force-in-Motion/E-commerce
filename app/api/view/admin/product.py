@@ -4,7 +4,7 @@ from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
-from app.service.product import ProductFacade
+from app.service.product import ProductService
 from app.schemas import ProductRequest, ProductResponse
 from app.tools import Inspector
 
@@ -26,7 +26,7 @@ async def get_all_products(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: list[ProductOutput]
     """
-    return await ProductFacade.get_all_models(session=session)
+    return await ProductService.get_all_models(session=session)
 
 
 @router.get(
@@ -44,7 +44,7 @@ async def get_products_by_date(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех продуктов, добавленных за указанный интервал времени
     """
-    return await ProductFacade.get_models_by_date(
+    return await ProductService.get_all_models_by_date(
         dates=dates,
         session=session,
     )
@@ -67,7 +67,7 @@ async def get_product_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: ProductOutput
     """
-    return ProductFacade.get_model_by_id(
+    return ProductService.get_model_by_id(
         model_id=product_id,
         session=session,
     )
@@ -90,7 +90,7 @@ async def register_product(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductFacade.register_model(
+    return await ProductService.register_model(
         scheme_in=product_in,
         session=session,
     )
@@ -115,7 +115,7 @@ async def update_product(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductFacade.update_model(
+    return await ProductService.update_model(
         model_id=product_id,
         scheme_in=product_in,
         session=session,
@@ -141,7 +141,7 @@ async def update_product_partial(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductFacade.update_model(
+    return await ProductService.update_model(
         model_id=product_id,
         scheme_in=product_in,
         session=session,
@@ -162,7 +162,7 @@ async def clear_products(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductFacade.clear_table(session=session)
+    return await ProductService.clear_table(session=session)
 
 
 # response_model определяет модель ответа пользователю, в данном случае dict - {"status": "ok", "detail": "Product has been removing"},
@@ -182,7 +182,7 @@ async def delete_product(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProductFacade.delete_model(
+    return await ProductService.delete_model(
         model_id=product_id,
         session=session,
     )

@@ -4,12 +4,12 @@ from typing import Type, Generic
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interface.service import AService
-from app.tools.types import DBModel, PDScheme, Adapter
+from app.tools.types import DBModel, PDScheme, Repo
 
 
-class BaseService(Generic[Adapter], AService):
+class BaseService(Generic[Repo], AService):
 
-    repo: Type[Adapter]
+    repo: Type[Repo]
 
     @classmethod
     async def get_all_models(
@@ -41,7 +41,41 @@ class BaseService(Generic[Adapter], AService):
         )
 
     @classmethod
-    async def get_models_by_date(
+    async def get_all_models_by_user_id(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> list[DBModel]:
+        """
+        Возвращает результат выполнения метода получения модели пользователя по ее id из БД
+        :param model_id: id модели конкретного пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Модель конкретного пользователя
+        """
+        return await cls.repo.get_all_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
+
+    @classmethod
+    async def get_model_by_user_id(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> DBModel:
+        """
+        Возвращает результат выполнения метода получения модели пользователя по ее id из БД
+        :param model_id: id модели конкретного пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Модель конкретного пользователя
+        """
+        return await cls.repo.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
+
+    @classmethod
+    async def get_all_models_by_date(
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
@@ -62,6 +96,7 @@ class BaseService(Generic[Adapter], AService):
         cls,
         scheme_in: PDScheme,
         session: AsyncSession,
+        user_id: int = None,
     ) -> DBModel:
         """
         Возвращает результат выполнения метода добавления модели пользователя в БД
@@ -69,17 +104,23 @@ class BaseService(Generic[Adapter], AService):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
+        data = scheme_in.model_dump()
+        
+        if user_id:
+            data["user_id"] = user_id
+
         return await cls.repo.create(
-            scheme_in=scheme_in,
+            scheme_in=cls.repo.model(**data),
             session=session,
         )
 
     @classmethod
     async def update_model(
         cls,
-        model_id: int,
         scheme_in: PDScheme,
         session: AsyncSession,
+        user_id: int = None,
+        model_id: int = None,
         partial: bool = False,
     ) -> DBModel:
         """
@@ -90,10 +131,17 @@ class BaseService(Generic[Adapter], AService):
         :param partial: Флаг, передаваем значение True или False,
         :return: Модель пользователя, обновленную в БД
         """
-        model = await cls.repo.get_by_id(
-            model_id=model_id,
-            session=session,
-        )
+        if user_id:
+            model = await cls.repo.get_by_user_id(
+                user_id=user_id,
+                session=session,
+            )
+
+        if model_id:
+            model = await cls.repo.get_by_id(
+                model_id=model_id,
+                session=session,
+            )
 
         return await cls.repo.update(
             scheme_in=scheme_in,
@@ -105,8 +153,9 @@ class BaseService(Generic[Adapter], AService):
     @classmethod
     async def delete_model(
         cls,
-        model_id: int,
         session: AsyncSession,
+        user_id: int = None,
+        model_id: int = None,
     ) -> DBModel:
         """
         Возвращает результат выполнения метода удаления модели пользователя из БД
@@ -115,10 +164,17 @@ class BaseService(Generic[Adapter], AService):
         :return: Модель пользователя, удаленную из БД
         """
 
-        model = await cls.repo.get_by_id(
-            model_id=model_id,
-            session=session,
-        )
+        if user_id:
+            model = await cls.repo.get_by_user_id(
+                user_id=user_id,
+                session=session,
+            )
+
+        if model_id:
+            model = await cls.repo.get_by_id(
+                model_id=model_id,
+                session=session,
+            )
 
         return await cls.repo.delete(
             del_model=model,

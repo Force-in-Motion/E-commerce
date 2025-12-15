@@ -9,17 +9,17 @@ from app.api.depends.user import ProfileCrud
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 
 
-router = APIRouter(prefix="/user/profile")
+router = APIRouter(prefix="/user/profile", tags=["User profile"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 
 
 @router.get(
-    "/me",
+    "/",
     response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_profile(
+async def get_my_profile(
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProfileResponse:
@@ -35,17 +35,17 @@ async def get_user_profile(
     )
 
     return await ProfileCrud.get_profile_by_user_id(
-        user_model=user_model,
+        user_id=user_model.id,
         session=session,
     )
 
 
 @router.post(
-    "/by-user/{user_id}",
+    "/",
     response_model=ProfileResponse,
     status_code=status.HTTP_201_CREATED,
 )
-async def create_profile(
+async def create_my_profile(
     profile_in: ProfileCreate,
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
@@ -63,18 +63,18 @@ async def create_profile(
     )
 
     return await ProfileCrud.create_user_profile(
-        user_model=user_model,
+        user_id=user_model.id,
         profile_in=profile_in,
         session=session,
     )
 
 
 @router.put(
-    "/by-user/{user_id}",
+    "/",
     response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
-async def full_update_profile(
+async def full_update_my_profile(
     profile_in: ProfileUpdate,
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
@@ -92,19 +92,18 @@ async def full_update_profile(
     )
 
     return await ProfileCrud.update_user_profile(
-        user_model=user_model,
+        user_id=user_model.id,
         profile_in=profile_in,
         session=session,
-        partial=True,
     )
 
 
 @router.patch(
-    "/by-user/{user_id}",
+    "/",
     response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
-async def partial_update_profile(
+async def partial_update_my_profile(
     profile_in: ProfileUpdate,
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
@@ -122,16 +121,19 @@ async def partial_update_profile(
     )
 
     return await ProfileCrud.update_user_profile(
-        user_model=user_model, profile_in=profile_in, session=session
+        user_id=user_model.id,
+        profile_in=profile_in,
+        session=session,
+        partial=True,
     )
 
 
 @router.delete(
-    "/by-user/{user_id}",
+    "/",
     response_model=ProfileResponse,
     status_code=status.HTTP_200_OK,
 )
-async def delete_profile(
+async def delete_my_profile(
     token: str = Depends(oauth2_scheme),
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> ProfileResponse:
@@ -147,6 +149,6 @@ async def delete_profile(
     )
 
     return await ProfileCrud.delete_user_profile(
-        user_model=user_model,
+        user_id=user_model.id,
         session=session,
     )
