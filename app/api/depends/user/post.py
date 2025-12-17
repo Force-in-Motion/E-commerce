@@ -1,104 +1,153 @@
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import ProfileCreate, ProfileUpdate
-from app.models import Profile as Profile_model
-from app.service import ProfileService
+from app.schemas import PostCreate, PostUpdate, PostResponse
+from app.models import Post as Post_model
+from app.service import PostService
 from app.tools import HTTPExeption
 
 
-class ProfileCrud:
+class PostCrud:
 
     @classmethod
-    async def get_profile_by_user_id(
+    async def get_all_user_posts(
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> Optional[Profile_model]:
+    ) -> list[Post_model]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        profile_model = await ProfileService.get_model(
+        list_post_models = await PostService.get_all_models(
             user_id=user_id,
             session=session,
         )
 
-        if not profile_model:
+        if not list_post_models:
             raise HTTPExeption.not_found
 
-        return profile_model
+        return list_post_models
 
     @classmethod
-    async def create_user_profile(
+    async def get_user_post(
+        cls,
+        post_id: int,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Optional[Post_model]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        post_model = await PostService.get_model(
+            user_id=user_id,
+            model_id=post_id,
+            session=session,
+        )
+
+        if not post_model:
+            raise HTTPExeption.not_found
+
+        return post_model
+
+    @classmethod
+    async def create_user_post(
         cls,
         user_id: int,
-        profile_in: ProfileCreate,
+        post_in: PostCreate,
         session: AsyncSession,
-    ) -> Profile_model:
+    ) -> Post_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        created_profile_model = await ProfileService.register_model(
-            scheme_in=profile_in,
+        created_post_model = await PostService.register_model(
+            scheme_in=post_in,
             session=session,
             user_id=user_id,
         )
 
-        if not created_profile_model:
+        if not created_post_model:
             raise HTTPExeption.db_error
 
-        return created_profile_model
+        return created_post_model
 
     @classmethod
-    async def update_user_profile(
+    async def update_user_post(
         cls,
         user_id: int,
-        profile_in: ProfileUpdate,
+        post_id: int,
+        post_in: PostUpdate,
         session: AsyncSession,
         partial: bool = False,
-    ) -> Profile_model:
+    ) -> Post_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        updated_profile_model = await ProfileService.update_model(
-            scheme_in=profile_in,
+        updated_post_model = await PostService.update_model(
+            scheme_in=post_in,
             session=session,
-            partial=partial,
             user_id=user_id,
+            model_id=post_id,
+            partial=partial,
         )
 
-        if not updated_profile_model:
+        if not updated_post_model:
             raise HTTPExeption.db_error
 
-        return updated_profile_model
+        return updated_post_model
 
     @classmethod
-    async def delete_user_profile(
+    async def delete_user_post(
+        cls,
+        user_id: int,
+        post_id: int,
+        session: AsyncSession,
+    ) -> Post_model:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        deleted_post_model = await PostService.delete_model(
+            user_id=user_id,
+            model_id=post_id,
+            session=session,
+        )
+        if not deleted_post_model:
+            raise HTTPExeption.db_error
+
+        return deleted_post_model
+
+    @classmethod
+    async def delete_all_user_post(
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> Profile_model:
+    ) -> list:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        deleted_profile_model = await ProfileService.delete_model(
-            session=session,
+        result = await PostService.delete_all_user_posts(
             user_id=user_id,
+            session=session,
         )
 
-        if not deleted_profile_model:
+        if result != []:
             raise HTTPExeption.db_error
 
-        return deleted_profile_model
+        return result
