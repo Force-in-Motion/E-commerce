@@ -49,8 +49,8 @@ class UserCrud:
         :param param:
         :return:
         """
-        user_model = await UserService.get_model_by_id(
-            model_id=user_id,
+        user_model = await UserService.get_model(
+            user_id=user_id,
             session=session,
         )
 
@@ -94,7 +94,7 @@ class UserCrud:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
 
-        refresh_model = await TokenService.get_model_by_user_id(
+        refresh_model = await TokenService.get_model(
             user_id=user_id,
             session=session,
         )

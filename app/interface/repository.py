@@ -15,6 +15,15 @@ class ARepo(ABC):
 
     @classmethod
     @abstractmethod
+    async def get_all_by_user_id(cls, *args, **kwargs) -> list[object]:
+        """
+        Возвращает модель по её id из БД
+        :return: Модель | None
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
     async def get_by_id(cls, *args, **kwargs) -> Optional[object]:
         """
         Возвращает модель по её id из БД
@@ -22,18 +31,20 @@ class ARepo(ABC):
         """
         pass
 
+
     @classmethod
     @abstractmethod
-    async def get_all_by_user_id(cls, *args, **kwargs) -> Optional[object]:
+    async def get_by_user_id(cls, *args, **kwargs) -> Optional[object]:
         """
         Возвращает модель по её id из БД
         :return: Модель | None
         """
         pass
 
+
     @classmethod
     @abstractmethod
-    async def get_by_user_id(cls, *args, **kwargs) -> Optional[object]:
+    async def get_by_user_and_model_id(cls, *args, **kwargs) -> Optional[object]:
         """
         Возвращает модель по её id из БД
         :return: Модель | None

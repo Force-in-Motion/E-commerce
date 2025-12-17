@@ -6,37 +6,19 @@ class AService(ABC):
 
     @classmethod
     @abstractmethod
+    async def get_model(cls, *args, **kwargs) -> Optional[object]:
+        """
+        Возвращает модель по её id из БД
+        :return: Модель | None
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
     async def get_all_models(cls, *args, **kwargs) -> list[object]:
         """
         Возвращает все модели категории из БД
         :return: Список всех моделей
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    async def get_model_by_id(cls, *args, **kwargs) -> Optional[object]:
-        """
-        Возвращает модель по её id из БД
-        :return: Модель | None
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    async def get_all_models_by_user_id(cls, *args, **kwargs) -> Optional[object]:
-        """
-        Возвращает модель по её id из БД
-        :return: Модель | None
-        """
-        pass
-
-    @classmethod
-    @abstractmethod
-    async def get_model_by_user_id(cls, *args, **kwargs) -> Optional[object]:
-        """
-        Возвращает модель по её id из БД
-        :return: Модель | None
         """
         pass
 

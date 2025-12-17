@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated, Optional
 
 from annotated_types import MaxLen, MinLen, Ge
-from pydantic import BaseModel, EmailStr, ConfigDict
+from pydantic import BaseModel, EmailStr, ConfigDict, SecretStr
 
 from app.tools.types import UserRole
 
@@ -14,8 +14,8 @@ class UserCreate(BaseModel):
     этот класс не требует настройки ConfigDict, т.к. его задача это валидация данных,
     полученных от пользователя"""
 
-    login: Annotated[EmailStr, MinLen(5), MaxLen(30)]
-    password: Annotated[str, MinLen(7), MaxLen(120)]
+    login: EmailStr
+    password: SecretStr
 
 
 class UserUpdate(BaseModel):
@@ -27,7 +27,7 @@ class UserUpdate(BaseModel):
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля для изменения
     login: Optional[Annotated[EmailStr, MinLen(5), MaxLen(30)]]
-    password: Optional[Annotated[str, MinLen(7), MaxLen(120)]]
+    password: Optional[Annotated[SecretStr, MinLen(7), MaxLen(120)]]
 
 
 class UserResponse(BaseModel):

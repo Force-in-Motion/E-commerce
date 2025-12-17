@@ -10,26 +10,6 @@ class PostService(BaseService[PostModel]):
 
     repo: PostRepo
 
-    @classmethod
-    async def get_user_post(
-        cls,
-        user_id: int,
-        post_id: int,
-        session: AsyncSession,
-    ) -> PostModel:
-        """
-
-        :param user_id:
-        :param post_in:
-        :param session:
-        :return:
-        """
-        list_post_models = await cls.repo.get_all_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
-
-        return next((post for post in list_post_models if post.id == post_id), None)
 
     @classmethod
     async def update_user_post(

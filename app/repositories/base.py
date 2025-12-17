@@ -44,25 +44,6 @@ class BaseRepo(Generic[DBModel], ARepo):
                 f"Error when receiving all {cls.model.__name__}s"
             ) from e
 
-    @classmethod
-    async def get_by_id(
-        cls,
-        model_id: int,
-        session: AsyncSession,
-    ) -> Optional[DBModel]:
-        """
-        Возвращает модель пользователя по его id из БД
-        :param model_id: id модели конкретного пользователя
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя | None
-        """
-        try:
-            return await session.get(cls.model, model_id)
-
-        except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Error when receiving {cls.model.__name__} by id"
-            ) from e
 
     @classmethod
     async def get_all_by_user_id(
@@ -86,6 +67,28 @@ class BaseRepo(Generic[DBModel], ARepo):
                 f"Error when receiving {cls.model.__name__} by user id"
             ) from e
         
+
+    @classmethod
+    async def get_by_id(
+        cls,
+        model_id: int,
+        session: AsyncSession,
+    ) -> Optional[DBModel]:
+        """
+        Возвращает модель пользователя по его id из БД
+        :param model_id: id модели конкретного пользователя
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: Модель пользователя | None
+        """
+        try:
+            return await session.get(cls.model, model_id)
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by id"
+            ) from e
+        
+
     @classmethod
     async def get_by_user_id(
         cls,
@@ -101,12 +104,40 @@ class BaseRepo(Generic[DBModel], ARepo):
         try:
             stmt = select(cls.model).where(cls.model.user_id == user_id)
             result = await session.execute(stmt)
-            return result.scalars().one_or_none()
+            return result.scalars().first()
 
         except SQLAlchemyError as e:
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by user id"
             ) from e
+        
+
+    @classmethod
+    async def get_by_user_and_model_id(
+        cls,
+        model_id: int,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Optional[DBModel]:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        try:
+            stmt = select(cls.model).where(
+                (cls.model.id == model_id) & (cls.model.user_id == user_id)
+                )
+            
+            result = await session.execute(stmt)
+            return result.scalars().first()
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} by user and model id"
+            ) from e
+
 
     @classmethod
     async def get_by_date(
@@ -137,7 +168,7 @@ class BaseRepo(Generic[DBModel], ARepo):
     @classmethod
     async def create(
         cls,
-        scheme_in: PDScheme,
+        model: DBModel,
         session: AsyncSession,
     ) -> DBModel:
         """
@@ -147,8 +178,6 @@ class BaseRepo(Generic[DBModel], ARepo):
         :return: Модель пользователя, добавленную в БД
         """
         try:
-            model = cls.model(**scheme_in.model_dump())
-
             session.add(model)
             await session.commit()
             await session.refresh(
@@ -164,10 +193,9 @@ class BaseRepo(Generic[DBModel], ARepo):
     @classmethod
     async def update(
         cls,
-        scheme_in: PDScheme,
+        new_data: dict,
         update_model: DBModel,
         session: AsyncSession,
-        partial: bool = False,
     ) -> DBModel:
         """
         Обновляет данные модели пользователя в БД полностью или частично
@@ -183,15 +211,12 @@ class BaseRepo(Generic[DBModel], ARepo):
         :return: Модель пользователя, обновленную в БД
         """
         try:
-            for key, value in scheme_in.model_dump(exclude_unset=partial).items():
+            for key, value in new_data.items():
                 if value is not None:
                     setattr(update_model, key, value)
 
             await session.commit()
-            await session.refresh(
-                update_model
-            )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
-            # refresh гарантирует, что User_model содержит актуальное состояние из базы.
+            await session.refresh(update_model)
             return update_model
 
         except SQLAlchemyError as e:

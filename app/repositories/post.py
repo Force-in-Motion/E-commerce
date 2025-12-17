@@ -1,3 +1,5 @@
+from typing import Optional
+from sqlalchemy import select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.repositories import BaseRepo
@@ -8,6 +10,7 @@ from app.tools.exeptions import DatabaseError
 class PostRepo(BaseRepo[Post_model]):
 
     model = Post_model
+
 
     @classmethod
     async def delete_all_posts(
@@ -27,7 +30,6 @@ class PostRepo(BaseRepo[Post_model]):
                 await session.delete(post)
             await session.commit()
             return []
-
 
         except SQLAlchemyError as e:
             await session.rollback()
