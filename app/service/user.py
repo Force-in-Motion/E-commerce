@@ -22,6 +22,6 @@ class UserService(BaseService[UserRepo]):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя | None
         """
-        return await cls.repo.get_by_login(login=login, session=session)
+        user_model = await cls.repo.get_by_login(login=login, session=session)
 
-
+        return user_model if user_model else None

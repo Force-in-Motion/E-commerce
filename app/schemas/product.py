@@ -31,3 +31,4 @@ class ProductResponse(ProductRequest):
 
     id: Annotated[int, Ge(1)]
     created_at: datetime
+    updated_at: datetime

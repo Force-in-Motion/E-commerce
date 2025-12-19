@@ -90,15 +90,17 @@ class BaseService(Generic[Repo], AService):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
-        data = scheme_in.model_dump()
+        async with session.begin():
 
-        if user_id:
-            data["user_id"] = user_id
+            data = scheme_in.model_dump()
 
-        return await cls.repo.create(
-            model=cls.repo.model(**data),
-            session=session,
-        )
+            if user_id:
+                data["user_id"] = user_id
+
+            return await cls.repo.create(
+                model=cls.repo.model(**data),
+                session=session,
+            )
 
     @classmethod
     async def update_model(
@@ -117,25 +119,27 @@ class BaseService(Generic[Repo], AService):
         :param partial: Флаг, передаваем значение True или False,
         :return: Модель пользователя, обновленную в БД
         """
-        new_data = scheme_in.model_dump(
-            exclude_unset=partial,
-            exclude_none=True,
-        )
+        async with session.begin():
 
-        model = await cls.get_model(
-            session=session,
-            user_id=user_id,
-            model_id=model_id,
-        )
+            new_data = scheme_in.model_dump(
+                exclude_unset=partial,
+                exclude_none=True,
+            )
 
-        if not model:
-            return None
-    
-        return await cls.repo.update(
-            new_data=new_data,
-            update_model=model,
-            session=session,
-        )
+            model = await cls.get_model(
+                session=session,
+                user_id=user_id,
+                model_id=model_id,
+            )
+
+            if not model:
+                return None
+        
+            return await cls.repo.update(
+                new_data=new_data,
+                update_model=model,
+                session=session,
+            )
 
     @classmethod
     async def delete_model(
@@ -150,19 +154,21 @@ class BaseService(Generic[Repo], AService):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, удаленную из БД
         """
-        model = await cls.get_model(
-            session=session,
-            user_id=user_id,
-            model_id=model_id,
-        )
+        async with session.begin():
 
-        if not model:
-            return None
-        
-        return await cls.repo.delete(
-            del_model=model,
-            session=session,
-        )
+            model = await cls.get_model(
+                session=session,
+                user_id=user_id,
+                model_id=model_id,
+            )
+
+            if not model:
+                return None
+            
+            return await cls.repo.delete(
+                del_model=model,
+                session=session,
+            )
 
     @classmethod
     async def clear_table(

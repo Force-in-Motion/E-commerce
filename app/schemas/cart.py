@@ -7,15 +7,11 @@ from app.schemas import ProductResponse
 
 class ProductAddOrUpdate(BaseModel):
     product_id: Annotated[int, Ge(1)]
-    quantity: Annotated[int, Ge(0)]
-
-
-class CartRequest(BaseModel):
-    user_id: Annotated[int, Ge(1)]
+    quantity: Annotated[int, Ge(0)] = 0
 
 
 class ProductInCart(ProductResponse):
-    quantity: Annotated[int, Ge(0)]
+    quantity: Annotated[int, Ge(0)] = 0
 
 
 class CartResponse(BaseModel):
@@ -24,5 +20,7 @@ class CartResponse(BaseModel):
     id: Annotated[int, Ge(1)]
     user_id: Annotated[int, Ge(1)]
     created_at: datetime
+    updated_at: datetime
     products: list[ProductInCart]
-    total_price: Annotated[int, Ge(0)]
+    total_price: Annotated[int, Ge(0)] = 0
+    total_quantity: Annotated[int, Ge(0)] = 0

@@ -23,12 +23,16 @@ class PostService(BaseService[PostModel]):
         :param session:
         :return:
         """
-        list_post_models = await cls.repo.get_all_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
+        async with session.begin():
 
-        return await cls.repo.delete_all_posts(
-            list_post_models=list_post_models,
-            session=session,
-        )
+            list_post_models = await cls.repo.get_all_by_user_id(
+                user_id=user_id,
+                session=session,
+            )
+            if list_post_models:
+                return await cls.repo.delete_all_posts(
+                    list_post_models=list_post_models,
+                    session=session,
+                )
+            
+            return None

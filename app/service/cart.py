@@ -1,6 +1,5 @@
-from sqlalchemy.util import await_only
-
 from app.repositories.cart import CartRepo
+from app.schemas.cart import CartResponse
 from app.service import BaseService
 
 from typing import Optional
@@ -12,75 +11,48 @@ from app.repositories import ProductRepo
 from app.models import (
     Cart as Cart_model,
     CartProduct as Cart_Product_model,
-    Product as Product_model,
 )
 from app.schemas import ProductAddOrUpdate
 
 
 class CartService(BaseService[CartRepo]):
 
-
     repo = CartRepo
 
     @classmethod
-    async def get_cart_by_user_id(
+    async def get_or_create_cart(
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> Optional[Cart_model]:
+    ) -> CartResponse:
         """
 
         :param user_id:
         :param session:
         :return:
         """
+        async with session.begin():
+            
+            cart_model = await cls.repo.get_by_user_id(user_id, session)
 
-        return await cls.repo.get_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
+            if cart_model:
+                total_quantity = sum(cp.quantity for cp in cart_model.products)
+                total_price = sum(
+                    int(cp.current_price) * cp.quantity for cp in cart_model.products
+                )
 
-    @classmethod
-    async def get_count_products_in_cart(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> dict[str, int]:
-        """
+                cart_schema = CartResponse.model_validate(cart_model)
 
-        :param user_id:
-        :param session:
-        :return:
-        """
-        cart_model = await cls.repo.get_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
+                cart_schema.total_price = total_price
+                cart_schema.total_quantity = total_quantity
 
-        result = await cls.repo.get_count_products(cart_in=cart_model)
+                return cart_schema
 
-        return {"count products in cart": result}
-
-    @classmethod
-    async def get_total_sum_cart(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> dict[str, int]:
-        """
-
-        :param user_id:
-        :param session:
-        :return:
-        """
-        cart_model = await cls.repo.get_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
-
-        result = await cls.repo.get_total_price(cart_in=cart_model)
-
-        return {"total sum cart": result}
+            cart_model = await cls.repo.create_cart(
+                user_id=user_id,
+                session=session,
+            )
+            return CartResponse.model_validate(cart_model)
 
     @classmethod
     async def add_or_update_product_in_cart(
@@ -88,7 +60,7 @@ class CartService(BaseService[CartRepo]):
         user_id: int,
         product_scheme: ProductAddOrUpdate,
         session: AsyncSession,
-    ) -> Cart_Product_model:
+    ) -> CartResponse:
         """
 
         :param user_id:
@@ -98,7 +70,7 @@ class CartService(BaseService[CartRepo]):
         """
         async with session.begin():
 
-            cart_model = await cls.repo.get_or_create_cart(
+            cart_model = await cls.repo.get_by_user_id(
                 user_id=user_id,
                 session=session,
             )
@@ -110,23 +82,27 @@ class CartService(BaseService[CartRepo]):
 
             if not cart_product:
                 product_model = await ProductRepo.get_by_id(
-                    product_scheme.product_id, session=session
+                    model_id=product_scheme.product_id,
+                    session=session,
                 )
 
-                cart_product = await cls.repo.add_product(
+                await cls.repo.add_product(
                     quantity=product_scheme.quantity,
                     product_model=product_model,
                     cart_model=cart_model,
                     session=session,
                 )
             else:
-                cart_product = await cls.repo.update_count_product(
+                await cls.repo.update_count_product(
                     product_scheme=product_scheme,
                     cart_model=cart_model,
                     session=session,
                 )
 
-            return cart_product
+            return cls.get_or_create_cart(
+                user_id=user_id,
+                session=session,
+            )
 
     @classmethod
     async def del_product_from_cart(
@@ -134,7 +110,7 @@ class CartService(BaseService[CartRepo]):
         user_id: int,
         product_id: int,
         session: AsyncSession,
-    ) -> Optional[Cart_Product_model]:
+    ) -> CartResponse:
         """
 
         :param user_id:
@@ -149,18 +125,26 @@ class CartService(BaseService[CartRepo]):
                 session=session,
             )
 
-            return await cls.repo.delete_product(
+            if not cart_model:
+                return None
+
+            await cls.repo.delete_product(
                 product_id=product_id,
                 cart_model=cart_model,
                 session=session,
             )
+
+            return cls.get_or_create_cart(
+                    user_id=user_id,
+                    session=session,
+                )
 
     @classmethod
     async def clear_cart_by_user_id(
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> Optional[Cart_model]:
+    ) -> list:
         """
 
         :param user_id:
@@ -169,12 +153,20 @@ class CartService(BaseService[CartRepo]):
         """
         async with session.begin():
 
-            cart_model = await cls.repo.get_by_user_id(user_id=user_id, session=session)
+            cart_model = await cls.repo.get_by_user_id(
+                user_id=user_id,
+                session=session,
+            )
 
             if not cart_model:
                 return None
 
-            return await cls.repo.clear_cart(
+            await cls.repo.clear_cart(
                 cart_model=cart_model,
                 session=session,
             )
+
+            return cls.get_or_create_cart(
+                    user_id=user_id,
+                    session=session,
+                )
