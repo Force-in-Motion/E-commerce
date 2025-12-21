@@ -8,7 +8,7 @@ from app.models import Post as PostModel
 
 class PostService(BaseService[PostModel]):
 
-    repo: PostRepo
+    repo = PostRepo
 
     @classmethod
     async def delete_all_user_posts(

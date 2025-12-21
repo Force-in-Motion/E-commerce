@@ -15,7 +15,7 @@ class ProductInOrder(ProductResponse):
     этот класс не требует настройки ConfigDict, т.к. его задача это валидация данных,
     полученных от пользователя"""
 
-    quantity: Annotated[int, Ge(0)]
+    quantity: Annotated[int, Ge(0)] = 0
 
 
 
@@ -43,8 +43,10 @@ class OrderResponse(OrderRequest):
 
     id: Annotated[int, Ge(1)]
     user_id: Annotated[int, Ge(1)]
-    total_price: Annotated[int, Ge(0)]
+    products: list[ProductInOrder]
     comment: Optional[Annotated[str, MinLen(3), MaxLen(200)]] = None
     promo_code: Optional[Annotated[str, MinLen(10), MaxLen(10)]] = None
+    total_price: Annotated[int, Ge(0)] = 0
+    total_quantity: Annotated[int, Ge(0)] = 0
     created_at: datetime
-    products: list[ProductInOrder]
+    updated_at: datetime

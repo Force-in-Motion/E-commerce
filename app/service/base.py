@@ -15,7 +15,7 @@ class BaseService(Generic[Repo], AService):
     async def get_all_models(
         cls,
         session: AsyncSession,
-        user_id:  Optional[int] = None,
+        user_id: Optional[int] = None,
     ) -> list[DBModel]:
         """
         Возвращает результат выполнения метода получения всех моделей пользователей из БД
@@ -27,15 +27,15 @@ class BaseService(Generic[Repo], AService):
                 user_id=user_id,
                 session=session,
             )
-        
+
         return await cls.repo.get_all(session=session)
 
     @classmethod
     async def get_model(
         cls,
         session: AsyncSession,
-        user_id: int = None,
-        model_id: int = None,
+        user_id: Optional[int] = None,
+        model_id: Optional[int] = None,
     ) -> Optional[DBModel]:
         """
         Универсальный метод получения модели по user_id, model_id или обоим сразу.
@@ -59,7 +59,6 @@ class BaseService(Generic[Repo], AService):
 
         return None
 
-
     @classmethod
     async def get_all_models_by_date(
         cls,
@@ -79,10 +78,7 @@ class BaseService(Generic[Repo], AService):
 
     @classmethod
     async def register_model(
-        cls,
-        scheme_in: PDScheme,
-        session: AsyncSession,
-        user_id: Optional[int] = None
+        cls, scheme_in: PDScheme, session: AsyncSession, user_id: Optional[int] = None
     ) -> DBModel:
         """
         Возвращает результат выполнения метода добавления модели пользователя в БД
@@ -134,7 +130,7 @@ class BaseService(Generic[Repo], AService):
 
             if not model:
                 return None
-        
+
             return await cls.repo.update(
                 new_data=new_data,
                 update_model=model,
@@ -164,7 +160,7 @@ class BaseService(Generic[Repo], AService):
 
             if not model:
                 return None
-            
+
             return await cls.repo.delete(
                 del_model=model,
                 session=session,

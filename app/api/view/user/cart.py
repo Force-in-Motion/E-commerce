@@ -24,8 +24,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
     status_code=status.HTTP_200_OK,
 )
 async def get_my_cart(
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> CartResponse:
     """
 
@@ -51,8 +51,8 @@ async def get_my_cart(
 )
 async def add_product(
     product_add: ProductAddOrUpdate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> CartResponse:
     """
 
@@ -80,8 +80,8 @@ async def add_product(
 )
 async def update_count_product(
     product_upd: ProductAddOrUpdate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> CartResponse:
     """
 
@@ -108,9 +108,9 @@ async def update_count_product(
     status_code=status.HTTP_200_OK,
 )
 async def delete_product(
-    product_id: int = Path(..., description="Product ID"),
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    product_id: Annotated[int, Path(..., description="Product ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> CartResponse:
     """
 
@@ -137,8 +137,8 @@ async def delete_product(
     status_code=status.HTTP_200_OK,
 )
 async def clear_my_cart(
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> list:
     """
 

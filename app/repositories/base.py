@@ -37,6 +37,7 @@ class BaseRepo(Generic[DBModel], ARepo):
         try:
             stmt = select(cls.model).order_by(cls.model.id)
             result = await session.execute(stmt)
+
             return list(result.scalars().all())
 
         except SQLAlchemyError as e:
@@ -60,6 +61,7 @@ class BaseRepo(Generic[DBModel], ARepo):
         try:
             stmt = select(cls.model).where(cls.model.user_id == user_id)
             result = await session.execute(stmt)
+
             return list(result.scalars().all())
 
         except SQLAlchemyError as e:
@@ -104,7 +106,8 @@ class BaseRepo(Generic[DBModel], ARepo):
         try:
             stmt = select(cls.model).where(cls.model.user_id == user_id)
             result = await session.execute(stmt)
-            return result.scalars().first()
+
+            return result.scalars().scalar_one_or_none()
 
         except SQLAlchemyError as e:
             raise DatabaseError(
@@ -119,24 +122,21 @@ class BaseRepo(Generic[DBModel], ARepo):
         user_id: int,
         session: AsyncSession,
     ) -> Optional[DBModel]:
-        """
-
-        :param user_id:
-        :param session:
-        :return:
-        """
         try:
-            stmt = select(cls.model).where(
-                (cls.model.id == model_id) & (cls.model.user_id == user_id)
+            stmt = (select(cls.model).where(
+                    cls.model.id == model_id,
+                    cls.model.user_id == user_id,
                 )
-            
+            )
+
             result = await session.execute(stmt)
-            return result.scalars().first()
+            return result.scalar_one_or_none()
 
         except SQLAlchemyError as e:
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by user and model id"
             ) from e
+
 
 
     @classmethod

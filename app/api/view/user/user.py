@@ -1,7 +1,7 @@
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-
+from typing import Annotated
 from app.core import db_connector
 from app.schemas.user import UserUpdate
 from app.api.depends.user import UserAuth, UserCrud
@@ -19,8 +19,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
     status_code=status.HTTP_200_OK,
 )
 async def login_user(
-    session: AsyncSession = Depends(db_connector.session_dependency),
-    form_data: OAuth2PasswordRequestForm = Depends(),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> TokenResponse:
     """
 
@@ -47,8 +47,8 @@ async def login_user(
     status_code=status.HTTP_200_OK,
 )
 async def give_access(
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> TokenResponse:
     """
 
@@ -74,7 +74,7 @@ async def give_access(
 )
 async def register_me(
     user_in: UserCreate,
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -96,8 +96,8 @@ async def register_me(
 )
 async def full_update_me(
     user_in: UserUpdate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -125,8 +125,8 @@ async def full_update_me(
 )
 async def partial_update_me(
     user_in: UserUpdate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -154,8 +154,8 @@ async def partial_update_me(
     status_code=status.HTTP_200_OK,
 )
 async def delete_me(
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД

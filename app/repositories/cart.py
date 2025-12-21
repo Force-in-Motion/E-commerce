@@ -57,8 +57,8 @@ class CartRepo(BaseRepo[Cart_model]):
                 select(cls.model)
                 .where(cls.model.user_id == user_id)
                 .options(
-                    selectinload(cls.model.products).
-                    selectinload( Cart_Product_model.product)
+                    selectinload(cls.model.products)
+                    .selectinload(Cart_Product_model.product)
                 )
             )
 

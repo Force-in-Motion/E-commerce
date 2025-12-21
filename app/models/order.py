@@ -39,6 +39,11 @@ class Order(Base, TimestampMixin):
         nullable=False,
     )
 
+    total_quantity: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
     comment: Mapped[str] = mapped_column(
         String(255),
         nullable=True,

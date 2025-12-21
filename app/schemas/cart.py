@@ -19,8 +19,8 @@ class CartResponse(BaseModel):
 
     id: Annotated[int, Ge(1)]
     user_id: Annotated[int, Ge(1)]
-    created_at: datetime
-    updated_at: datetime
     products: list[ProductInCart]
     total_price: Annotated[int, Ge(0)] = 0
     total_quantity: Annotated[int, Ge(0)] = 0
+    created_at: datetime
+    updated_at: datetime

@@ -31,7 +31,6 @@ class ARepo(ABC):
         """
         pass
 
-
     @classmethod
     @abstractmethod
     async def get_by_user_id(cls, *args, **kwargs) -> Optional[object]:
@@ -40,7 +39,6 @@ class ARepo(ABC):
         :return: Модель | None
         """
         pass
-
 
     @classmethod
     @abstractmethod

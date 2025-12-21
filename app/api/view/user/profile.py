@@ -1,11 +1,11 @@
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer
-
+from typing import Annotated
 from app.core import db_connector
 from app.schemas import ProfileResponse
-from app.api.depends.user.user import UserAuth
-from app.api.depends.user import ProfileCrud
+from app.api.depends.user import UserAuth
+from app.api.depends.profile import ProfileCrud
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 
 
@@ -20,8 +20,8 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
     status_code=status.HTTP_200_OK,
 )
 async def get_my_profile(
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
@@ -47,8 +47,8 @@ async def get_my_profile(
 )
 async def create_my_profile(
     profile_in: ProfileCreate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на создание профиля пользователя в БД
@@ -76,8 +76,8 @@ async def create_my_profile(
 )
 async def full_update_my_profile(
     profile_in: ProfileUpdate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных профиля конкретного пользователя
@@ -105,8 +105,8 @@ async def full_update_my_profile(
 )
 async def partial_update_my_profile(
     profile_in: ProfileUpdate,
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных профиля конкретного пользователя
@@ -134,8 +134,8 @@ async def partial_update_my_profile(
     status_code=status.HTTP_200_OK,
 )
 async def delete_my_profile(
-    token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.get_session),
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного пользователя

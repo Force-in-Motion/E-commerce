@@ -19,6 +19,34 @@ class CartService(BaseService[CartRepo]):
 
     repo = CartRepo
 
+    classmethod
+
+    async def get_cart(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Optional[CartResponse]:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        cart_model = await cls.repo.get_by_user_id(user_id, session)
+
+        if cart_model:
+            total_quantity = sum(cp.quantity for cp in cart_model.products)
+            total_price = sum(
+                int(cp.current_price) * cp.quantity for cp in cart_model.products
+            )
+
+            cart_schema = CartResponse.model_validate(cart_model)
+
+            cart_schema.total_price = total_price
+            cart_schema.total_quantity = total_quantity
+
+            return cart_schema
+
     @classmethod
     async def get_or_create_cart(
         cls,
@@ -32,27 +60,20 @@ class CartService(BaseService[CartRepo]):
         :return:
         """
         async with session.begin():
-            
-            cart_model = await cls.repo.get_by_user_id(user_id, session)
 
-            if cart_model:
-                total_quantity = sum(cp.quantity for cp in cart_model.products)
-                total_price = sum(
-                    int(cp.current_price) * cp.quantity for cp in cart_model.products
-                )
-
-                cart_schema = CartResponse.model_validate(cart_model)
-
-                cart_schema.total_price = total_price
-                cart_schema.total_quantity = total_quantity
-
-                return cart_schema
-
-            cart_model = await cls.repo.create_cart(
+            cart_schema = await cls.get_cart(
                 user_id=user_id,
                 session=session,
             )
-            return CartResponse.model_validate(cart_model)
+
+            if not cart_schema:
+                cart_model = await cls.repo.create_cart(
+                    user_id=user_id,
+                    session=session,
+                )
+                return CartResponse.model_validate(cart_model)
+
+            return cart_schema
 
     @classmethod
     async def add_or_update_product_in_cart(
@@ -135,9 +156,9 @@ class CartService(BaseService[CartRepo]):
             )
 
             return cls.get_or_create_cart(
-                    user_id=user_id,
-                    session=session,
-                )
+                user_id=user_id,
+                session=session,
+            )
 
     @classmethod
     async def clear_cart_by_user_id(
@@ -167,6 +188,6 @@ class CartService(BaseService[CartRepo]):
             )
 
             return cls.get_or_create_cart(
-                    user_id=user_id,
-                    session=session,
-                )
+                user_id=user_id,
+                session=session,
+            )
