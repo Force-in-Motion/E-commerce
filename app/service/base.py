@@ -79,7 +79,7 @@ class BaseService(Generic[Repo], AService):
     @classmethod
     async def register_model(
         cls,
-        schema_in: PDScheme,
+        scheme_in: PDScheme,
         session: AsyncSession,
         user_id: Optional[int] = None,
     ) -> DBModel:
@@ -91,7 +91,7 @@ class BaseService(Generic[Repo], AService):
         """
         async with session.begin():
 
-            data = schema_in.model_dump()
+            data = scheme_in.model_dump()
 
             if user_id:
                 data["user_id"] = user_id
@@ -104,7 +104,7 @@ class BaseService(Generic[Repo], AService):
     @classmethod
     async def update_model(
         cls,
-        schema_in: PDScheme,
+        scheme_in: PDScheme,
         session: AsyncSession,
         user_id: Optional[int] = None,
         model_id: Optional[int] = None,
@@ -120,7 +120,7 @@ class BaseService(Generic[Repo], AService):
         """
         async with session.begin():
 
-            new_data = schema_in.model_dump(
+            new_data = scheme_in.model_dump(
                 exclude_unset=partial,
                 exclude_none=True,
             )

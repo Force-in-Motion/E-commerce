@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, status, Depends, Query, Path
 
@@ -23,26 +24,24 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_users(
-    session: AsyncSession = Depends(db_connector.get_session),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение списка всех пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех пользователей в виде Pydantic схем
     """
-    return await UserService.get_all_models(session=session)
+    return await UserDepends.get_all_users(session=session)
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/date",
     response_model=list[UserResponse],
     status_code=status.HTTP_200_OK,
 )
 async def get_users_by_date(
-    dates: tuple[datetime, datetime] = Depends(Inspector.date_checker),
-    session: AsyncSession = Depends(db_connector.get_session),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    dates: Annotated[tuple[datetime, datetime], Depends(Inspector.date_checker)],
 ) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение всех добавленных в БД пользователей за указанный интервал времени
@@ -50,7 +49,7 @@ async def get_users_by_date(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Список пользователей в виде Pydantic схем за указанную дату в виде Pydantic схем
     """
-    return await UserService.get_all_models_by_date(
+    return await UserDepends.get_users_by_date(
         dates=dates,
         session=session,
     )
@@ -61,9 +60,9 @@ async def get_users_by_date(
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
-async def get_user_by_name(
-    user_name: Annotated[str, Query(..., description="User name")],
-    session: AsyncSession = Depends(db_connector.get_session),
+async def get_user_by_login(
+    login: Annotated[EmailStr, Query(..., description="User login")],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его имени
@@ -71,14 +70,12 @@ async def get_user_by_name(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Пользователя в виде Pydantic схемы
     """
-    return await UserService.get_user_by_name(
-        name=user_name,
+    return await UserDepends.get_user_by_login(
+        login=login,
         session=session,
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/{user_id}",
     response_model=UserResponse,
@@ -86,7 +83,7 @@ async def get_user_by_name(
 )
 async def get_user_by_id(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.get_session),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его id
@@ -94,8 +91,8 @@ async def get_user_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Пользователя по его id в виде Pydantic схемы
     """
-    return await UserService.get_model_by_id(
-        model_id=user_id,
+    return await UserDepends.get_user_by_id(
+        user_id=user_id,
         session=session,
     )
 
@@ -106,8 +103,8 @@ async def get_user_by_id(
     status_code=status.HTTP_201_CREATED,
 )
 async def register_user(
-    user_in: UserCreate,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_scheme: UserCreate,
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -116,8 +113,8 @@ async def register_user(
     :return: Добавленного в БД пользователя в виде Pydantic схемы
     """
 
-    return await UserService.register_model(
-        scheme_in=user_in,
+    return await UserDepends.create_user(
+        user_scheme=user_scheme,
         session=session,
     )
 
@@ -128,9 +125,9 @@ async def register_user(
     status_code=status.HTTP_200_OK,
 )
 async def full_update_user(
-    user_id: Annotated[int, Path(..., description="User id")],
-    user_in: UserCreate,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_scheme: UserUpdateForAdmin,
+    user_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -139,7 +136,11 @@ async def full_update_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Полностью обновленного в БД пользователя в виде Pydantic схемы
     """
-    return await UserDepends.
+    return await UserDepends.update_user(
+        user_id=user_id,
+        user_scheme=user_scheme,
+        session=session,
+    )
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
@@ -150,9 +151,9 @@ async def full_update_user(
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_user(
-    user_id: Annotated[int, Path(..., description="User id")],
-    user_schema: UserUpdateForAdmin,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_scheme: UserUpdateForAdmin,
+    user_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -161,9 +162,9 @@ async def partial_update_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Частично обновленного в БД пользователя в виде Pydantic схемы
     """
-    return await UserService.update_model(
-        model_id=user_id,
-        scheme_in=user_in,
+    return await UserDepends.update_user(
+        user_id=user_id,
+        user_scheme=user_scheme,
         session=session,
         partial=True,
     )
@@ -175,18 +176,16 @@ async def partial_update_user(
     status_code=status.HTTP_200_OK,
 )
 async def clear_users(
-    session: AsyncSession = Depends(db_connector.get_session),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> list:
     """
     Обрабатывает запрос с fontend на полную очистку таблицы пользователей
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Пустой список
     """
-    return await UserService.clear_table(session)
+    return await UserDepends.clear_users(session=session)
 
 
-# response_model определяет модель ответа пользователю, в данном случае словарь
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/{user_id}",
     response_model=UserResponse,
@@ -194,7 +193,7 @@ async def clear_users(
 )
 async def delete_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.get_session),
+    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД
@@ -202,7 +201,7 @@ async def delete_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Удаленного пользователя в виде Pydantic схемы
     """
-    return await UserService.delete_model(
-        model_id=user_id,
+    return await UserDepends.delete_user(
+        user_id=user_id,
         session=session,
     )

@@ -73,7 +73,7 @@ async def give_access(
     status_code=status.HTTP_201_CREATED,
 )
 async def register_me(
-    user_schema: UserCreate,
+    user_scheme: UserCreate,
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
@@ -84,7 +84,7 @@ async def register_me(
     """
 
     return await UserDepends.create_user(
-        user_schema=user_schema,
+        user_scheme=user_scheme,
         session=session,
     )
 
@@ -95,7 +95,7 @@ async def register_me(
     status_code=status.HTTP_200_OK,
 )
 async def full_update_me(
-    user_schema: UserUpdate,
+    user_scheme: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
@@ -113,7 +113,7 @@ async def full_update_me(
 
     return await UserDepends.update_user(
         user_id=user_model.id,
-        user_schema=user_schema,
+        user_scheme=user_scheme,
         session=session,
     )
 
@@ -124,7 +124,7 @@ async def full_update_me(
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_me(
-    user_schema: UserUpdate,
+    user_scheme: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
@@ -142,7 +142,7 @@ async def partial_update_me(
 
     return await UserDepends.update_user(
         user_id=user_model.id,
-        user_schema=user_schema,
+        user_scheme=user_scheme,
         session=session,
         partial=True,
     )

@@ -1,5 +1,6 @@
 from pydantic import EmailStr
 from typing import Optional
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import jwt_settings
@@ -14,6 +15,26 @@ from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
 class UserDepends:
+
+
+    @classmethod
+    async def get_all_users(
+        cls,
+        session: AsyncSession,
+    ) -> Optional[list[User_model]]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        user_models = await UserService.get_all_models(session=session)
+
+        if not user_models:
+            raise HTTPErrors.not_found
+
+        return user_models
+    
 
     @classmethod
     async def get_user_by_login(
@@ -33,7 +54,7 @@ class UserDepends:
         )
 
         if not user_model:
-            raise HTTPErrors.unauthorized
+            raise HTTPErrors.not_found
 
         return user_model
 
@@ -55,14 +76,36 @@ class UserDepends:
         )
 
         if not user_model:
-            raise HTTPErrors.unauthorized
+            raise HTTPErrors.not_found
 
         return user_model
 
     @classmethod
+    async def get_users_by_date(
+        cls,
+        dates: tuple[datetime, datetime],
+        session: AsyncSession,
+    ) -> Optional[list[User_model]]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        list_user_models = await UserService.get_all_models_by_date(
+            dates=dates,
+            session=session,
+        )
+
+        if not list_user_models:
+            raise HTTPErrors.not_found
+
+        return list_user_models
+
+    @classmethod
     async def create_user(
         cls,
-        user_schema: UserCreate,
+        user_scheme: UserCreate,
         session: AsyncSession,
     ) -> UserResponse:
         """
@@ -72,7 +115,7 @@ class UserDepends:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
         created_user_model = await UserService.register_model(
-            schema_in=user_schema,
+            scheme_in=user_scheme,
             session=session,
         )
 
@@ -117,7 +160,7 @@ class UserDepends:
         refresh_schema = RefreshCreate(token=refresh)
 
         refresh_model = await TokenService.register_model(
-            schema_in=refresh,
+            scheme_in=refresh,
             user_id=user_id,
             session=session,
         )
@@ -153,7 +196,7 @@ class UserDepends:
     async def update_user(
         cls,
         user_id: int,
-        user_schema: UserUpdate,
+        user_scheme: UserUpdate,
         session: AsyncSession,
         partial: bool = False,
     ) -> UserResponse:
@@ -165,7 +208,7 @@ class UserDepends:
         """
         updated_user_model = await UserService.update_model(
             model_id=user_id,
-            scheme_in=user_schema,
+            scheme_in=user_scheme,
             session=session,
             partial=partial,
         )
@@ -196,6 +239,24 @@ class UserDepends:
             raise HTTPErrors.db_error
 
         return deleted_user_model
+
+    @classmethod
+    async def clear_users(
+        cls,
+        session: AsyncSession,
+    ) -> UserResponse:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        cleared_table = await UserService.clear_table(session=session)
+
+        if cleared_table != []:
+            raise HTTPErrors.db_error
+
+        return cleared_table
 
 
 class UserAuth:
