@@ -1,21 +1,18 @@
 from fastapi import APIRouter, status, Path
 from fastapi.params import Depends
-from fastapi.security import OAuth2PasswordBearer
+
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.sql.annotation import Annotated
 
-from app.api.depends.cart import CartDepends
 from app.core import db_connector
-from app.service.cart import CartService
-from app.schemas import ProductAddOrUpdate
-from app.schemas.cart import CartResponse
 from app.api.depends.user import UserAuth
+from app.api.depends.cart import CartDepends
+from app.api.depends.security import oauth2_scheme
+from app.schemas import CartResponse
+from app.schemas import ProductAddOrUpdate
 
 
 router = APIRouter(prefix="/user/cart", tags=["User Cart"])
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
-
 
 
 @router.get(

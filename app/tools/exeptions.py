@@ -7,7 +7,7 @@ class DatabaseError(Exception):
     pass
 
 
-class HTTPExeption(Exception):
+class HTTPErrors(Exception):
     """Ошибка нахождения данных."""
 
     db_error = HTTPException(
@@ -35,7 +35,6 @@ class HTTPExeption(Exception):
         detail="User inactive",
     )
 
-
     token_invalid = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Invalid token",
@@ -44,4 +43,9 @@ class HTTPExeption(Exception):
     cart_empty = HTTPException(
         status_code=status.HTTP_404_NOT_FOUND,
         detail="Cart empty or not found",
+    )
+
+    not_admin = HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="User not admin",
     )

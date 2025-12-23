@@ -4,10 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import ProfileCreate, ProfileUpdate
 from app.models import Profile as Profile_model
 from app.service import ProfileService
-from app.tools import HTTPExeption
+from app.tools import HTTPErrors
 
 
-class ProfileCrud:
+class ProfileDepends:
 
     @classmethod
     async def get_profile_by_user_id(
@@ -27,7 +27,7 @@ class ProfileCrud:
         )
 
         if not profile_model:
-            raise HTTPExeption.not_found
+            raise HTTPErrors.not_found
 
         return profile_model
 
@@ -51,7 +51,7 @@ class ProfileCrud:
         )
 
         if not created_profile_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return created_profile_model
 
@@ -77,7 +77,7 @@ class ProfileCrud:
         )
 
         if not updated_profile_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return updated_profile_model
 
@@ -99,6 +99,6 @@ class ProfileCrud:
         )
 
         if not deleted_profile_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return deleted_profile_model

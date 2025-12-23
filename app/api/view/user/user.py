@@ -1,16 +1,16 @@
+from typing import Annotated
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
-from typing import Annotated
+from fastapi.security import OAuth2PasswordRequestForm
+
 from app.core import db_connector
-from app.schemas.user import UserUpdate
-from app.api.depends.user import UserAuth, UserCrud
+from app.schemas import UserUpdate
+from app.api.depends.security import oauth2_scheme
+from app.api.depends.user import UserAuth, UserDepends
 from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
 router = APIRouter(prefix="/user/auth", tags=["User"])
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 
 
 @router.post(
@@ -73,7 +73,7 @@ async def give_access(
     status_code=status.HTTP_201_CREATED,
 )
 async def register_me(
-    user_in: UserCreate,
+    user_schema: UserCreate,
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
@@ -83,8 +83,8 @@ async def register_me(
     :return: Добавленного в БД пользователя в виде Pydantic схемы
     """
 
-    return await UserCrud.create_user(
-        user_in=user_in,
+    return await UserDepends.create_user(
+        user_schema=user_schema,
         session=session,
     )
 
@@ -95,7 +95,7 @@ async def register_me(
     status_code=status.HTTP_200_OK,
 )
 async def full_update_me(
-    user_in: UserUpdate,
+    user_schema: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
@@ -111,9 +111,9 @@ async def full_update_me(
         session=session,
     )
 
-    return await UserCrud.update_user(
-        user_in=user_in,
+    return await UserDepends.update_user(
         user_id=user_model.id,
+        user_schema=user_schema,
         session=session,
     )
 
@@ -124,7 +124,7 @@ async def full_update_me(
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_me(
-    user_in: UserUpdate,
+    user_schema: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
@@ -140,9 +140,9 @@ async def partial_update_me(
         session=session,
     )
 
-    return await UserCrud.update_user(
-        user_in=user_in,
+    return await UserDepends.update_user(
         user_id=user_model.id,
+        user_schema=user_schema,
         session=session,
         partial=True,
     )
@@ -168,7 +168,7 @@ async def delete_me(
         session=session,
     )
 
-    return await UserCrud.delete_user(
+    return await UserDepends.delete_user(
         user_id=user_model.id,
         session=session,
     )

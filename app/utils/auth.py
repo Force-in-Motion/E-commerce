@@ -1,6 +1,6 @@
 import bcrypt
 from app.models.user import User as User_model
-from app.tools import HTTPExeption
+from app.tools import HTTPErrors
 
 
 class AuthUtils:
@@ -34,7 +34,6 @@ class AuthUtils:
             hashed_password=hash_password,
         )
 
-
     @classmethod
     def check_user_status(
         cls,
@@ -47,7 +46,6 @@ class AuthUtils:
         :return:
         """
         return user_model.is_active
-
 
     @classmethod
     def check_token_type(

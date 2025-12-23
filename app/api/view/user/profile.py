@@ -1,17 +1,17 @@
+from typing import Annotated
 from fastapi import APIRouter, status, Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi.security import OAuth2PasswordBearer
-from typing import Annotated
+
 from app.core import db_connector
 from app.schemas import ProfileResponse
 from app.api.depends.user import UserAuth
-from app.api.depends.profile import ProfileCrud
+from app.api.depends.security import oauth2_scheme
+from app.api.depends.profile import ProfileDepends
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 
 
 router = APIRouter(prefix="/user/profile", tags=["User profile"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 
 
 @router.get(
@@ -34,7 +34,7 @@ async def get_my_profile(
         session=session,
     )
 
-    return await ProfileCrud.get_profile_by_user_id(
+    return await ProfileDepends.get_profile_by_user_id(
         user_id=user_model.id,
         session=session,
     )
@@ -62,7 +62,7 @@ async def create_my_profile(
         session=session,
     )
 
-    return await ProfileCrud.create_user_profile(
+    return await ProfileDepends.create_user_profile(
         user_id=user_model.id,
         profile_in=profile_in,
         session=session,
@@ -91,7 +91,7 @@ async def full_update_my_profile(
         session=session,
     )
 
-    return await ProfileCrud.update_user_profile(
+    return await ProfileDepends.update_user_profile(
         user_id=user_model.id,
         profile_in=profile_in,
         session=session,
@@ -120,7 +120,7 @@ async def partial_update_my_profile(
         session=session,
     )
 
-    return await ProfileCrud.update_user_profile(
+    return await ProfileDepends.update_user_profile(
         user_id=user_model.id,
         profile_in=profile_in,
         session=session,
@@ -148,7 +148,7 @@ async def delete_my_profile(
         session=session,
     )
 
-    return await ProfileCrud.delete_user_profile(
+    return await ProfileDepends.delete_user_profile(
         user_id=user_model.id,
         session=session,
     )

@@ -1,17 +1,17 @@
 from typing import Annotated
-
 from fastapi import APIRouter, status, Depends, Path
-from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
-from app.api.depends.user import PostCrud, UserAuth
+from app.api.depends.user import UserAuth
+from app.api.depends.post import PostDepends
+from app.api.depends.security import oauth2_scheme
 from app.schemas import PostResponse, PostCreate, PostUpdate
 
 
 router = APIRouter(prefix="/user/posts", tags=["User posts"])
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
+
 
 
 @router.get(
@@ -33,7 +33,7 @@ async def get_all_my_posts(
         session=session,
     )
 
-    return await PostCrud.get_all_user_posts(
+    return await PostDepends.get_all_user_posts(
         user_id=user_model.id,
         session=session,
     )
@@ -60,7 +60,7 @@ async def get_my_post(
         session=session,
     )
 
-    return await PostCrud.get_user_post(
+    return await PostDepends.get_user_post(
         post_id=post_id,
         user_id=user_model.id,
         session=session,
@@ -89,7 +89,7 @@ async def register_my_post(
         session=session,
     )
 
-    return await PostCrud.create_user_post(
+    return await PostDepends.create_user_post(
         user_id=user_model.id,
         post_in=post_in,
         session=session,
@@ -119,7 +119,7 @@ async def full_update_my_post(
         session=session,
     )
 
-    return await PostCrud.update_user_post(
+    return await PostDepends.update_user_post(
         user_id=user_model.id,
         post_id=post_id,
         post_in=post_in,
@@ -150,7 +150,7 @@ async def partial_update_my_post(
         session=session,
     )
 
-    return await PostCrud.update_user_post(
+    return await PostDepends.update_user_post(
         user_id=user_model.id,
         post_id=post_id,
         post_in=post_in,
@@ -180,7 +180,7 @@ async def delete_my_post(
         session=session,
     )
 
-    return await PostCrud.delete_user_post(
+    return await PostDepends.delete_user_post(
         user_id=user_model.id,
         post_id=post_id,
         session=session,
@@ -207,7 +207,7 @@ async def delete_all_my_post(
         session=session,
     )
 
-    return await PostCrud.delete_all_user_post(
+    return await PostDepends.delete_all_user_post(
         user_id=user_model.id,
         session=session,
     )

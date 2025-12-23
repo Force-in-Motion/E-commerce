@@ -4,10 +4,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.schemas import PostCreate, PostUpdate, PostResponse
 from app.models import Post as Post_model
 from app.service import PostService
-from app.tools import HTTPExeption
+from app.tools import HTTPErrors
 
 
-class PostCrud:
+class PostDepends:
 
     @classmethod
     async def get_all_user_posts(
@@ -27,7 +27,7 @@ class PostCrud:
         )
 
         if not list_post_models:
-            raise HTTPExeption.not_found
+            raise HTTPErrors.not_found
 
         return list_post_models
 
@@ -51,7 +51,7 @@ class PostCrud:
         )
 
         if not post_model:
-            raise HTTPExeption.not_found
+            raise HTTPErrors.not_found
 
         return post_model
 
@@ -75,7 +75,7 @@ class PostCrud:
         )
 
         if not created_post_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return created_post_model
 
@@ -103,7 +103,7 @@ class PostCrud:
         )
 
         if not updated_post_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return updated_post_model
 
@@ -126,7 +126,7 @@ class PostCrud:
             session=session,
         )
         if not deleted_post_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return deleted_post_model
 
@@ -148,6 +148,6 @@ class PostCrud:
         )
 
         if result != []:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return result

@@ -1,9 +1,9 @@
 __all__ = [
+    "UserRole",
+    "HTTPErrors",
     "DatabaseError",
-    "HTTPExeption",
-
 ]
 
 
-from app.tools.exeptions import DatabaseError, HTTPExeption
-
+from app.tools.exeptions import DatabaseError, HTTPErrors
+from app.tools.types import UserRole

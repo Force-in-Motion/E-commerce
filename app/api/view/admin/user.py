@@ -1,19 +1,22 @@
 from datetime import datetime
 from typing import Annotated
-
-from fastapi import APIRouter, status, Depends, Query, Path
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, status, Depends, Query, Path
 
 from app.core import db_connector
-from app.service import UserService
-from app.schemas import UserResponse, UserCreate
-from app.tools import Inspector
+from app.api.depends.security import oauth2_scheme
+from app.api.depends.user import UserAuth, UserDepends
+from app.api.depends.inspect import Inspector
+from app.api.depends.security import admin_guard
+from app.schemas import UserResponse, UserCreate, UserUpdateForAdmin
 
-router = APIRouter(prefix="/user/admin")
+
+router = APIRouter(
+    prefix="/user/admin",
+    dependencies=[admin_guard],
+)
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/all",
     response_model=list[UserResponse],
@@ -97,8 +100,6 @@ async def get_user_by_id(
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае словарь
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.post(
     "/",
     response_model=UserResponse,
@@ -121,8 +122,6 @@ async def register_user(
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае словарь
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.put(
     "/{user_id}",
     response_model=UserResponse,
@@ -140,11 +139,7 @@ async def full_update_user(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Полностью обновленного в БД пользователя в виде Pydantic схемы
     """
-    return await UserService.update_model(
-        model_id=user_id,
-        scheme_in=user_in,
-        session=session,
-    )
+    return await UserDepends.
 
 
 # response_model определяет модель ответа пользователю, в данном случае словарь
@@ -156,7 +151,7 @@ async def full_update_user(
 )
 async def partial_update_user(
     user_id: Annotated[int, Path(..., description="User id")],
-    user_in: UserCreate,
+    user_schema: UserUpdateForAdmin,
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> UserResponse:
     """

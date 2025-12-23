@@ -6,7 +6,7 @@ from app.models import Order as Order_model
 from app.schemas import ProductAddOrUpdate
 from app.schemas import OrderResponse, OrderRequest
 from app.service.order import OrderService
-from app.tools import HTTPExeption
+from app.tools import HTTPErrors
 
 
 class OrderDepends:
@@ -30,7 +30,7 @@ class OrderDepends:
 
         if not list_order_model:
 
-            raise HTTPExeption.not_found
+            raise HTTPErrors.not_found
 
         return list_order_model
 
@@ -54,7 +54,7 @@ class OrderDepends:
         )
 
         if not order_model:
-            raise HTTPExeption.not_found
+            raise HTTPErrors.not_found
 
         return order_model
 
@@ -78,7 +78,7 @@ class OrderDepends:
         )
 
         if not created_order_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return created_order_model
 
@@ -104,7 +104,7 @@ class OrderDepends:
         )
 
         if not updated_order_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return updated_order_model
 
@@ -127,6 +127,6 @@ class OrderDepends:
             session=session,
         )
         if not deleted_order_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return deleted_order_model

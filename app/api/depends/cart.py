@@ -1,15 +1,13 @@
-
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas import ProductAddOrUpdate
 from app.schemas import CartResponse
 from app.service import CartService
-from app.tools import HTTPExeption
+from app.tools import HTTPErrors
 
 
 class CartDepends:
-
 
     @classmethod
     async def get_user_cart(
@@ -30,8 +28,8 @@ class CartDepends:
 
         if not cart_response:
 
-            raise HTTPExeption.db_error
-        
+            raise HTTPErrors.db_error
+
         return cart_response
 
     @classmethod
@@ -54,7 +52,7 @@ class CartDepends:
         )
 
         if not cart_response:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return cart_response
 
@@ -78,7 +76,7 @@ class CartDepends:
         )
 
         if not cart_response:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return cart_response
 
@@ -100,6 +98,6 @@ class CartDepends:
         )
 
         if not empty_list:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return empty_list

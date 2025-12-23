@@ -30,6 +30,20 @@ class UserUpdate(BaseModel):
     password: Optional[Annotated[SecretStr, MinLen(7), MaxLen(120)]]
 
 
+class UserUpdateForAdmin(BaseModel):
+    """Класс описывающий объект, получаемый от пользователя, для изменения логина или пароля
+    не содержит id потому как id присваивается на уровне логики работы с БД
+    и пользователь не должен иметь к нему доступ и определять его,
+    этот класс не требует настройки ConfigDict, т.к. его задача это валидация данных,
+    полученных от пользователя"""
+
+    # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля для изменения
+    login: Optional[Annotated[EmailStr, MinLen(5), MaxLen(30)]]
+    password: Optional[Annotated[SecretStr, MinLen(7), MaxLen(120)]]
+    role: Optional[UserRole]
+    is_active: Optional[bool]
+
+
 class UserResponse(BaseModel):
     """Класс описывающий объект, возвращаемый администратору, наследуется от UserCreate
     для доступа ко всем полям UserCreate, дополнительно содержит id

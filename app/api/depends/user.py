@@ -6,14 +6,14 @@ from app.core import jwt_settings
 from app.schemas import UserUpdate
 from app.schemas.token import RefreshCreate
 from app.service.token import TokenService
-from app.tools import HTTPExeption
+from app.tools import HTTPErrors
 from app.service import UserService
 from app.utils import JWTUtils, AuthUtils
 from app.models import User as User_model, RefreshToken as Refresh_model
 from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
-class UserCrud:
+class UserDepends:
 
     @classmethod
     async def get_user_by_login(
@@ -33,7 +33,7 @@ class UserCrud:
         )
 
         if not user_model:
-            raise HTTPExeption.unauthorized
+            raise HTTPErrors.unauthorized
 
         return user_model
 
@@ -55,14 +55,14 @@ class UserCrud:
         )
 
         if not user_model:
-            raise HTTPExeption.unauthorized
+            raise HTTPErrors.unauthorized
 
         return user_model
 
     @classmethod
     async def create_user(
         cls,
-        user_in: UserCreate,
+        user_schema: UserCreate,
         session: AsyncSession,
     ) -> UserResponse:
         """
@@ -72,12 +72,12 @@ class UserCrud:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
         created_user_model = await UserService.register_model(
-            scheme_in=user_in,
+            schema_in=user_schema,
             session=session,
         )
 
         if not created_user_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return created_user_model
 
@@ -117,13 +117,13 @@ class UserCrud:
         refresh_schema = RefreshCreate(token=refresh)
 
         refresh_model = await TokenService.register_model(
-            scheme_in=refresh_schema,
+            schema_in=refresh,
             user_id=user_id,
             session=session,
         )
 
         if not refresh_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return refresh_model
 
@@ -145,15 +145,15 @@ class UserCrud:
         )
 
         if not refresh_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return refresh_model
 
     @classmethod
     async def update_user(
         cls,
-        user_in: UserUpdate,
         user_id: int,
+        user_schema: UserUpdate,
         session: AsyncSession,
         partial: bool = False,
     ) -> UserResponse:
@@ -165,13 +165,13 @@ class UserCrud:
         """
         updated_user_model = await UserService.update_model(
             model_id=user_id,
-            scheme_in=user_in,
+            scheme_in=user_schema,
             session=session,
             partial=partial,
         )
 
         if not updated_user_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return updated_user_model
 
@@ -193,7 +193,7 @@ class UserCrud:
         )
 
         if not deleted_user_model:
-            raise HTTPExeption.db_error
+            raise HTTPErrors.db_error
 
         return deleted_user_model
 
@@ -212,7 +212,7 @@ class UserAuth:
         :param form_data: При помощи Depends() создается объект OAuth2PasswordRequestForm, содержащий данные, введенные в форме клиента form_data.username и form_data.password
         :return: Пользователя
         """
-        user_model = await UserCrud.get_user_by_login(
+        user_model = await UserDepends.get_user_by_login(
             login=login,
             session=session,
         )
@@ -221,10 +221,10 @@ class UserAuth:
             password=password,
             hashed_password=user_model.password,
         ):
-            raise HTTPExeption.unauthorized
+            raise HTTPErrors.unauthorized
 
         if not AuthUtils.check_user_status(user_model=user_model):
-            raise HTTPExeption.user_inactive
+            raise HTTPErrors.user_inactive
 
         return user_model
 
@@ -253,17 +253,17 @@ class UserAuth:
         """
         refresh = JWTUtils.create_refresh_token(user_model=user_model)
 
-        if await UserCrud.get_refresh(
+        if await UserDepends.get_refresh(
             user_id=user_model.id,
             session=session,
         ):
 
-            await UserCrud.delete_refresh(
+            await UserDepends.delete_refresh(
                 user_id=user_model.id,
                 session=session,
             )
 
-        await UserCrud.create_refresh(
+        await UserDepends.create_refresh(
             user_id=user_model.id,
             refresh=refresh,
             session=session,
@@ -319,13 +319,13 @@ class UserAuth:
 
         user_id = int(payload.get("sub"))
 
-        user_model = await UserCrud.get_user_by_id(
+        user_model = await UserDepends.get_user_by_id(
             user_id=user_id,
             session=session,
         )
 
         if not AuthUtils.check_user_status(user_model=user_model):
-            raise HTTPExeption.user_inactive
+            raise HTTPErrors.user_inactive
 
         return user_model
 
@@ -348,20 +348,20 @@ class UserAuth:
 
         user_id = int(payload.get("sub"))
 
-        refresh_model = await UserCrud.get_refresh(
+        refresh_model = await UserDepends.get_refresh(
             user_id=user_id,
             session=session,
         )
 
         if not refresh_model or refresh_model.token != token:
-            raise HTTPExeption.token_invalid
+            raise HTTPErrors.token_invalid
 
-        user_model = await UserCrud.get_user_by_id(
+        user_model = await UserDepends.get_user_by_id(
             user_id=user_id,
             session=session,
         )
 
         if not AuthUtils.check_user_status(user_model=user_model):
-            raise HTTPExeption.user_inactive
+            raise HTTPErrors.user_inactive
 
         return user_model

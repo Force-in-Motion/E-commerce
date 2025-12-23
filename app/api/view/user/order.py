@@ -1,18 +1,18 @@
-from fastapi import APIRouter, status, Path
-from fastapi.params import Depends
-from fastapi.security import OAuth2PasswordBearer
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import Annotated
+
+from fastapi.params import Depends
+from fastapi import APIRouter, status, Path
+
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.api.depends.user import UserAuth
 from app.api.depends.order import OrderDepends
+from app.api.depends.security import oauth2_scheme
 from app.schemas import OrderResponse, OrderRequest, UserResponse
 
 
 router = APIRouter(prefix="/user/orders", tags=["User Orders"])
-
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 
 
 @router.get(
