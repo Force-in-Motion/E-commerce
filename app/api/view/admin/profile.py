@@ -72,7 +72,7 @@ async def get_profile_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Профиль конкретного пользователя
     """
-    return await ProfileDepends.get_profile_by_user_id(
+    return await ProfileDepends.get_profile(
         user_id=user_id,
         session=session,
     )
@@ -93,7 +93,7 @@ async def get_profile_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Профиль конкретного пользователя
     """
-    return await ProfileDepends.get_profile_by_id(
+    return await ProfileDepends.get_profile(
         profile_id=profile_id,
         session=session,
     )

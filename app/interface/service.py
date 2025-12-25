@@ -60,6 +60,15 @@ class AService(ABC):
 
     @classmethod
     @abstractmethod
+    async def delete_all_models(cls, *args, **kwargs) -> object:
+        """
+        Удаляет модель из БД
+        :return: Модель, удаленную из БД
+        """
+        pass
+
+    @classmethod
+    @abstractmethod
     async def clear_table(cls, *args, **kwargs) -> list:
         """
         Очищает базу данных моделей определенной категории и сбрасывает последовательность id моделей

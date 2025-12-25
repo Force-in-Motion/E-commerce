@@ -36,7 +36,7 @@ async def get_my_profile(
         session=session,
     )
 
-    return await ProfileDepends.get_profile_by_user_id(
+    return await ProfileDepends.get_profile(
         user_id=user_model.id,
         session=session,
     )

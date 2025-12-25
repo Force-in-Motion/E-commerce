@@ -34,7 +34,7 @@ async def get_all_my_posts(
         session=session,
     )
 
-    return await PostDepends.get_all_user_posts(
+    return await PostDepends.get_all_posts(
         user_id=user_model.id,
         session=session,
     )
@@ -61,7 +61,7 @@ async def get_my_post(
         session=session,
     )
 
-    return await PostDepends.get_user_post(
+    return await PostDepends.get_post(
         post_id=post_id,
         user_id=user_model.id,
         session=session,
@@ -90,7 +90,7 @@ async def register_my_post(
         session=session,
     )
 
-    return await PostDepends.create_user_post(
+    return await PostDepends.create_post(
         user_id=user_model.id,
         post_in=post_in,
         session=session,
@@ -208,7 +208,7 @@ async def delete_all_my_post(
         session=session,
     )
 
-    return await PostDepends.delete_all_user_post(
+    return await PostDepends.delete_all_post(
         user_id=user_model.id,
         session=session,
     )

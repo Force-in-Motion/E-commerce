@@ -51,32 +51,11 @@ class ProfileDepends:
         return list_profile_models
 
     @classmethod
-    async def get_profile_by_id(
+    async def get_profile(
         cls,
-        profile_id: int,
         session: AsyncSession,
-    ) -> Optional[Profile_model]:
-        """
-
-        :param param:
-        :param param:
-        :return:
-        """
-        profile_model = await ProfileService.get_model(
-            model_id=profile_id,
-            session=session,
-        )
-
-        if not profile_model:
-            raise HTTPErrors.not_found
-
-        return profile_model
-
-    @classmethod
-    async def get_profile_by_user_id(
-        cls,
-        user_id: int,
-        session: AsyncSession,
+        user_id: Optional[int] = None,
+        profile_id: Optional[int] = None,
     ) -> Optional[Profile_model]:
         """
 
@@ -86,6 +65,7 @@ class ProfileDepends:
         """
         profile_model = await ProfileService.get_model(
             user_id=user_id,
+            model_id=profile_id,
             session=session,
         )
 
@@ -93,6 +73,7 @@ class ProfileDepends:
             raise HTTPErrors.not_found
 
         return profile_model
+
 
     @classmethod
     async def create_user_profile(
@@ -165,7 +146,6 @@ class ProfileDepends:
             raise HTTPErrors.db_error
 
         return deleted_profile_model
-    
 
     @classmethod
     async def clear_profiles(

@@ -14,6 +14,7 @@ class PostDepends:
     async def get_all_posts(
         cls,
         session: AsyncSession,
+        user_id: Optional[int] = None,
     ) -> Optional[list[Post_model]]:
         """
 
@@ -21,7 +22,10 @@ class PostDepends:
         :param param:
         :return:
         """
-        list_post_models = await PostService.get_all_models(session=session)
+        list_post_models = await PostService.get_all_models(
+            user_id=user_id,
+            session=session,
+        )
 
         if not list_post_models:
             raise HTTPErrors.not_found
@@ -51,33 +55,11 @@ class PostDepends:
         return list_post_models
 
     @classmethod
-    async def get_all_user_posts(
+    async def get_post(
         cls,
-        user_id: int,
         session: AsyncSession,
-    ) -> Optional[list[Post_model]]:
-        """
-
-        :param param:
-        :param param:
-        :return:
-        """
-        list_post_models = await PostService.get_all_models(
-            user_id=user_id,
-            session=session,
-        )
-
-        if not list_post_models:
-            raise HTTPErrors.not_found
-
-        return list_post_models
-
-    @classmethod
-    async def get_user_post(
-        cls,
-        post_id: int,
-        user_id: int,
-        session: AsyncSession,
+        user_id: Optional[int] = None,
+        post_id: Optional[int] = None,
     ) -> Optional[Post_model]:
         """
 
@@ -96,32 +78,8 @@ class PostDepends:
 
         return post_model
 
-
     @classmethod
-    async def get_post_by_id(
-        cls,
-        post_id: int,
-        session: AsyncSession,
-    ) -> Optional[Post_model]:
-        """
-
-        :param param:
-        :param param:
-        :return:
-        """
-        post_model = await PostService.get_model(
-            model_id=post_id,
-            session=session,
-        )
-
-        if not post_model:
-            raise HTTPErrors.not_found
-
-        return post_model
-    
-
-    @classmethod
-    async def create_user_post(
+    async def create_post(
         cls,
         user_id: int,
         post_scheme: PostCreate,
@@ -145,12 +103,12 @@ class PostDepends:
         return created_post_model
 
     @classmethod
-    async def update_user_post(
+    async def update_post(
         cls,
-        user_id: int,
-        post_id: int,
-        post_scheme: PostUpdate,
         session: AsyncSession,
+        post_scheme: PostUpdate,
+        user_id: Optional[int] = None,
+        post_id: Optional[int] = None,
         partial: bool = False,
     ) -> Post_model:
         """
@@ -173,11 +131,11 @@ class PostDepends:
         return updated_post_model
 
     @classmethod
-    async def delete_user_post(
+    async def delete_post(
         cls,
-        user_id: int,
-        post_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
+        post_id: Optional[int] = None,
     ) -> Post_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -196,10 +154,10 @@ class PostDepends:
         return deleted_post_model
 
     @classmethod
-    async def delete_all_user_post(
+    async def delete_all_post(
         cls,
-        user_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
     ) -> list:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -207,7 +165,7 @@ class PostDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        result = await PostService.delete_all_user_posts(
+        result = await PostService.delete_all_models(
             user_id=user_id,
             session=session,
         )
@@ -216,7 +174,6 @@ class PostDepends:
             raise HTTPErrors.db_error
 
         return result
-    
 
     @classmethod
     async def clear_post(

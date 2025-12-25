@@ -45,7 +45,6 @@ class BaseRepo(Generic[DBModel], ARepo):
                 f"Error when receiving all {cls.model.__name__}s"
             ) from e
 
-
     @classmethod
     async def get_all_by_user_id(
         cls,
@@ -68,7 +67,6 @@ class BaseRepo(Generic[DBModel], ARepo):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by user id"
             ) from e
-        
 
     @classmethod
     async def get_by_id(
@@ -89,7 +87,6 @@ class BaseRepo(Generic[DBModel], ARepo):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by id"
             ) from e
-        
 
     @classmethod
     async def get_by_user_id(
@@ -113,7 +110,6 @@ class BaseRepo(Generic[DBModel], ARepo):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by user id"
             ) from e
-        
 
     @classmethod
     async def get_by_user_and_model_id(
@@ -123,10 +119,9 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> Optional[DBModel]:
         try:
-            stmt = (select(cls.model).where(
-                    cls.model.id == model_id,
-                    cls.model.user_id == user_id,
-                )
+            stmt = select(cls.model).where(
+                cls.model.id == model_id,
+                cls.model.user_id == user_id,
             )
 
             result = await session.execute(stmt)
@@ -136,8 +131,6 @@ class BaseRepo(Generic[DBModel], ARepo):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} by user and model id"
             ) from e
-
-
 
     @classmethod
     async def get_by_date(
@@ -243,6 +236,29 @@ class BaseRepo(Generic[DBModel], ARepo):
         except SQLAlchemyError as e:
             await session.rollback()
             raise DatabaseError(f"Error when deleting {cls.model.__name__}") from e
+
+    @classmethod
+    async def delete_all(
+        cls,
+        list_models: list[DBModel],
+        session: AsyncSession,
+    ) -> list:
+        """
+
+        :param user_id:
+        :param post_in:
+        :param session:
+        :return:
+        """
+        try:
+            for model in list_models:
+                await session.delete(model)
+            await session.commit()
+            return []
+
+        except SQLAlchemyError as e:
+            await session.rollback()
+            raise DatabaseError(f"Error when deleting list {cls.model.__name__}") from e
 
     @classmethod
     async def clear(

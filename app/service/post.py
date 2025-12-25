@@ -10,29 +10,3 @@ class PostService(BaseService[PostModel]):
 
     repo = PostRepo
 
-    @classmethod
-    async def delete_all_user_posts(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> list:
-        """
-
-        :param user_id:
-        :param post_in:
-        :param session:
-        :return:
-        """
-        async with session.begin():
-
-            list_post_models = await cls.repo.get_all_by_user_id(
-                user_id=user_id,
-                session=session,
-            )
-            if list_post_models:
-                return await cls.repo.delete_all_posts(
-                    list_post_models=list_post_models,
-                    session=session,
-                )
-            
-            return None

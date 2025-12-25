@@ -3,7 +3,6 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Order as Order_model
-from app.schemas import ProductAddOrUpdate
 from app.schemas import OrderResponse, OrderRequest
 from app.service.order import OrderService
 from app.tools import HTTPErrors
@@ -12,11 +11,30 @@ from app.tools import HTTPErrors
 class OrderDepends:
 
     @classmethod
+    async def get_all_oreders(
+        cls,
+        session: AsyncSession,
+    ) -> Optional[list[OrderResponse]]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        list_order_model = await OrderService.get_all_models(session=session)
+
+        if not list_order_model:
+
+            raise HTTPErrors.not_found
+
+        return list_order_model
+
+    @classmethod
     async def get_all_user_oreders(
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> list[OrderResponse]:
+    ) -> Optional[list[OrderResponse]]:
         """
 
         :param param:
@@ -40,7 +58,7 @@ class OrderDepends:
         user_id: int,
         order_id: int,
         session: AsyncSession,
-    ) -> OrderResponse:
+    ) -> Optional[OrderResponse]:
         """
 
         :param param:
@@ -109,11 +127,11 @@ class OrderDepends:
         return updated_order_model
 
     @classmethod
-    async def del_user_order(
+    async def delete_order(
         cls,
-        user_id: int,
-        order_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
+        order_id: Optional[int] = None,
     ) -> OrderResponse:
         """
 

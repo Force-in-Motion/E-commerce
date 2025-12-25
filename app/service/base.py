@@ -170,6 +170,33 @@ class BaseService(Generic[Repo], AService):
             )
 
     @classmethod
+    async def delete_all_models(
+        cls,
+        session: AsyncSession,
+        user_id: Optional[int] = None,
+    ) -> Optional[DBModel]:
+        """
+        Возвращает результат выполнения метода удаления модели пользователя из БД
+        :param model_id: ORM Модель - конкретный объект модели в БД, найденный по id
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: Модель пользователя, удаленную из БД
+        """
+        async with session.begin():
+
+            list_models = await cls.get_all_models(
+                session=session,
+                user_id=user_id,
+            )
+
+            if not list_models:
+                return None
+
+            return await cls.repo.delete_all(
+                list_models=list_models,
+                session=session,
+            )
+
+    @classmethod
     async def clear_table(
         cls,
         session: AsyncSession,

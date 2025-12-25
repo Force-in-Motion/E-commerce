@@ -68,7 +68,7 @@ async def get_post_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: конкретный пост по его id
     """
-    return await PostDepends.get_post_by_id(
+    return await PostDepends.get_post(
         post_id=post_id,
         session=session,
     )
@@ -89,7 +89,7 @@ async def get_posts_by_user_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: список всех постов пользователя
     """
-    return await PostDepends.get_all_user_posts(
+    return await PostDepends.get_all_posts(
         user_id=user_id,
         session=session,
     )
@@ -112,7 +112,7 @@ async def register_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostDepends.create_user_post(
+    return await PostDepends.create_post(
         user_id=user_id,
         post_scheme=post_scheme,
         session=session,
@@ -127,7 +127,6 @@ async def register_post(
 async def full_update_post(
     post_scheme: PostUpdate,
     post_id: Annotated[int, Path(..., description="Post ID")],
-    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> PostResponse:
     """
@@ -137,8 +136,7 @@ async def full_update_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostDepends.update_user_post(
-        user_id=user_id,
+    return await PostDepends.update_post(
         post_id=post_id,
         post_scheme=post_scheme,
         session=session,
@@ -155,7 +153,6 @@ async def full_update_post(
 async def update_post_partial(
     post_scheme: PostUpdate,
     post_id: Annotated[int, Path(..., description="Post ID")],
-    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> PostResponse:
     """
@@ -166,7 +163,6 @@ async def update_post_partial(
     :return: dict
     """
     return await PostDepends.update_user_post(
-        user_id=user_id,
         post_id=post_id,
         post_scheme=post_scheme,
         session=session,
@@ -201,7 +197,6 @@ async def clear_all_posts(
 )
 async def delete_post(
     post_id: Annotated[int, Path(..., description="Post ID")],
-    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> PostResponse:
     """
@@ -210,8 +205,7 @@ async def delete_post(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostDepends.delete_user_post(
-        user_id=user_id,
+    return await PostDepends.delete_post(
         post_id=post_id,
         session=session,
     )
@@ -232,7 +226,7 @@ async def delete_all_user_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostDepends.delete_all_user_post(
+    return await PostDepends.delete_all_post(
         user_id=user_id,
         session=session,
     )
