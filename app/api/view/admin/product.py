@@ -69,7 +69,7 @@ async def get_product_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: ProductOutput
     """
-    return ProductDepends.get_product_by_id(
+    return ProductDepends.get_product(
         product_id=product_id,
         session=session,
     )

@@ -12,44 +12,58 @@ class OrderService(BaseService[OrderRepo]):
 
     repo: OrderRepo
 
+
     @classmethod
-    async def get_all_orders_by_user_id(
+    async def get_all_orders(
         cls,
-        user_id: int,
         session: AsyncSession,
-    ) -> list[Order_model]:
+        user_id: Optional[int] = None,
+    ) -> Optional[list[Order_model]]:
         """
 
         :param user_id:
         :param session:
         :return:
         """
-        return await cls.repo.get_all_orders_by_user_id(
-            user_id=user_id,
-            session=session,
-        )
+        if user_id is not None:
+            return await cls.repo.get_all_orders_by_user_id(
+                user_id=user_id,
+                session=session,
+            )
+            
+        else:
+            return await cls.repo.get_all_orders(session=session)
+        
 
     @classmethod
-    async def get_order_by_user_id(
+    async def get_order(
         cls,
-        user_id: int,
         order_id: int,
         session: AsyncSession,
-    ) -> list[Order_model]:
+        user_id: Optional[int] = None,
+    ) -> Order_model:
         """
 
         :param user_id:
         :param session:
         :return:
         """
-        return await cls.repo.get_by_user_id_and_order_id(
-            user_id=user_id,
-            order_id=order_id,
-            session=session,
-        )
+        if user_id is not None:
+            return await cls.repo.get_by_user_id_and_order_id(
+                user_id=user_id,
+                order_id=order_id,
+                session=session,
+            )
+
+        else:
+            return await cls.repo.get_by_order_id(
+                order_id=order_id,
+                session=session,
+            )
+
 
     @classmethod
-    async def create_order_for_user(
+    async def create_order(
         cls,
         user_id: int,
         order_schema: OrderRequest,
@@ -73,9 +87,7 @@ class OrderService(BaseService[OrderRepo]):
 
             total_quantity = sum(cp.quantity for cp in cart_model.products)
 
-            total_price = sum(
-                int(cp.current_price) * cp.quantity for cp in cart_model.products
-            )
+            total_price = sum(int(cp.current_price) * cp.quantity for cp in cart_model.products)
 
             order_model = await cls.repo.create_order(
                 user_id=user_id,

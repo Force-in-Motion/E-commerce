@@ -37,7 +37,7 @@ async def get_all_my_orders(
         session=session,
     )
 
-    return await OrderDepends.get_all_user_oreders(
+    return await OrderDepends.get_all_oreders(
         user_id=user_model.id,
         session=session,
     )
@@ -64,7 +64,7 @@ async def get_my_order(
         session=session,
     )
 
-    return await OrderDepends.get_user_oreder(
+    return await OrderDepends.get_oreder(
         user_id=user_model.id,
         order_id=order_id,
         session=session,
@@ -121,7 +121,7 @@ async def update_my_order_partial(
         session=session,
     )
 
-    return await OrderDepends.update_user_oreder(
+    return await OrderDepends.update_oreder(
         user_id=user_model.id,
         order_id=order_id,
         session=session,
@@ -136,7 +136,7 @@ async def update_my_order_partial(
 )
 async def delete_my_order(
     token: Annotated[str, Depends(oauth2_scheme)],
-    order_id: Annotated[int, Path(..., description="Order id")],
+    order_id: Annotated[int, Path(..., description="Order ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> OrderResponse:
     """
@@ -150,7 +150,7 @@ async def delete_my_order(
         session=session,
     )
 
-    return await OrderDepends.del_user_order(
+    return await OrderDepends.delete_order(
         user_id=user_model.id,
         order_id=order_id,
         session=session,

@@ -74,7 +74,7 @@ async def get_my_post(
     status_code=status.HTTP_201_CREATED,
 )
 async def register_my_post(
-    post_in: PostCreate,
+    post_scheme: PostCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> PostResponse:
@@ -92,7 +92,7 @@ async def register_my_post(
 
     return await PostDepends.create_post(
         user_id=user_model.id,
-        post_in=post_in,
+        post_scheme=post_scheme,
         session=session,
     )
 
@@ -103,7 +103,7 @@ async def register_my_post(
     status_code=status.HTTP_200_OK,
 )
 async def full_update_my_post(
-    post_in: PostUpdate,
+    post_scheme: PostUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     post_id: Annotated[int, Path(..., description="Post ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
@@ -120,10 +120,10 @@ async def full_update_my_post(
         session=session,
     )
 
-    return await PostDepends.update_user_post(
+    return await PostDepends.update_post(
         user_id=user_model.id,
         post_id=post_id,
-        post_in=post_in,
+        post_scheme=post_scheme,
         session=session,
     )
 
@@ -134,7 +134,7 @@ async def full_update_my_post(
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_my_post(
-    post_in: PostUpdate,
+    post_scheme: PostUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     post_id: Annotated[int, Path(..., description="Post ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
@@ -151,10 +151,10 @@ async def partial_update_my_post(
         session=session,
     )
 
-    return await PostDepends.update_user_post(
+    return await PostDepends.update_post(
         user_id=user_model.id,
         post_id=post_id,
-        post_in=post_in,
+        post_scheme=post_scheme,
         session=session,
         partial=True,
     )
@@ -181,7 +181,7 @@ async def delete_my_post(
         session=session,
     )
 
-    return await PostDepends.delete_user_post(
+    return await PostDepends.delete_post(
         user_id=user_model.id,
         post_id=post_id,
         session=session,

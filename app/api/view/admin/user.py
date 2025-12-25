@@ -13,7 +13,7 @@ from app.schemas import UserResponse, UserCreate, UserUpdateForAdmin
 
 router = APIRouter(
     prefix="/admin/users",
-    tags=['Users'],
+    tags=["Users"],
     dependencies=[admin_guard],
 )
 
@@ -91,7 +91,7 @@ async def get_user_by_id(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: Пользователя по его id в виде Pydantic схемы
     """
-    return await UserDepends.get_user_by_id(
+    return await UserDepends.get_user(
         user_id=user_id,
         session=session,
     )

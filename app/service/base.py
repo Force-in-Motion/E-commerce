@@ -57,7 +57,6 @@ class BaseService(Generic[Repo], AService):
         if user_id is not None:
             return await cls.repo.get_by_user_id(user_id=user_id, session=session)
 
-        return None
 
     @classmethod
     async def get_all_models_by_date(

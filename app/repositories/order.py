@@ -17,6 +17,34 @@ class OrderRepo(BaseRepo[Order_model]):
     model: Order_model
 
     @classmethod
+    async def get_all_orders(
+        cls,
+        session: AsyncSession,
+    ) -> list[Order_model]:
+        """
+
+        :param order_in:
+        :param session:
+        :return:
+        """
+        try:
+            stmt = (
+                select(cls.model).options(
+                    selectinload(cls.model.products)
+                    .selectinload(OrderProducts_model.product)
+                )
+                .order_by(cls.model.created_at.desc())
+            )
+
+            result = await session.execute(stmt)
+            return result.scalars().all()
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving {cls.model.__name__} list"
+            ) from e
+
+    @classmethod
     async def get_all_orders_by_user_id(
         cls,
         user_id: int,
@@ -33,8 +61,9 @@ class OrderRepo(BaseRepo[Order_model]):
                 select(cls.model)
                 .where(cls.model.user_id == user_id)
                 .options(
-                    selectinload(cls.model.products)
-                    .selectinload(OrderProducts_model.product)
+                    selectinload(cls.model.products).selectinload(
+                        OrderProducts_model.product
+                    )
                 )
                 .order_by(cls.model.created_at.desc())
             )
@@ -46,7 +75,6 @@ class OrderRepo(BaseRepo[Order_model]):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} list"
             ) from e
-
 
     @classmethod
     async def get_by_user_id_and_order_id(
@@ -63,8 +91,9 @@ class OrderRepo(BaseRepo[Order_model]):
                     cls.model.id == order_id,
                 )
                 .options(
-                    selectinload(cls.model.products)
-                    .selectinload(OrderProducts_model.product)
+                    selectinload(cls.model.products).selectinload(
+                        OrderProducts_model.product
+                    )
                 )
             )
 
@@ -72,10 +101,30 @@ class OrderRepo(BaseRepo[Order_model]):
             return result.scalar_one_or_none()
 
         except SQLAlchemyError as e:
-            raise DatabaseError(
-                f"Error when receiving {cls.model.__name__}"
-            ) from e
+            raise DatabaseError(f"Error when receiving {cls.model.__name__}") from e
 
+    @classmethod
+    async def get_by_order_id(
+        cls,
+        order_id: int,
+        session: AsyncSession,
+    ) -> Optional[Order_model]:
+        try:
+            stmt = (
+                select(cls.model)
+                .where(cls.model.id == order_id)
+                .options(
+                    selectinload(cls.model.products).selectinload(
+                        OrderProducts_model.product
+                    )
+                )
+            )
+
+            result = await session.execute(stmt)
+            return result.scalar_one_or_none()
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(f"Error when receiving {cls.model.__name__}") from e
 
     @classmethod
     async def create_order(

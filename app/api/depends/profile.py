@@ -76,7 +76,7 @@ class ProfileDepends:
 
 
     @classmethod
-    async def create_user_profile(
+    async def create_profile(
         cls,
         user_id: int,
         profile_scheme: ProfileCreate,
@@ -100,7 +100,7 @@ class ProfileDepends:
         return created_profile_model
 
     @classmethod
-    async def update_user_profile(
+    async def update_profile(
         cls,
         user_id: int,
         profile_scheme: ProfileUpdate,
@@ -126,7 +126,7 @@ class ProfileDepends:
         return updated_profile_model
 
     @classmethod
-    async def delete_user_profile(
+    async def delete_profile(
         cls,
         user_id: int,
         session: AsyncSession,

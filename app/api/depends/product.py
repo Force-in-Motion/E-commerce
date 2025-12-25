@@ -1,4 +1,3 @@
-
 from typing import Optional
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,9 +8,7 @@ from app.service import ProductService
 from app.models import Product as Product_model
 
 
-
 class ProductDepends:
-
 
     @classmethod
     async def get_all_products(
@@ -30,11 +27,9 @@ class ProductDepends:
             raise HTTPErrors.not_found
 
         return list_product_models
-    
-
 
     @classmethod
-    async def get_product_by_id(
+    async def get_product(
         cls,
         product_id: int,
         session: AsyncSession,
@@ -98,7 +93,6 @@ class ProductDepends:
             raise HTTPErrors.db_error
 
         return created_product_model
-
 
     @classmethod
     async def update_product(
@@ -165,5 +159,3 @@ class ProductDepends:
             raise HTTPErrors.db_error
 
         return cleared_table
-
-

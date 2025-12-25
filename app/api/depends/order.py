@@ -14,34 +14,15 @@ class OrderDepends:
     async def get_all_oreders(
         cls,
         session: AsyncSession,
-    ) -> Optional[list[OrderResponse]]:
+        user_id: Optional[int] = None,
+    ) -> Optional[list[Order_model]]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        list_order_model = await OrderService.get_all_models(session=session)
-
-        if not list_order_model:
-
-            raise HTTPErrors.not_found
-
-        return list_order_model
-
-    @classmethod
-    async def get_all_user_oreders(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> Optional[list[OrderResponse]]:
-        """
-
-        :param param:
-        :param param:
-        :return:
-        """
-        list_order_model = await OrderService.get_all_models(
+        list_order_model = await OrderService.get_all_orders(
             user_id=user_id,
             session=session,
         )
@@ -53,21 +34,21 @@ class OrderDepends:
         return list_order_model
 
     @classmethod
-    async def get_user_oreder(
+    async def get_oreder(
         cls,
-        user_id: int,
         order_id: int,
         session: AsyncSession,
-    ) -> Optional[OrderResponse]:
+        user_id: Optional[int] = None,
+    ) -> Optional[Order_model]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        order_model = await OrderService.get_order_by_user_id(
-            user_id=user_id,
+        order_model = await OrderService.get_order(
             order_id=order_id,
+            user_id=user_id,
             session=session,
         )
 
@@ -77,7 +58,7 @@ class OrderDepends:
         return order_model
 
     @classmethod
-    async def create_user_oreder(
+    async def create_oreder(
         cls,
         user_id: int,
         session: AsyncSession,
@@ -89,7 +70,7 @@ class OrderDepends:
         :param param:
         :return:
         """
-        created_order_model = await OrderService.create_order_for_user(
+        created_order_model = await OrderService.create_order(
             user_id=user_id,
             order_schema=order_schema,
             session=session,
@@ -101,12 +82,12 @@ class OrderDepends:
         return created_order_model
 
     @classmethod
-    async def update_user_oreder(
+    async def update_oreder(
         cls,
-        user_id: int,
         order_id: int,
         session: AsyncSession,
         order_schema: OrderRequest,
+        user_id: Optional[int] = None,
     ) -> Order_model:
         """
 
@@ -129,9 +110,9 @@ class OrderDepends:
     @classmethod
     async def delete_order(
         cls,
+        order_id: int,
         session: AsyncSession,
         user_id: Optional[int] = None,
-        order_id: Optional[int] = None,
     ) -> OrderResponse:
         """
 

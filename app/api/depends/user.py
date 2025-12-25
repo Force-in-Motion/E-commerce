@@ -13,7 +13,6 @@ from app.schemas import UserCreate, UserUpdate, TokenResponse, RefreshCreate
 
 class UserDepends:
 
-
     @classmethod
     async def get_all_users(
         cls,
@@ -31,7 +30,6 @@ class UserDepends:
             raise HTTPErrors.not_found
 
         return list_user_models
-    
 
     @classmethod
     async def get_user_by_login(
@@ -56,7 +54,7 @@ class UserDepends:
         return user_model
 
     @classmethod
-    async def get_user_by_id(
+    async def get_user(
         cls,
         user_id: int,
         session: AsyncSession,
@@ -377,7 +375,7 @@ class UserAuth:
 
         user_id = int(payload.get("sub"))
 
-        user_model = await UserDepends.get_user_by_id(
+        user_model = await UserDepends.get_user(
             user_id=user_id,
             session=session,
         )
@@ -414,7 +412,7 @@ class UserAuth:
         if not refresh_model or refresh_model.token != token:
             raise HTTPErrors.token_invalid
 
-        user_model = await UserDepends.get_user_by_id(
+        user_model = await UserDepends.get_user(
             user_id=user_id,
             session=session,
         )
