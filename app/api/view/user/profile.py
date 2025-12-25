@@ -10,7 +10,10 @@ from app.api.depends.profile import ProfileDepends
 from app.schemas.profile import ProfileCreate, ProfileUpdate
 
 
-router = APIRouter(prefix="/user/profile", tags=["User profile"])
+router = APIRouter(
+    prefix="/user/profile",
+    tags=["My profile"],
+)
 
 
 @router.get(

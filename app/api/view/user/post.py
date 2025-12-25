@@ -9,9 +9,10 @@ from app.api.depends.security import oauth2_scheme
 from app.schemas import PostResponse, PostCreate, PostUpdate
 
 
-router = APIRouter(prefix="/user/posts", tags=["User posts"])
-
-
+router = APIRouter(
+    prefix="/user/posts",
+    tags=["My posts"],
+)
 
 
 @router.get(

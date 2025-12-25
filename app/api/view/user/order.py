@@ -12,7 +12,10 @@ from app.api.depends.security import oauth2_scheme
 from app.schemas import OrderResponse, OrderRequest, UserResponse
 
 
-router = APIRouter(prefix="/user/orders", tags=["User Orders"])
+router = APIRouter(
+    prefix="/user/orders",
+    tags=["My Orders"],
+)
 
 
 @router.get(

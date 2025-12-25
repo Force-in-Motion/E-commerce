@@ -13,7 +13,7 @@ from app.tools import Inspector
 
 router = APIRouter(
     prefix="/admin/profiles",
-    tags=["Users"],
+    tags=["Profiles"],
     dependencies=[admin_guard],
 )
 

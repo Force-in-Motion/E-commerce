@@ -4,14 +4,11 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import jwt_settings
-from app.schemas import UserUpdate
-from app.schemas.token import RefreshCreate
-from app.service.token import TokenService
 from app.tools import HTTPErrors
-from app.service import UserService
+from app.service import UserService, TokenService
 from app.utils import JWTUtils, AuthUtils
 from app.models import User as User_model, RefreshToken as Refresh_model
-from app.schemas import UserResponse, UserCreate, TokenResponse
+from app.schemas import UserCreate, UserUpdate, TokenResponse, RefreshCreate
 
 
 class UserDepends:
@@ -28,12 +25,12 @@ class UserDepends:
         :param param:
         :return:
         """
-        user_models = await UserService.get_all_models(session=session)
+        list_user_models = await UserService.get_all_models(session=session)
 
-        if not user_models:
+        if not list_user_models:
             raise HTTPErrors.not_found
 
-        return user_models
+        return list_user_models
     
 
     @classmethod

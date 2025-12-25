@@ -12,7 +12,10 @@ from app.schemas import CartResponse
 from app.schemas import ProductAddOrUpdate
 
 
-router = APIRouter(prefix="/user/cart", tags=["User Cart"])
+router = APIRouter(
+    prefix="/user/cart",
+    tags=["My Cart"],
+)
 
 
 @router.get(

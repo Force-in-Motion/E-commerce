@@ -10,7 +10,10 @@ from app.api.depends.user import UserAuth, UserDepends
 from app.schemas import UserResponse, UserCreate, TokenResponse
 
 
-router = APIRouter(prefix="/user/auth", tags=["User"])
+router = APIRouter(
+    prefix="/user/auth",
+    tags=["Me"],
+)
 
 
 @router.post(
