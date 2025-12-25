@@ -82,7 +82,7 @@ async def get_user_by_login(
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_id(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """
@@ -192,7 +192,7 @@ async def clear_users(
     status_code=status.HTTP_200_OK,
 )
 async def delete_user(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> UserResponse:
     """

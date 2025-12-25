@@ -63,7 +63,7 @@ async def get_profiles_by_date(
     status_code=status.HTTP_200_OK,
 )
 async def get_profile_by_user_id(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
@@ -84,7 +84,7 @@ async def get_profile_by_user_id(
     status_code=status.HTTP_200_OK,
 )
 async def get_profile_by_id(
-    profile_id: Annotated[int, Path(..., description="Profile id")],
+    profile_id: Annotated[int, Path(..., description="Profile ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
@@ -106,7 +106,7 @@ async def get_profile_by_id(
 )
 async def register_profile(
     profile_scheme: ProfileCreate,
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
@@ -130,7 +130,7 @@ async def register_profile(
 )
 async def full_update_profile(
     profile_scheme: ProfileUpdate,
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
@@ -154,7 +154,7 @@ async def full_update_profile(
 )
 async def partial_update_profile(
     profile_scheme: ProfileUpdate,
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """
@@ -196,7 +196,7 @@ async def clear_profiles(
     status_code=status.HTTP_200_OK,
 )
 async def delete_profile(
-    user_id: Annotated[int, Path(..., description="User id")],
+    user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProfileResponse:
     """

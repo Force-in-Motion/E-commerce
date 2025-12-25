@@ -1,3 +1,4 @@
+from datetime import datetime
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -10,11 +11,51 @@ from app.tools import HTTPErrors
 class PostDepends:
 
     @classmethod
+    async def get_all_posts(
+        cls,
+        session: AsyncSession,
+    ) -> Optional[list[Post_model]]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        list_post_models = await PostService.get_all_models(session=session)
+
+        if not list_post_models:
+            raise HTTPErrors.not_found
+
+        return list_post_models
+
+    @classmethod
+    async def get_all_posts_by_date(
+        cls,
+        dates: datetime,
+        session: AsyncSession,
+    ) -> Optional[list[Post_model]]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        list_post_models = await PostService.get_all_models_by_date(
+            dates=dates,
+            session=session,
+        )
+
+        if not list_post_models:
+            raise HTTPErrors.not_found
+
+        return list_post_models
+
+    @classmethod
     async def get_all_user_posts(
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> list[Post_model]:
+    ) -> Optional[list[Post_model]]:
         """
 
         :param param:
@@ -55,11 +96,35 @@ class PostDepends:
 
         return post_model
 
+
+    @classmethod
+    async def get_post_by_id(
+        cls,
+        post_id: int,
+        session: AsyncSession,
+    ) -> Optional[Post_model]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        post_model = await PostService.get_model(
+            model_id=post_id,
+            session=session,
+        )
+
+        if not post_model:
+            raise HTTPErrors.not_found
+
+        return post_model
+    
+
     @classmethod
     async def create_user_post(
         cls,
         user_id: int,
-        post_in: PostCreate,
+        post_scheme: PostCreate,
         session: AsyncSession,
     ) -> Post_model:
         """
@@ -69,7 +134,7 @@ class PostDepends:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
         created_post_model = await PostService.register_model(
-            scheme_in=post_in,
+            scheme_in=post_scheme,
             session=session,
             user_id=user_id,
         )
@@ -84,7 +149,7 @@ class PostDepends:
         cls,
         user_id: int,
         post_id: int,
-        post_in: PostUpdate,
+        post_scheme: PostUpdate,
         session: AsyncSession,
         partial: bool = False,
     ) -> Post_model:
@@ -95,7 +160,7 @@ class PostDepends:
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
         updated_post_model = await PostService.update_model(
-            scheme_in=post_in,
+            scheme_in=post_scheme,
             session=session,
             user_id=user_id,
             model_id=post_id,
@@ -146,6 +211,25 @@ class PostDepends:
             user_id=user_id,
             session=session,
         )
+
+        if result != []:
+            raise HTTPErrors.db_error
+
+        return result
+    
+
+    @classmethod
+    async def clear_post(
+        cls,
+        session: AsyncSession,
+    ) -> list:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        result = await PostService.clear_table(session=session)
 
         if result != []:
             raise HTTPErrors.db_error

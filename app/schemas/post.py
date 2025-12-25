@@ -38,9 +38,9 @@ class PostResponse(PostCreate):
     а так же объект класса ConfigDict и его настройку from_attributes=True,
     которая позволяет pydantic автоматически получать данные из объектов SQLAlchemy,
     полученных из БД и формировать из них объекты UserOutput для возврата клиенту"""
-
     model_config = ConfigDict(from_attributes=True)
-    user_id: Annotated[int, Ge(1)]
+
     id: Annotated[int, Ge(1)]
+    user_id: Annotated[int, Ge(1)]
     created_at: datetime
     updated_at: datetime

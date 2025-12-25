@@ -1,15 +1,13 @@
 from datetime import datetime
 from typing import Annotated
 
-from fastapi import APIRouter, status, Depends
+from fastapi import APIRouter, status, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
 from app.api.depends.security import admin_guard
 from app.api.depends.product import ProductDepends
-from app.schemas.product import ProductUpdate
-from app.service.product import ProductService
-from app.schemas import ProductCreate, ProductResponse
+from app.schemas import ProductCreate, ProductResponse, ProductUpdate
 from app.tools import Inspector
 
 router = APIRouter(
@@ -62,7 +60,7 @@ async def get_products_by_date(
     status_code=status.HTTP_200_OK,
 )
 async def get_product_by_id(
-    product_id: int,
+    product_id: Annotated[int, Path(..., description="Product ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProductResponse:
     """
@@ -104,8 +102,8 @@ async def register_product(
     status_code=status.HTTP_200_OK,
 )
 async def update_product(
-    product_id: int,
     product_scheme: ProductUpdate,
+    product_id: Annotated[int, Path(..., description="Product ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProductResponse:
     """
@@ -128,8 +126,8 @@ async def update_product(
     status_code=status.HTTP_200_OK,
 )
 async def update_product_partial(
-    product_id: int,
     product_scheme: ProductUpdate,
+    product_id: Annotated[int, Path(..., description="Product ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProductResponse:
     """
@@ -169,7 +167,7 @@ async def clear_products(
     status_code=status.HTTP_200_OK,
 )
 async def delete_product(
-    product_id: int,
+    product_id: Annotated[int, Path(..., description="Product ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> ProductResponse:
     """
