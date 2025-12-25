@@ -107,7 +107,7 @@ class UserDepends:
         cls,
         user_scheme: UserCreate,
         session: AsyncSession,
-    ) -> UserResponse:
+    ) -> User_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
@@ -199,7 +199,7 @@ class UserDepends:
         user_scheme: UserUpdate,
         session: AsyncSession,
         partial: bool = False,
-    ) -> UserResponse:
+    ) -> User_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
@@ -223,7 +223,7 @@ class UserDepends:
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> UserResponse:
+    ) -> User_model:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя
@@ -244,7 +244,7 @@ class UserDepends:
     async def clear_users(
         cls,
         session: AsyncSession,
-    ) -> UserResponse:
+    ) -> list:
         """
         Обрабатывает запрос с fontend на добавление пользователя в БД
         :param user_in: Pydantic Схема - объект, содержащий данные пользователя

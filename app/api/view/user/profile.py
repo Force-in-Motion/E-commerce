@@ -13,7 +13,6 @@ from app.schemas.profile import ProfileCreate, ProfileUpdate
 router = APIRouter(prefix="/user/profile", tags=["User profile"])
 
 
-
 @router.get(
     "/",
     response_model=ProfileResponse,
@@ -64,7 +63,7 @@ async def create_my_profile(
 
     return await ProfileDepends.create_user_profile(
         user_id=user_model.id,
-        profile_in=profile_in,
+        profile_scheme=profile_in,
         session=session,
     )
 

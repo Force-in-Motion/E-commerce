@@ -5,15 +5,15 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi import APIRouter, status, Depends, Query, Path
 
 from app.core import db_connector
-from app.api.depends.security import oauth2_scheme
-from app.api.depends.user import UserAuth, UserDepends
+from app.api.depends.user import UserDepends
 from app.api.depends.inspect import Inspector
 from app.api.depends.security import admin_guard
 from app.schemas import UserResponse, UserCreate, UserUpdateForAdmin
 
 
 router = APIRouter(
-    prefix="/user/admin",
+    prefix="/admin/users",
+    tags=['Users'],
     dependencies=[admin_guard],
 )
 
