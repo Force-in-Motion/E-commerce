@@ -10,6 +10,7 @@ from app.api.depends.user import UserAuth
 from app.api.depends.order import OrderDepends
 from app.api.depends.security import oauth2_scheme
 from app.schemas import OrderResponse, OrderRequest, UserResponse
+from app.schemas.order import OrderCreate, OrderUpdate
 
 
 router = APIRouter(
@@ -77,7 +78,7 @@ async def get_my_order(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_my_order(
-    order_schema: OrderRequest,
+    order_schema: OrderCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
 ) -> OrderResponse:
@@ -105,7 +106,7 @@ async def create_my_order(
     status_code=status.HTTP_200_OK,
 )
 async def update_my_order_partial(
-    order_schema: OrderRequest,
+    order_schema: OrderUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     order_id: Annotated[int, Path(..., description="Order ID")],
     session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],

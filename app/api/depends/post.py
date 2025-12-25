@@ -154,7 +154,7 @@ class PostDepends:
         return deleted_post_model
 
     @classmethod
-    async def delete_all_post(
+    async def delete_all_user_post(
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,

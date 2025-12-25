@@ -226,7 +226,7 @@ async def delete_all_user_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostDepends.delete_all_post(
+    return await PostDepends.delete_all_user_post(
         user_id=user_id,
         session=session,
     )

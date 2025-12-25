@@ -1,6 +1,6 @@
 from typing import Optional
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.repositories import OrderRepo
 from app.repositories.cart import CartRepo
 from app.service import BaseService
@@ -11,7 +11,6 @@ from app.schemas import OrderRequest
 class OrderService(BaseService[OrderRepo]):
 
     repo: OrderRepo
-
 
     @classmethod
     async def get_all_orders(
@@ -30,10 +29,26 @@ class OrderService(BaseService[OrderRepo]):
                 user_id=user_id,
                 session=session,
             )
-            
+
         else:
             return await cls.repo.get_all_orders(session=session)
-        
+
+    @classmethod
+    async def get_orders_by_date(
+        cls,
+        dates: tuple[datetime, datetime],
+        session: AsyncSession,
+    ) -> Optional[list[Order_model]]:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        return await cls.repo.get_orders_by_date(
+            dates=dates,
+            session=session,
+        )
 
     @classmethod
     async def get_order(
@@ -61,7 +76,6 @@ class OrderService(BaseService[OrderRepo]):
                 session=session,
             )
 
-
     @classmethod
     async def create_order(
         cls,
@@ -87,7 +101,9 @@ class OrderService(BaseService[OrderRepo]):
 
             total_quantity = sum(cp.quantity for cp in cart_model.products)
 
-            total_price = sum(int(cp.current_price) * cp.quantity for cp in cart_model.products)
+            total_price = sum(
+                int(cp.current_price) * cp.quantity for cp in cart_model.products
+            )
 
             order_model = await cls.repo.create_order(
                 user_id=user_id,
@@ -114,10 +130,10 @@ class OrderService(BaseService[OrderRepo]):
     @classmethod
     async def update_order_partial(
         cls,
-        user_id: int,
         order_id: int,
-        order_schema: OrderRequest,
         session: AsyncSession,
+        order_schema: OrderRequest,
+        user_id: Optional[int] = None,
     ) -> Order_model:
         """
 
@@ -128,8 +144,8 @@ class OrderService(BaseService[OrderRepo]):
         """
         async with session.begin():
 
-            order_model = await cls.repo.get_by_user_and_model_id(
-                model_id=order_id,
+            order_model = await cls.get_order(
+                order_id=order_id,
                 user_id=user_id,
                 session=session,
             )

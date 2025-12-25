@@ -1,5 +1,5 @@
-# cart_depends.py
 from typing import Optional
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Order as Order_model
@@ -24,6 +24,29 @@ class OrderDepends:
         """
         list_order_model = await OrderService.get_all_orders(
             user_id=user_id,
+            session=session,
+        )
+
+        if not list_order_model:
+
+            raise HTTPErrors.not_found
+
+        return list_order_model
+
+    @classmethod
+    async def get_all_oreders_by_date(
+        cls,
+        session: AsyncSession,
+        dates: tuple[datetime, datetime],
+    ) -> Optional[list[Order_model]]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        list_order_model = await OrderService.get_orders_by_date(
+            dates=dates,
             session=session,
         )
 
@@ -113,7 +136,7 @@ class OrderDepends:
         order_id: int,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> OrderResponse:
+    ) -> Order_model:
         """
 
         :param param:
@@ -129,3 +152,45 @@ class OrderDepends:
             raise HTTPErrors.db_error
 
         return deleted_order_model
+    
+
+    classmethod
+    async def delete_all_user_orders(
+        cls,
+        session: AsyncSession,
+        user_id: Optional[int] = None,
+    ) -> list:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        result = await OrderService.delete_all_models(
+            user_id=user_id,
+            session=session,
+        )
+
+        if result != []:
+            raise HTTPErrors.db_error
+
+        return result
+    
+
+    @classmethod
+    async def clear_orders(
+        cls,
+        session: AsyncSession,
+    ) -> list:
+        """
+        Обрабатывает запрос с fontend на добавление пользователя в БД
+        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
+        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        """
+        result = await OrderService.clear_table(session=session)
+
+        if result != []:
+            raise HTTPErrors.db_error
+
+        return result

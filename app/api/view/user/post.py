@@ -208,7 +208,7 @@ async def delete_all_my_post(
         session=session,
     )
 
-    return await PostDepends.delete_all_post(
+    return await PostDepends.delete_all_user_post(
         user_id=user_model.id,
         session=session,
     )

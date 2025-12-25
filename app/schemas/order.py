@@ -19,7 +19,7 @@ class ProductInOrder(ProductResponse):
 
 
 
-class OrderRequest(BaseModel):
+class OrderCreate(BaseModel):
     """Класс описывающий объект, получаемый от пользователя,
     содержит аннотацию типов и ограничения ввода пользователем,
     не содержит id потому как id присваивается на уровне логики работы с БД
@@ -29,9 +29,13 @@ class OrderRequest(BaseModel):
 
     promo_code: Optional[Annotated[str, MinLen(10), MaxLen(10)]] = None
     comment: Optional[Annotated[str, MinLen(3), MaxLen(200)]] = None
+    
+
+class OrderUpdate(OrderCreate):
+    pass
 
 
-class OrderResponse(OrderRequest):
+class OrderResponse(OrderCreate):
     """Класс описывающий объект, возвращаемый пользователю, наследуется от UserInput
     для доступа ко всем полям UserInput, дополнительно содержит id
     поскольку в возвращаемом объекте он обязан быть,

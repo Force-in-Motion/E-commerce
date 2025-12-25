@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from sqlalchemy import select, selectinload
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -75,6 +76,39 @@ class OrderRepo(BaseRepo[Order_model]):
             raise DatabaseError(
                 f"Error when receiving {cls.model.__name__} list"
             ) from e
+
+
+    @classmethod
+    async def get_orders_by_date(
+        cls,
+        dates: tuple[datetime, datetime],
+        session: AsyncSession,
+    ) -> list[Order_model]:
+        """
+        Возвращает список всех моделей пользователей, добавленных за указанный интервал времени
+        :param dates:  кортеж, содержащий начало интервала времени и его окончание
+        :param session: Объект сессии, полученный в качестве аргумента
+        :return: список всех моделей пользователей, добавленных за указанный интервал времени
+        """
+        try:
+            stmt = (
+                select(cls.model)
+                .where(cls.model.created_at.between(*dates))
+                .options(
+                    selectinload(cls.model.products).selectinload(
+                        OrderProducts_model.product
+                    )
+                )
+                .order_by(cls.model.created_at.desc())
+            )
+            result = await session.execute(stmt)
+            return list(result.scalars().all())
+
+        except SQLAlchemyError as e:
+            raise DatabaseError(
+                f"Error when receiving list {cls.model.__name__}s by dates"
+            ) from e
+        
 
     @classmethod
     async def get_by_user_id_and_order_id(
