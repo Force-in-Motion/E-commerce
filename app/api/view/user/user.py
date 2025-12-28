@@ -22,7 +22,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def login_user(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> TokenResponse:
     """
@@ -51,7 +51,7 @@ async def login_user(
 )
 async def give_access(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> TokenResponse:
     """
 
@@ -77,7 +77,7 @@ async def give_access(
 )
 async def register_me(
     user_scheme: UserCreate,
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -100,7 +100,7 @@ async def register_me(
 async def full_update_me(
     user_scheme: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -129,7 +129,7 @@ async def full_update_me(
 async def partial_update_me(
     user_scheme: UserUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -158,7 +158,7 @@ async def partial_update_me(
 )
 async def delete_me(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД

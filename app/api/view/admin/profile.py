@@ -6,15 +6,16 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import db_connector
 from app.api.depends.security import admin_guard
 from app.api.depends.profile import ProfileDepends
+from app.api.depends.inspect import Inspector
 from app.schemas import ProfileResponse, ProfileCreate, ProfileUpdate
 from app.schemas.profile import ProfileCreate
-from app.tools import Inspector
+
 
 
 router = APIRouter(
     prefix="/admin/profiles",
     tags=["Profiles"],
-    dependencies=[admin_guard],
+    dependencies=[Depends(admin_guard)],
 )
 
 
@@ -24,7 +25,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_profiles(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[ProfileResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех профилей пользователей
@@ -41,7 +42,7 @@ async def get_all_profiles(
 )
 async def get_profiles_by_date(
     dates: Annotated[tuple[datetime, datetime], Depends(Inspector.date_checker)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[ProfileResponse]:
     """
     Возвращает всех добавленных в БД пользователей за указанный интервал времени
@@ -64,7 +65,7 @@ async def get_profiles_by_date(
 )
 async def get_profile_by_user_id(
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
@@ -85,7 +86,7 @@ async def get_profile_by_user_id(
 )
 async def get_profile_by_id(
     profile_id: Annotated[int, Path(..., description="Profile ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по его id
@@ -107,7 +108,7 @@ async def get_profile_by_id(
 async def register_profile(
     profile_scheme: ProfileCreate,
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на создание профиля пользователя в БД
@@ -131,7 +132,7 @@ async def register_profile(
 async def full_update_profile(
     profile_scheme: ProfileUpdate,
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных профиля конкретного пользователя
@@ -155,7 +156,7 @@ async def full_update_profile(
 async def partial_update_profile(
     profile_scheme: ProfileUpdate,
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных профиля конкретного пользователя
@@ -178,7 +179,7 @@ async def partial_update_profile(
     status_code=status.HTTP_200_OK,
 )
 async def clear_profiles(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех пользователей
@@ -197,7 +198,7 @@ async def clear_profiles(
 )
 async def delete_profile(
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного пользователя

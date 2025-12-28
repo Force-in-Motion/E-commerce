@@ -11,7 +11,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 
 async def admin_guard(
     token: str = Depends(oauth2_scheme),
-    session: AsyncSession = Depends(db_connector.session_dependency),
+    session: AsyncSession = Depends(db_connector.get_session),
 ):
     user = await UserAuth.get_current_user_by_access(token, session)
 

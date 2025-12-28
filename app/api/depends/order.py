@@ -3,7 +3,7 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Order as Order_model
-from app.schemas import OrderResponse, OrderRequest
+from app.schemas import OrderCreate, OrderUpdate
 from app.service.order import OrderService
 from app.tools import HTTPErrors
 
@@ -85,7 +85,7 @@ class OrderDepends:
         cls,
         user_id: int,
         session: AsyncSession,
-        order_schema: OrderRequest,
+        order_schema: OrderCreate,
     ) -> Order_model:
         """
 
@@ -109,7 +109,7 @@ class OrderDepends:
         cls,
         order_id: int,
         session: AsyncSession,
-        order_schema: OrderRequest,
+        order_schema: OrderUpdate,
         user_id: Optional[int] = None,
     ) -> Order_model:
         """

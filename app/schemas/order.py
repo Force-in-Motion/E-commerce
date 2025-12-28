@@ -3,7 +3,7 @@ from typing import Optional, Annotated
 
 from annotated_types import MinLen, MaxLen, Ge
 from pydantic import BaseModel, ConfigDict
-from app.schemas import ProductResponse
+from app.schemas.product import ProductResponse
 
 
 

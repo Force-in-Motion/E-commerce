@@ -1,6 +1,7 @@
 from typing import Optional
 from datetime import datetime
-from sqlalchemy import select, selectinload
+from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 

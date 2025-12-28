@@ -21,7 +21,7 @@ class AuthUtils:
     def check_password(
         cls,
         password: str,
-        hash_password,
+        hashed_password,
     ) -> bool:
         """
         Сравнивает полученный пароль пользователя с захешированным его паролем из БД
@@ -31,7 +31,7 @@ class AuthUtils:
         """
         return bcrypt.checkpw(
             password=password.encode(),
-            hashed_password=hash_password,
+            hashed_password=hashed_password,
         )
 
     @classmethod

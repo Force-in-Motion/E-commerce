@@ -23,7 +23,7 @@ router = APIRouter(
 )
 async def get_my_profile(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
@@ -50,7 +50,7 @@ async def get_my_profile(
 async def create_my_profile(
     profile_in: ProfileCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на создание профиля пользователя в БД
@@ -79,7 +79,7 @@ async def create_my_profile(
 async def full_update_my_profile(
     profile_in: ProfileUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных профиля конкретного пользователя
@@ -108,7 +108,7 @@ async def full_update_my_profile(
 async def partial_update_my_profile(
     profile_in: ProfileUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных профиля конкретного пользователя
@@ -137,7 +137,7 @@ async def partial_update_my_profile(
 )
 async def delete_my_profile(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного пользователя

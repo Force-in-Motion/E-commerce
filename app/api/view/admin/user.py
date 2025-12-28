@@ -14,7 +14,7 @@ from app.schemas import UserResponse, UserCreate, UserUpdateForAdmin
 router = APIRouter(
     prefix="/admin/users",
     tags=["Users"],
-    dependencies=[admin_guard],
+    dependencies=[Depends(admin_guard)],
 )
 
 
@@ -24,7 +24,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_users(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[UserResponse]:
     """
     Обрабатывает запрос с fontend на получение списка всех пользователей
@@ -40,7 +40,7 @@ async def get_all_users(
     status_code=status.HTTP_200_OK,
 )
 async def get_users_by_date(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
     dates: Annotated[tuple[datetime, datetime], Depends(Inspector.date_checker)],
 ) -> list[UserResponse]:
     """
@@ -62,7 +62,7 @@ async def get_users_by_date(
 )
 async def get_user_by_login(
     login: Annotated[EmailStr, Query(..., description="User login")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его имени
@@ -83,7 +83,7 @@ async def get_user_by_login(
 )
 async def get_user_by_id(
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на получение пользователя по его id
@@ -104,7 +104,7 @@ async def get_user_by_id(
 )
 async def register_user(
     user_scheme: UserCreate,
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
@@ -127,7 +127,7 @@ async def register_user(
 async def full_update_user(
     user_scheme: UserUpdateForAdmin,
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -143,8 +143,6 @@ async def full_update_user(
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае словарь
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
     "/{user_id}",
     response_model=UserResponse,
@@ -153,7 +151,7 @@ async def full_update_user(
 async def partial_update_user(
     user_scheme: UserUpdateForAdmin,
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
@@ -176,7 +174,7 @@ async def partial_update_user(
     status_code=status.HTTP_200_OK,
 )
 async def clear_users(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
     Обрабатывает запрос с fontend на полную очистку таблицы пользователей
@@ -193,7 +191,7 @@ async def clear_users(
 )
 async def delete_user(
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД

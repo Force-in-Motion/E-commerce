@@ -7,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.interface import ARepo
 from app.tools.exeptions import DatabaseError
-from app.tools.types import DBModel, PDScheme
+from app.tools.types import DBModel
 
 
 # DBModel - будет подставляться конкретная ORM модель, наследуемая от Base напрямую или через других предков
@@ -104,7 +104,7 @@ class BaseRepo(Generic[DBModel], ARepo):
             stmt = select(cls.model).where(cls.model.user_id == user_id)
             result = await session.execute(stmt)
 
-            return result.scalars().scalar_one_or_none()
+            return result.scalars().one_or_none()
 
         except SQLAlchemyError as e:
             raise DatabaseError(
@@ -125,7 +125,7 @@ class BaseRepo(Generic[DBModel], ARepo):
             )
 
             result = await session.execute(stmt)
-            return result.scalar_one_or_none()
+            return result.one_or_none()
 
         except SQLAlchemyError as e:
             raise DatabaseError(

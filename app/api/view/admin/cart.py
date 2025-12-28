@@ -3,15 +3,21 @@ from datetime import datetime
 from fastapi import APIRouter, status, Path
 from fastapi.params import Depends
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.annotation import Annotated
+from typing import Annotated
 
 from app.core import db_connector
-from app.service.cart import CartService
+from app.api.depends.security import admin_guard
+from app.api.depends.cart import CartDepends
+from app.api.depends.inspect import Inspector
 from app.schemas import ProductAddOrUpdate
 from app.schemas.cart import CartResponse
-from app.tools import Inspector
 
-router = APIRouter()
+
+router = APIRouter(
+    prefix="/admin/carts",
+    tags=["Cart"],
+    dependencies=[Depends(admin_guard)],
+)
 
 
 @router.get(
@@ -20,14 +26,14 @@ router = APIRouter()
     status_code=status.HTTP_200_OK,
 )
 async def get_all_carts(
-    session: AsyncSession = Depends(db_connector.get_session),
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[CartResponse]:
     """
 
     :param session:
     :return:
     """
-    return await CartService.get_all_models(session=session)
+    return await CartDepends.get_all_cart(session=session)
 
 
 @router.get(
@@ -45,83 +51,20 @@ async def get_carts_by_date(
     :param session:
     :return:
     """
-    return await CartService.get_all_models_by_date(
+    return await CartDepends.get_all_cart_by_date(
         dates=dates,
         session=session,
     )
 
 
 @router.get(
-    "/count/{user_id}",
-    response_model=dict,
-    status_code=status.HTTP_200_OK,
-)
-async def get_count_products(
-    user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> dict[str, int]:
-    """
-
-    :param user_id:
-    :param session:
-    :return:
-    """
-    return await CartService.get_count_products_in_cart(
-        user_id=user_id,
-        session=session,
-    )
-
-
-@router.get(
-    "/sum/{user_id}",
-    response_model=dict,
-    status_code=status.HTTP_200_OK,
-)
-async def get_total_sum(
-    user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> dict[str, int]:
-    """
-
-    :param user_id:
-    :param session:
-    :return:
-    """
-    await CartService.get_total_sum_cart(
-        user_id=user_id,
-        session=session,
-    )
-
-
-@router.get(
-    "/{cart_id}",
-    response_model=CartResponse,
-    status_code=status.HTTP_200_OK,
-)
-async def get_cart_by_id(
-    cart_id: Annotated[int, Path(..., description="Cart id")],
-    session: AsyncSession = Depends(db_connector.get_session),
-) -> CartResponse:
-    """
-
-    :param cart_id:
-    :param session:
-    :return:
-    """
-    return await CartService.get_model_by_id(
-        model_id=cart_id,
-        session=session,
-    )
-
-
-@router.get(
-    "/{user_id}",
+    "/user/{user_id}",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_cart_by_user_id(
-    user_id: Annotated[int, Path(..., description="User id")],
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -129,21 +72,21 @@ async def get_cart_by_user_id(
     :param session:
     :return:
     """
-    return await CartService.get_cart_by_user_id(
+    return await CartDepends.get_cart(
         user_id=user_id,
         session=session,
     )
 
 
 @router.post(
-    "/{user_id}",
+    "/user/{user_id}",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def add_product(
-    user_id: Annotated[int, Path(..., description="User id")],
     product_add: ProductAddOrUpdate,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -152,22 +95,22 @@ async def add_product(
     :param session:
     :return:
     """
-    return await CartService.add_or_update_product_in_cart(
+    return await CartDepends.add_or_update_product_in_cart(
         user_id=user_id,
-        product_add=product_add,
         session=session,
+        product_add=product_add,
     )
 
 
 @router.patch(
-    "/{user_id}",
+    "/user/{user_id}",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def update_count_product(
-    user_id: int,
     product_upd: ProductAddOrUpdate,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -176,7 +119,7 @@ async def update_count_product(
     :param session:
     :return:
     """
-    return CartService.add_or_update_product_in_cart(
+    return CartDepends.add_or_update_product_in_cart(
         user_id=user_id,
         product_add=product_upd,
         session=session,
@@ -184,14 +127,14 @@ async def update_count_product(
 
 
 @router.delete(
-    "/{user_id}",
+    "/user/{user_id}",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_product(
-    user_id: int,
-    product_id: int,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_id: Annotated[int, Path(..., description="User ID")],
+    product_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -200,7 +143,7 @@ async def delete_product(
     :param session:
     :return:
     """
-    return await CartService.del_product_from_cart(
+    return await CartDepends.del_product_from_cart(
         user_id=user_id,
         product_id=product_id,
         session=session,
@@ -208,13 +151,13 @@ async def delete_product(
 
 
 @router.delete(
-    "/{user_id}",
+    "/user/{user_id}/clear",
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_user_cart(
-    user_id: int,
-    session: AsyncSession = Depends(db_connector.get_session),
+    user_id: Annotated[int, Path(..., description="User ID")],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
 
@@ -222,7 +165,7 @@ async def clear_user_cart(
     :param session:
     :return:
     """
-    return await CartService.clear_cart_by_user_id(
+    return await CartDepends.clear_user_cart(
         user_id=user_id,
         session=session,
     )

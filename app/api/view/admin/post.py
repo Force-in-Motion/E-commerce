@@ -6,13 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import db_connector
 from app.api.depends.post import PostDepends
 from app.api.depends.security import admin_guard
+from app.api.depends.inspect import Inspector 
 from app.schemas import PostCreate, PostUpdate, PostResponse
-from app.tools import Inspector
+
 
 router = APIRouter(
     prefix="/admin/posts",
     tags=["Posts"],
-    dependencies=[admin_guard],
+    dependencies=[Depends(admin_guard)],
 )
 
 
@@ -22,7 +23,7 @@ router = APIRouter(
     status_code=status.HTTP_200_OK,
 )
 async def get_all_posts(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей
@@ -39,7 +40,7 @@ async def get_all_posts(
 )
 async def get_posts_by_date(
     dates: Annotated[tuple[datetime, datetime], Depends(Inspector.date_checker)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
@@ -60,7 +61,7 @@ async def get_posts_by_date(
 )
 async def get_post_by_id(
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
      Обрабатывает запрос с фронт энда на получение конкретного поста по его id
@@ -81,7 +82,7 @@ async def get_post_by_id(
 )
 async def get_posts_by_user_id(
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
@@ -103,7 +104,7 @@ async def get_posts_by_user_id(
 async def register_post(
     post_scheme: PostCreate,
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
@@ -127,7 +128,7 @@ async def register_post(
 async def full_update_post(
     post_scheme: PostUpdate,
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
@@ -143,8 +144,6 @@ async def full_update_post(
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.patch(
     "/{post_id}/user/{user_id}",
     response_model=PostResponse,
@@ -153,7 +152,7 @@ async def full_update_post(
 async def update_post_partial(
     post_scheme: PostUpdate,
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
@@ -170,15 +169,13 @@ async def update_post_partial(
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.delete(
     "/clear",
     response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_all_posts(
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех постов пользователей из БД
@@ -188,8 +185,7 @@ async def clear_all_posts(
     return await PostDepends.clear_post(session=session)
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов UserOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
+
 @router.delete(
     "/{post_id}/user/{user_id}",
     response_model=PostResponse,
@@ -197,7 +193,7 @@ async def clear_all_posts(
 )
 async def delete_post(
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
@@ -218,7 +214,7 @@ async def delete_post(
 )
 async def delete_all_user_posts(
     user_id: Annotated[int, Path(..., description="User ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД

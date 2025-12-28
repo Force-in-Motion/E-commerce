@@ -97,7 +97,7 @@ class JWTUtils:
         :return: access_token
         """
         return cls.create_jwt(
-            user_model==user_model,
+            user_model=user_model,
             token_type=jwt_settings.access_name,
             expire_minuts=jwt_settings.access_token_expire,
         )

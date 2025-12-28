@@ -1,7 +1,7 @@
 from app.repositories.cart import CartRepo
 from app.schemas.cart import CartResponse
 from app.service import BaseService
-
+from datetime import datetime
 from typing import Optional
 
 
@@ -19,12 +19,67 @@ class CartService(BaseService[CartRepo]):
 
     repo = CartRepo
 
-    classmethod
+    @classmethod
+    def calculate_cart(
+        cls,
+        cart_model: Cart_model,
+    ) -> CartResponse:
+        """ "
 
+        :param user_id:
+        :param session:
+        :return:
+        """
+        schema = CartResponse.model_validate(cart_model)
+        schema.total_price = sum(cp.current_price * cp.quantity for cp in cart_model.products)
+        schema.total_quantity = sum(cp.quantity for cp in cart_model.products)
+
+        return schema
+
+    @classmethod
+    async def get_all_carts(
+        cls,
+        session: AsyncSession,
+        dates: tuple[datetime, datetime] = None,
+    ) -> list[CartResponse]:
+        """ "
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        cart_models = await cls.repo.get_all_carts(
+            dates=dates,
+            session=session,
+        )
+
+        return [cls.calculate_cart(cart) for cart in cart_models]
+
+    @classmethod
+    async def get_all_carts_by_date(
+        cls,
+        session: AsyncSession,
+        dates: tuple[datetime, datetime] = None,
+    ) -> list[CartResponse]:
+        """
+
+        :param user_id:
+        :param session:
+        :return:
+        """
+        cart_models = await cls.repo.get_all_carts_by_date(
+            dates=dates,
+            session=session,
+        )
+
+        return [cls.calculate_cart(cart) for cart in cart_models]
+
+
+    @classmethod
     async def get_cart(
         cls,
-        user_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
     ) -> Optional[CartResponse]:
         """
 
@@ -32,20 +87,16 @@ class CartService(BaseService[CartRepo]):
         :param session:
         :return:
         """
-        cart_model = await cls.repo.get_by_user_id(user_id, session)
 
-        if cart_model:
-            total_quantity = sum(cp.quantity for cp in cart_model.products)
-            total_price = sum(
-                int(cp.current_price) * cp.quantity for cp in cart_model.products
-            )
+        cart_model = await cls.repo.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
 
-            cart_schema = CartResponse.model_validate(cart_model)
-
-            cart_schema.total_price = total_price
-            cart_schema.total_quantity = total_quantity
-
-            return cart_schema
+        if not cart_model:
+            return None
+        
+        return cls.calculate_cart(cart_model=cart_model)
 
     @classmethod
     async def get_or_create_cart(
@@ -61,19 +112,19 @@ class CartService(BaseService[CartRepo]):
         """
         async with session.begin():
 
-            cart_schema = await cls.get_cart(
+            cart_scheme = await cls.get_cart(
                 user_id=user_id,
                 session=session,
             )
 
-            if not cart_schema:
+            if not cart_scheme:
                 cart_model = await cls.repo.create_cart(
                     user_id=user_id,
                     session=session,
                 )
                 return CartResponse.model_validate(cart_model)
 
-            return cart_schema
+            return cart_scheme
 
     @classmethod
     async def add_or_update_product_in_cart(

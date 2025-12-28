@@ -2,7 +2,7 @@ from fastapi import APIRouter, status, Path
 from fastapi.params import Depends
 
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.annotation import Annotated
+from typing import Annotated
 
 from app.core import db_connector
 from app.api.depends.user import UserAuth
@@ -25,7 +25,7 @@ router = APIRouter(
 )
 async def get_my_cart(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -50,9 +50,9 @@ async def get_my_cart(
     status_code=status.HTTP_200_OK,
 )
 async def add_product(
-    product_add: ProductAddOrUpdate,
+    product_add_schema: ProductAddOrUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -68,7 +68,7 @@ async def add_product(
 
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_model.id,
-        product_add=product_add,
+        product_add=product_add_schema,
         session=session,
     )
 
@@ -79,9 +79,9 @@ async def add_product(
     status_code=status.HTTP_200_OK,
 )
 async def update_count_product(
-    product_upd: ProductAddOrUpdate,
+    product_upd_schema: ProductAddOrUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -97,7 +97,7 @@ async def update_count_product(
 
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_model.id,
-        product_add=product_upd,
+        product_add=product_upd_schema,
         session=session,
     )
 
@@ -110,7 +110,7 @@ async def update_count_product(
 async def delete_product(
     token: Annotated[str, Depends(oauth2_scheme)],
     product_id: Annotated[int, Path(..., description="Product ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
 
@@ -138,7 +138,7 @@ async def delete_product(
 )
 async def clear_my_cart(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
 
@@ -151,7 +151,7 @@ async def clear_my_cart(
         session=session,
     )
 
-    return await CartDepends.clear_cart_by_user_id(
+    return await CartDepends.clear_user_cart(
         user_id=user_model.id,
         session=session,
     )

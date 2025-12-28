@@ -41,7 +41,7 @@ class UserRepo(BaseRepo[User_model]):
     @classmethod
     async def create(
         cls,
-        scheme_in: UserCreate,
+        user_model: User_model,
         session: AsyncSession,
     ) -> User_model:
         """
@@ -53,12 +53,12 @@ class UserRepo(BaseRepo[User_model]):
         try:
 
             user = cls.model(
-                login=scheme_in.login,
-                password=AuthUtils.hash_password(scheme_in.password.get_secret_value()),
+                login=user_model.login,
+                password=AuthUtils.hash_password(user_model.password.get_secret_value()),
             )
 
             session.add(user)
-            await session.commit()
+            await session.flush()
             await session.refresh(user)
             return user
 

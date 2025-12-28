@@ -22,7 +22,7 @@ router = APIRouter(
 )
 async def get_all_my_posts(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей
@@ -48,7 +48,7 @@ async def get_all_my_posts(
 async def get_my_post(
     token: Annotated[str, Depends(oauth2_scheme)],
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
@@ -76,7 +76,7 @@ async def get_my_post(
 async def register_my_post(
     post_scheme: PostCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
@@ -106,7 +106,7 @@ async def full_update_my_post(
     post_scheme: PostUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
@@ -137,7 +137,7 @@ async def partial_update_my_post(
     post_scheme: PostUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
@@ -168,7 +168,7 @@ async def partial_update_my_post(
 async def delete_my_post(
     token: Annotated[str, Depends(oauth2_scheme)],
     post_id: Annotated[int, Path(..., description="Post ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
@@ -195,7 +195,7 @@ async def delete_my_post(
 )
 async def delete_all_my_post(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД

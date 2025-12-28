@@ -5,7 +5,7 @@ from app.repositories import OrderRepo
 from app.repositories.cart import CartRepo
 from app.service import BaseService
 from app.models import Order as Order_model
-from app.schemas import OrderRequest
+from app.schemas import OrderCreate, OrderUpdate
 
 
 class OrderService(BaseService[OrderRepo]):
@@ -80,7 +80,7 @@ class OrderService(BaseService[OrderRepo]):
     async def create_order(
         cls,
         user_id: int,
-        order_schema: OrderRequest,
+        order_schema: OrderCreate,
         session: AsyncSession,
     ) -> Optional[Order_model]:
         """
@@ -132,7 +132,7 @@ class OrderService(BaseService[OrderRepo]):
         cls,
         order_id: int,
         session: AsyncSession,
-        order_schema: OrderRequest,
+        order_schema: OrderUpdate,
         user_id: Optional[int] = None,
     ) -> Order_model:
         """

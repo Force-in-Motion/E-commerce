@@ -109,15 +109,15 @@ class UserDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        created_user_model = await UserService.register_model(
+        user_model = await UserService.register_model(
             scheme_in=user_scheme,
             session=session,
         )
 
-        if not created_user_model:
+        if not user_model:
             raise HTTPErrors.db_error
 
-        return created_user_model
+        return user_model
 
     @classmethod
     async def get_refresh(
@@ -155,7 +155,7 @@ class UserDepends:
         refresh_schema = RefreshCreate(token=refresh)
 
         refresh_model = await TokenService.register_model(
-            scheme_in=refresh,
+            scheme_in=refresh_schema,
             user_id=user_id,
             session=session,
         )
@@ -201,17 +201,17 @@ class UserDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        updated_user_model = await UserService.update_model(
+        user_model = await UserService.update_model(
             model_id=user_id,
             scheme_in=user_scheme,
             session=session,
             partial=partial,
         )
 
-        if not updated_user_model:
+        if not user_model:
             raise HTTPErrors.db_error
 
-        return updated_user_model
+        return user_model
 
     @classmethod
     async def delete_user(
@@ -225,15 +225,15 @@ class UserDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        deleted_user_model = await UserService.delete_model(
+        user_model = await UserService.delete_model(
             model_id=user_id,
             session=session,
         )
 
-        if not deleted_user_model:
+        if not user_model:
             raise HTTPErrors.db_error
 
-        return deleted_user_model
+        return user_model
 
     @classmethod
     async def clear_users(

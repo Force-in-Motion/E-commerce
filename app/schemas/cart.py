@@ -1,8 +1,8 @@
+from typing import Annotated
 from datetime import datetime
+from annotated_types import Ge
 from pydantic import BaseModel, ConfigDict
-from sqlalchemy.sql.annotation import Annotated
-from annotated_types import MaxLen, MinLen, Ge
-from app.schemas import ProductResponse
+from app.schemas.product import ProductResponse
 
 
 class ProductAddOrUpdate(BaseModel):

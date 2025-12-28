@@ -1,4 +1,5 @@
 from typing import Optional
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas import ProductAddOrUpdate
@@ -10,7 +11,47 @@ from app.tools import HTTPErrors
 class CartDepends:
 
     @classmethod
-    async def get_user_cart(
+    async def get_all_cart(
+        cls,
+        session: AsyncSession,
+    ) -> list[CartResponse]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        cart_schemes = await CartService.get_all_carts(session=session)
+
+        if not cart_schemes:
+            raise HTTPErrors.db_error
+
+        return cart_schemes
+
+    @classmethod
+    async def get_all_cart_by_date(
+        cls,
+        session: AsyncSession,
+        dates: tuple[datetime, datetime] = None,
+    ) -> list[CartResponse]:
+        """
+
+        :param param:
+        :param param:
+        :return:
+        """
+        cart_schemes = await CartService.get_all_carts_by_date(
+            dates=dates,
+            session=session,
+        )
+
+        if not cart_schemes:
+            raise HTTPErrors.db_error
+
+        return cart_schemes
+
+    @classmethod
+    async def get_cart(
         cls,
         user_id: int,
         session: AsyncSession,
@@ -21,16 +62,16 @@ class CartDepends:
         :param param:
         :return:
         """
-        cart_response = await CartService.get_or_create_cart(
+        cart_scheme = await CartService.get_or_create_cart(
             user_id=user_id,
             session=session,
         )
 
-        if not cart_response:
+        if not cart_scheme:
 
             raise HTTPErrors.db_error
 
-        return cart_response
+        return cart_scheme
 
     @classmethod
     async def add_or_update_product_in_cart(
@@ -45,16 +86,16 @@ class CartDepends:
         :param param:
         :return:
         """
-        cart_response = await CartService.add_or_update_product_in_cart(
+        cart_scheme = await CartService.add_or_update_product_in_cart(
             user_id=user_id,
-            product_scheme=product_add,
             session=session,
+            product_scheme=product_add,
         )
 
-        if not cart_response:
+        if not cart_scheme:
             raise HTTPErrors.db_error
 
-        return cart_response
+        return cart_scheme
 
     @classmethod
     async def del_product_from_cart(
@@ -69,19 +110,19 @@ class CartDepends:
         :param param:
         :return:
         """
-        cart_response = await CartService.del_product_from_cart(
+        cart_scheme = await CartService.del_product_from_cart(
             user_id=user_id,
             product_id=product_id,
             session=session,
         )
 
-        if not cart_response:
+        if not cart_scheme:
             raise HTTPErrors.db_error
 
-        return cart_response
+        return cart_scheme
 
     @classmethod
-    async def clear_cart_by_user_id(
+    async def clear_user_cart(
         cls,
         user_id: int,
         session: AsyncSession,

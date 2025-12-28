@@ -57,7 +57,6 @@ class BaseService(Generic[Repo], AService):
         if user_id is not None:
             return await cls.repo.get_by_user_id(user_id=user_id, session=session)
 
-
     @classmethod
     async def get_all_models_by_date(
         cls,
@@ -88,17 +87,16 @@ class BaseService(Generic[Repo], AService):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, добавленную в БД
         """
-        async with session.begin():
 
-            data = scheme_in.model_dump()
+        data = scheme_in.model_dump()
 
-            if user_id:
-                data["user_id"] = user_id
+        if user_id:
+            data["user_id"] = user_id
 
-            return await cls.repo.create(
-                model=cls.repo.model(**data),
-                session=session,
-            )
+        return await cls.repo.create(
+            model=cls.repo.model(**data),
+            session=session,
+        )
 
     @classmethod
     async def update_model(
@@ -117,27 +115,25 @@ class BaseService(Generic[Repo], AService):
         :param partial: Флаг, передаваем значение True или False,
         :return: Модель пользователя, обновленную в БД
         """
-        async with session.begin():
+        new_data = scheme_in.model_dump(
+            exclude_unset=partial,
+            exclude_none=True,
+        )
 
-            new_data = scheme_in.model_dump(
-                exclude_unset=partial,
-                exclude_none=True,
-            )
+        model = await cls.get_model(
+            session=session,
+            user_id=user_id,
+            model_id=model_id,
+        )
 
-            model = await cls.get_model(
-                session=session,
-                user_id=user_id,
-                model_id=model_id,
-            )
+        if not model:
+            return None
 
-            if not model:
-                return None
-
-            return await cls.repo.update(
-                new_data=new_data,
-                update_model=model,
-                session=session,
-            )
+        return await cls.repo.update(
+            new_data=new_data,
+            update_model=model,
+            session=session,
+        )
 
     @classmethod
     async def delete_model(
@@ -152,21 +148,19 @@ class BaseService(Generic[Repo], AService):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, удаленную из БД
         """
-        async with session.begin():
+        model = await cls.get_model(
+            session=session,
+            user_id=user_id,
+            model_id=model_id,
+        )
 
-            model = await cls.get_model(
-                session=session,
-                user_id=user_id,
-                model_id=model_id,
-            )
+        if not model:
+            return None
 
-            if not model:
-                return None
-
-            return await cls.repo.delete(
-                del_model=model,
-                session=session,
-            )
+        return await cls.repo.delete(
+            del_model=model,
+            session=session,
+        )
 
     @classmethod
     async def delete_all_models(
@@ -180,20 +174,18 @@ class BaseService(Generic[Repo], AService):
         :param session: Объект сессии, полученный в качестве аргумента
         :return: Модель пользователя, удаленную из БД
         """
-        async with session.begin():
+        list_models = await cls.get_all_models(
+            session=session,
+            user_id=user_id,
+        )
 
-            list_models = await cls.get_all_models(
-                session=session,
-                user_id=user_id,
-            )
+        if not list_models:
+            return None
 
-            if not list_models:
-                return None
-
-            return await cls.repo.delete_all(
-                list_models=list_models,
-                session=session,
-            )
+        return await cls.repo.delete_all(
+            list_models=list_models,
+            session=session,
+        )
 
     @classmethod
     async def clear_table(

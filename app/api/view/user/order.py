@@ -9,7 +9,7 @@ from app.core import db_connector
 from app.api.depends.user import UserAuth
 from app.api.depends.order import OrderDepends
 from app.api.depends.security import oauth2_scheme
-from app.schemas import OrderResponse, OrderRequest, UserResponse
+from app.schemas import OrderResponse
 from app.schemas.order import OrderCreate, OrderUpdate
 
 
@@ -26,7 +26,7 @@ router = APIRouter(
 )
 async def get_all_my_orders(
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[OrderResponse]:
     """
 
@@ -52,7 +52,7 @@ async def get_all_my_orders(
 async def get_my_order(
     token: Annotated[str, Depends(oauth2_scheme)],
     order_id: Annotated[int, Path(..., description="Order ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[OrderResponse]:
     """
 
@@ -80,7 +80,7 @@ async def get_my_order(
 async def create_my_order(
     order_schema: OrderCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
 
@@ -109,7 +109,7 @@ async def update_my_order_partial(
     order_schema: OrderUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     order_id: Annotated[int, Path(..., description="Order ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
 
@@ -138,7 +138,7 @@ async def update_my_order_partial(
 async def delete_my_order(
     token: Annotated[str, Depends(oauth2_scheme)],
     order_id: Annotated[int, Path(..., description="Order ID")],
-    session: Annotated[AsyncSession, Depends(db_connector.session_dependency)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
 
