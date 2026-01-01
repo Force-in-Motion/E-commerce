@@ -1,19 +1,20 @@
 import bcrypt
+from pydantic import SecretStr
 from app.models.user import User as User_model
-from app.tools import HTTPErrors
+
 
 
 class AuthUtils:
 
     @classmethod
-    def hash_password(cls, password: str) -> bytes:
+    def hash_password(cls, password: SecretStr) -> bytes:
         """
         Хэширует полученный пароль
         :param password: Пароль в виде строки
         :return: Пароль в байтах
         """
         return bcrypt.hashpw(
-            password=password.encode(),
+            password=password.get_secret_value().encode(),
             salt=bcrypt.gensalt(),
         )
 

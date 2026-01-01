@@ -66,7 +66,7 @@ class UserDepends:
         :return:
         """
         user_model = await UserService.get_model(
-            user_id=user_id,
+            model_id=user_id,
             session=session,
         )
 
@@ -109,6 +109,8 @@ class UserDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
+        user_scheme.password = AuthUtils.hash_password(user_scheme.password)
+
         user_model = await UserService.register_model(
             scheme_in=user_scheme,
             session=session,
@@ -201,6 +203,9 @@ class UserDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
+        if user_scheme.password is not None:
+            user_scheme.password = AuthUtils.hash_password(user_scheme.password)
+
         user_model = await UserService.update_model(
             model_id=user_id,
             scheme_in=user_scheme,
@@ -368,11 +373,12 @@ class UserAuth:
         """
         payload = JWTUtils.decode_jwt(token)
 
-        AuthUtils.check_token_type(
+        if not AuthUtils.check_token_type(
             payload=payload,
             token_type=jwt_settings.access_name,
-        )
-
+        ):
+            raise HTTPErrors.token_invalid
+    
         user_id = int(payload.get("sub"))
 
         user_model = await UserDepends.get_user(
@@ -397,11 +403,12 @@ class UserAuth:
         """
         payload = JWTUtils.decode_jwt(token)
 
-        AuthUtils.check_token_type(
+        if not AuthUtils.check_token_type(
             payload=payload,
             token_type=jwt_settings.refresh_name,
-        )
-
+        ):
+            raise HTTPErrors.token_invalid
+        
         user_id = int(payload.get("sub"))
 
         refresh_model = await UserDepends.get_refresh(

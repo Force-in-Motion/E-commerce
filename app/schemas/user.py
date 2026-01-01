@@ -14,9 +14,9 @@ class UserCreate(BaseModel):
     этот класс не требует настройки ConfigDict, т.к. его задача это валидация данных,
     полученных от пользователя"""
 
-    login: EmailStr
-    password: SecretStr
-
+    login: Annotated[EmailStr, MinLen(5), MaxLen(30)]
+    password: Annotated[SecretStr, MinLen(7), MaxLen(120)]
+EmailStr
 
 class UserUpdate(BaseModel):
     """Класс описывающий объект, получаемый от пользователя, для изменения логина или пароля

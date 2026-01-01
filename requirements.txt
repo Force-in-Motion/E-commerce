@@ -17,21 +17,6 @@ cryptography==46.0.3
 dnspython==2.8.0
 email-validator==2.3.0
 exceptiongroup==1.3.1
-        :param product_in:
-        :param cart_in:
-        :param session:
-        :return:
-        """
-        try:
-            assoc = Cart_Product_model(
-                cart_id=cart_model.id,
-                product_id=product_model.id,
-                quantity=quantity,
-                current_price=product_model.price,
-            )
-
-            session.add(assoc)
-            await session.commit()
 fastapi==0.128.0
 flower==2.0.1
 greenlet==3.3.0
