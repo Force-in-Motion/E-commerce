@@ -48,7 +48,7 @@ async def get_my_profile(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_my_profile(
-    profile_in: ProfileCreate,
+    profile_scheme: ProfileCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
@@ -64,9 +64,9 @@ async def create_my_profile(
         session=session,
     )
 
-    return await ProfileDepends.create_user_profile(
+    return await ProfileDepends.create_profile(
         user_id=user_model.id,
-        profile_scheme=profile_in,
+        profile_scheme=profile_scheme,
         session=session,
     )
 
@@ -77,7 +77,7 @@ async def create_my_profile(
     status_code=status.HTTP_200_OK,
 )
 async def full_update_my_profile(
-    profile_in: ProfileUpdate,
+    profile_scheme: ProfileUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
@@ -93,9 +93,9 @@ async def full_update_my_profile(
         session=session,
     )
 
-    return await ProfileDepends.update_user_profile(
+    return await ProfileDepends.update_profile(
         user_id=user_model.id,
-        profile_in=profile_in,
+        profile_scheme=profile_scheme,
         session=session,
     )
 
@@ -106,7 +106,7 @@ async def full_update_my_profile(
     status_code=status.HTTP_200_OK,
 )
 async def partial_update_my_profile(
-    profile_in: ProfileUpdate,
+    profile_scheme: ProfileUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
@@ -122,9 +122,9 @@ async def partial_update_my_profile(
         session=session,
     )
 
-    return await ProfileDepends.update_user_profile(
+    return await ProfileDepends.update_profile(
         user_id=user_model.id,
-        profile_in=profile_in,
+        profile_scheme=profile_scheme,
         session=session,
         partial=True,
     )
@@ -150,7 +150,7 @@ async def delete_my_profile(
         session=session,
     )
 
-    return await ProfileDepends.delete_user_profile(
+    return await ProfileDepends.delete_profile(
         user_id=user_model.id,
         session=session,
     )

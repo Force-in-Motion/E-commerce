@@ -95,7 +95,7 @@ class ProfileDepends:
         )
 
         if not created_profile_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_create_model
 
         return created_profile_model
 

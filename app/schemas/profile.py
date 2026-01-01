@@ -14,7 +14,7 @@ class ProfileCreate(BaseModel):
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
     name: Annotated[str, MinLen(3), MaxLen(35)]
-    adress: Annotated[str, MinLen(8), MaxLen(255)]
+    address: Annotated[str, MinLen(8), MaxLen(255)]
     floor: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
     age: Optional[Annotated[int, Ge(7), Le(120)]] = None
     bio: Optional[Annotated[str, MinLen(5), MaxLen(700)]] = None
@@ -29,7 +29,7 @@ class ProfileUpdate(BaseModel):
 
     # Аннотация определена как Optional поскольку пользователь не обязательно должен передавать все поля в каждом запросе
     name: Optional[Annotated[str, MinLen(3), MaxLen(35)]] = None
-    adress: Optional[Annotated[str, MinLen(8), MaxLen(255)]] = None
+    address: Optional[Annotated[str, MinLen(8), MaxLen(255)]] = None
     floor: Optional[Annotated[str, MinLen(3), MaxLen(12)]] = None
     age: Optional[Annotated[int, Ge(7), Le(120)]] = None
     bio: Optional[Annotated[str, MinLen(5), MaxLen(700)]] = None
