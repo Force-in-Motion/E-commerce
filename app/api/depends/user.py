@@ -117,7 +117,7 @@ class UserDepends:
         )
 
         if not user_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_create_model
 
         return user_model
 
@@ -163,7 +163,7 @@ class UserDepends:
         )
 
         if not refresh_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_create_model
 
         return refresh_model
 
@@ -185,7 +185,7 @@ class UserDepends:
         )
 
         if not refresh_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_delete_model
 
         return refresh_model
 
@@ -214,7 +214,7 @@ class UserDepends:
         )
 
         if not user_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_update_model
 
         return user_model
 
@@ -236,7 +236,7 @@ class UserDepends:
         )
 
         if not user_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_delete_model
 
         return user_model
 
@@ -254,7 +254,7 @@ class UserDepends:
         cleared_table = await UserService.clear_table(session=session)
 
         if cleared_table != []:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.clear_table
 
         return cleared_table
 

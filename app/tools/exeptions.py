@@ -12,7 +12,7 @@ class HTTPErrors(Exception):
 
     db_error = HTTPException(
         status_code=status.HTTP_400_BAD_REQUEST,
-        detail="Error adding data to DB",
+        detail="Database operation error",
     )
 
     not_found = HTTPException(
@@ -48,4 +48,24 @@ class HTTPErrors(Exception):
     not_admin = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN,
         detail="User not admin",
+    )
+
+    err_update_model = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Error update model in DB",
+    )
+
+    err_create_model = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Error create model in DB",
+    )
+
+    err_delete_model = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Error delete model in DB",
+    )
+
+    clear_table = HTTPException(
+        status_code=status.HTTP_400_BAD_REQUEST,
+        detail="Error cleared table",
     )

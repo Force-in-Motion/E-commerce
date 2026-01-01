@@ -125,7 +125,7 @@ class BaseRepo(Generic[DBModel], ARepo):
             )
 
             result = await session.execute(stmt)
-            return result.one_or_none()
+            return result.scalars().one_or_none()
 
         except SQLAlchemyError as e:
             raise DatabaseError(

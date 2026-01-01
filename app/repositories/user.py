@@ -9,7 +9,7 @@ from app.repositories import BaseRepo
 from app.models import User as User_model
 from app.schemas.user import UserCreate
 from app.tools.exeptions import DatabaseError
-from app.utils.auth import AuthUtils
+
 
 
 class UserRepo(BaseRepo[User_model]):

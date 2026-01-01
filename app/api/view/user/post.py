@@ -161,6 +161,32 @@ async def partial_update_my_post(
 
 
 @router.delete(
+    "/all",
+    response_model=list,
+    status_code=status.HTTP_200_OK,
+)
+async def delete_all_my_post(
+    token: Annotated[str, Depends(oauth2_scheme)],
+    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
+) -> list:
+    """
+    Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
+    :param post_id: Post_model - конкретный объект в БД, найденный по id
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return:
+    """
+    user_model = await UserAuth.get_current_user_by_access(
+        token=token,
+        session=session,
+    )
+
+    return await PostDepends.delete_all_user_post(
+        user_id=user_model.id,
+        session=session,
+    )
+
+
+@router.delete(
     "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
@@ -187,28 +213,3 @@ async def delete_my_post(
         session=session,
     )
 
-
-@router.delete(
-    "/all",
-    response_model=list,
-    status_code=status.HTTP_200_OK,
-)
-async def delete_all_my_post(
-    token: Annotated[str, Depends(oauth2_scheme)],
-    session: Annotated[AsyncSession, Depends(db_connector.get_session)],
-) -> list:
-    """
-    Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return:
-    """
-    user_model = await UserAuth.get_current_user_by_access(
-        token=token,
-        session=session,
-    )
-
-    return await PostDepends.delete_all_user_post(
-        user_id=user_model.id,
-        session=session,
-    )

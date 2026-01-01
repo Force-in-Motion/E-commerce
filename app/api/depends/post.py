@@ -98,7 +98,7 @@ class PostDepends:
         )
 
         if not created_post_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_create_model
 
         return created_post_model
 
@@ -126,7 +126,7 @@ class PostDepends:
         )
 
         if not updated_post_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_update_model
 
         return updated_post_model
 
@@ -149,7 +149,7 @@ class PostDepends:
             session=session,
         )
         if not deleted_post_model:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_delete_model
 
         return deleted_post_model
 
@@ -171,7 +171,7 @@ class PostDepends:
         )
 
         if result != []:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_delete_model
 
         return result
 
@@ -189,6 +189,6 @@ class PostDepends:
         result = await PostService.clear_table(session=session)
 
         if result != []:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.clear_table
 
         return result

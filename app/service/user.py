@@ -5,7 +5,7 @@ from app.schemas.user import UserUpdate ,UserCreate
 from app.service.base import BaseService
 from app.models import User as User_model
 from app.repositories import UserRepo
-from app.utils.auth import AuthUtils
+
 
 
 class UserService(BaseService[UserRepo]):
