@@ -38,7 +38,7 @@ async def get_my_cart(
         session=session,
     )
 
-    return await CartDepends.get_user_cart(
+    return await CartDepends.get_cart(
         user_id=user_model.id,
         session=session,
     )
@@ -151,7 +151,7 @@ async def clear_my_cart(
         session=session,
     )
 
-    return await CartDepends.clear_user_cart(
+    return await CartDepends.clear_cart(
         user_id=user_model.id,
         session=session,
     )

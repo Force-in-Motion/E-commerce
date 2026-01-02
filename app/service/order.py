@@ -89,43 +89,41 @@ class OrderService(BaseService[OrderRepo]):
         :param session:
         :return:
         """
-        async with session.begin():
+        cart_model = await CartRepo.get_by_user_id(
+            user_id=user_id,
+            session=session,
+        )
 
-            cart_model = await CartRepo.get_by_user_id(
-                user_id=user_id,
-                session=session,
-            )
+        if not cart_model:
+            return None
 
-            if not cart_model:
-                return None
+        total_quantity = sum(cp.quantity for cp in cart_model.products)
 
-            total_quantity = sum(cp.quantity for cp in cart_model.products)
+        total_price = sum(
+            int(cp.current_price) * cp.quantity for cp in cart_model.products
+        )
 
-            total_price = sum(
-                int(cp.current_price) * cp.quantity for cp in cart_model.products
-            )
+        order_model = await cls.repo.create_order(
+            user_id=user_id,
+            total_price=total_price,
+            total_quantity=total_quantity,
+            session=session,
+            comment=order_schema.comment,
+            promo_code=order_schema.promo_code,
+        )
 
-            order_model = await cls.repo.create_order(
-                user_id=user_id,
-                total_price=total_price,
-                total_quantity=total_quantity,
-                session=session,
-                comment=order_schema.comment,
-                promo_code=order_schema.promo_code,
-            )
+        await cls.repo.add_product_to_order(
+            cart_model=cart_model,
+            order_model=order_model,
+            session=session,
+        )
 
-            await cls.repo.add_product_to_order(
-                cart_model=cart_model,
-                order_model=order_model,
-                session=session,
-            )
+        await CartRepo.clear_cart(
+            cart_model=cart_model,
+            session=session,
+        )
 
-            await CartRepo.clear_cart(
-                cart_model=cart_model,
-                session=session,
-            )
-
-            return order_model
+        return order_model
 
     @classmethod
     async def update_order_partial(
@@ -142,21 +140,19 @@ class OrderService(BaseService[OrderRepo]):
         :param session:
         :return:
         """
-        async with session.begin():
+        order_model = await cls.get_order(
+            order_id=order_id,
+            user_id=user_id,
+            session=session,
+        )
 
-            order_model = await cls.get_order(
-                order_id=order_id,
-                user_id=user_id,
-                session=session,
-            )
+        if not order_model:
+            return None
 
-            if not order_model:
-                return None
+        updated_order_model = cls.repo.update(
+            new_data=order_schema.model_dump(exclude_unset=True),
+            update_model=order_model,
+            session=session,
+        )
 
-            updated_order_model = cls.repo.update(
-                new_data=order_schema.model_dump(exclude_unset=True),
-                update_model=order_model,
-                session=session,
-            )
-
-            return updated_order_model
+        return updated_order_model

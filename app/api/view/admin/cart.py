@@ -165,7 +165,7 @@ async def clear_user_cart(
     :param session:
     :return:
     """
-    return await CartDepends.clear_user_cart(
+    return await CartDepends.clear_cart(
         user_id=user_id,
         session=session,
     )

@@ -156,28 +156,6 @@ class CartRepo(BaseRepo[Cart_model]):
         except SQLAlchemyError as e:
             raise DatabaseError(f"Error when receiving {cls.model.__name__}") from e
 
-    @classmethod
-    async def create_cart(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> Cart_model:
-        """
-
-        :param user_id:
-        :param session:
-        :return:
-        """
-        try:
-            cart_model = Cart_model(user_id=user_id)
-
-            return await cls.create(
-                model=cart_model,
-                session=session,
-            )
-
-        except SQLAlchemyError as e:
-            raise DatabaseError(f"Error adding {cls.model.__name__}") from e
 
     @classmethod
     async def add_product(
@@ -226,7 +204,10 @@ class CartRepo(BaseRepo[Cart_model]):
         try:
             for assoc in cart_model.products:
                 if assoc.product_id == product_scheme.product_id:
-                    assoc.quantity = product_scheme.quantity
+                    assoc.quantity += product_scheme.quantity
+
+            await session.commit()
+
 
         except SQLAlchemyError as e:
             raise DatabaseError(
@@ -252,6 +233,8 @@ class CartRepo(BaseRepo[Cart_model]):
                 if assoc.product_id == product_id:
                     await session.delete(assoc)
 
+            await session.commit()
+
         except SQLAlchemyError as e:
             raise DatabaseError(
                 f"Error deleting count product in {cls.model.__name__}"
@@ -270,6 +253,8 @@ class CartRepo(BaseRepo[Cart_model]):
         try:
             for assoc in cart_model.products:
                 await session.delete(assoc)
+
+            await session.commit()
 
         except SQLAlchemyError as e:
             raise DatabaseError(f"Error clearing cart in {cls.model.__name__}") from e

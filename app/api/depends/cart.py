@@ -122,7 +122,7 @@ class CartDepends:
         return cart_scheme
 
     @classmethod
-    async def clear_user_cart(
+    async def clear_cart(
         cls,
         user_id: int,
         session: AsyncSession,

@@ -21,12 +21,12 @@ class ProductDepends:
         :param param:
         :return:
         """
-        list_product_models = await ProductService.get_all_models(session=session)
+        product_models = await ProductService.get_all_models(session=session)
 
-        if not list_product_models:
+        if not product_models:
             raise HTTPErrors.not_found
 
-        return list_product_models
+        return product_models
 
     @classmethod
     async def get_product(
@@ -62,15 +62,15 @@ class ProductDepends:
         :param param:
         :return:
         """
-        list_product_models = await ProductService.get_all_models_by_date(
+        product_models = await ProductService.get_all_models_by_date(
             dates=dates,
             session=session,
         )
 
-        if not list_product_models:
+        if not product_models:
             raise HTTPErrors.not_found
 
-        return list_product_models
+        return product_models
 
     @classmethod
     async def create_product(
@@ -84,15 +84,17 @@ class ProductDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        created_product_model = await ProductService.register_model(
+        product_scheme.price = str(product_scheme.price)
+
+        product_model = await ProductService.register_model(
             scheme_in=product_scheme,
             session=session,
         )
 
-        if not created_product_model:
+        if not product_model:
             raise HTTPErrors.db_error
 
-        return created_product_model
+        return product_model
 
     @classmethod
     async def update_product(
@@ -108,17 +110,17 @@ class ProductDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        updated_product_model = await ProductService.update_model(
+        product_model = await ProductService.update_model(
             model_id=product_id,
             scheme_in=product_scheme,
             session=session,
             partial=partial,
         )
 
-        if not updated_product_model:
+        if not product_model:
             raise HTTPErrors.db_error
 
-        return updated_product_model
+        return product_model
 
     @classmethod
     async def delete_product(
@@ -132,15 +134,15 @@ class ProductDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        deleted_product_model = await ProductService.delete_model(
+        product_model = await ProductService.delete_model(
             model_id=product_id,
             session=session,
         )
 
-        if not deleted_product_model:
+        if not product_model:
             raise HTTPErrors.db_error
 
-        return deleted_product_model
+        return product_model
 
     @classmethod
     async def clear_products(
