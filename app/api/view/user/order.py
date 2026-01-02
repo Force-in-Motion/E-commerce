@@ -33,7 +33,7 @@ async def get_all_my_orders(
     :param session:
     :return:
     """
-    user_model = await UserAuth.get_current_user_by_refresh(
+    user_model = await UserAuth.get_current_user_by_access(
         token=token,
         session=session,
     )
@@ -60,7 +60,7 @@ async def get_my_order(
     :param session:
     :return:
     """
-    user_model = await UserAuth.get_current_user_by_refresh(
+    user_model = await UserAuth.get_current_user_by_access(
         token=token,
         session=session,
     )
@@ -88,12 +88,12 @@ async def create_my_order(
     :param session:
     :return:
     """
-    user_model = await UserAuth.get_current_user_by_refresh(
+    user_model = await UserAuth.get_current_user_by_access(
         token=token,
         session=session,
     )
 
-    return await OrderDepends.create_user_oreder(
+    return await OrderDepends.create_oreder(
         user_id=user_model.id,
         session=session,
         order_schema=order_schema,
@@ -117,7 +117,7 @@ async def update_my_order_partial(
     :param session:
     :return:
     """
-    user_model = await UserAuth.get_current_user_by_refresh(
+    user_model = await UserAuth.get_current_user_by_access(
         token=token,
         session=session,
     )
@@ -146,7 +146,7 @@ async def delete_my_order(
     :param session:
     :return:
     """
-    user_model = await UserAuth.get_current_user_by_refresh(
+    user_model = await UserAuth.get_current_user_by_access(
         token=token,
         session=session,
     )

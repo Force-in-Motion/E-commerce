@@ -93,16 +93,16 @@ class OrderDepends:
         :param param:
         :return:
         """
-        created_order_model = await OrderService.create_order(
+        order_model = await OrderService.create_order(
             user_id=user_id,
             order_schema=order_schema,
             session=session,
         )
 
-        if not created_order_model:
+        if not order_model:
             raise HTTPErrors.db_error
 
-        return created_order_model
+        return order_model
 
     @classmethod
     async def update_oreder(

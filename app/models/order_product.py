@@ -42,8 +42,8 @@ class OrderProducts(Base, TimestampMixin):
         nullable=False,
     )
 
-    current_price: Mapped[str] = mapped_column(
-        String(255),
+    current_price: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
     )
 

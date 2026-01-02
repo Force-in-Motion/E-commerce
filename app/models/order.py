@@ -34,6 +34,22 @@ class Order(Base, TimestampMixin):
         nullable=False,
     )
 
+    promo_code: Mapped[str | None] = mapped_column(
+        String(10),
+        unique=True,
+        nullable=True,
+    )
+
+    original_price: Mapped[int] = mapped_column(
+        Integer,
+        nullable=False,
+    )
+
+    discount: Mapped[int] = mapped_column(
+        Integer,
+        nullable=True,
+    )
+
     total_price: Mapped[int] = mapped_column(
         Integer,
         nullable=False,
@@ -46,12 +62,6 @@ class Order(Base, TimestampMixin):
 
     comment: Mapped[str] = mapped_column(
         String(255),
-        nullable=True,
-    )
-
-    promo_code: Mapped[str | None] = mapped_column(
-        String(10),
-        unique=True,
         nullable=True,
     )
 

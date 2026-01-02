@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Text
+from sqlalchemy import String, Text, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
@@ -26,8 +26,8 @@ class Product(Base, TimestampMixin):
         nullable=False,
     )
 
-    price: Mapped[str] = mapped_column(
-        String(255),
+    price: Mapped[int] = mapped_column(
+        Integer,
         nullable=False,
     )
 
