@@ -12,7 +12,7 @@ from app.schemas import PostCreate, PostUpdate, PostResponse
 
 router = APIRouter(
     prefix="/admin/posts",
-    tags=["Posts"],
+    tags=["Admin Posts"],
     dependencies=[Depends(admin_guard)],
 )
 

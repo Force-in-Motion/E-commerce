@@ -13,7 +13,7 @@ from app.schemas import ProductCreate, ProductResponse, ProductUpdate
 
 router = APIRouter(
     prefix="/admin/products",
-    tags=["Products"],
+    tags=["Admin Products"],
     dependencies=[Depends(admin_guard)],
 )
 

@@ -12,7 +12,7 @@ from app.schemas import OrderResponse, OrderCreate, OrderUpdate
 
 router = APIRouter(
     prefix="/admin/orders",
-    tags=["Orders"],
+    tags=["Admin Orders"],
     dependencies=[Depends(admin_guard)],
 )
 

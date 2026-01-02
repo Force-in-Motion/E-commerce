@@ -13,7 +13,7 @@ from app.schemas import UserResponse, UserCreate, UserUpdateForAdmin
 
 router = APIRouter(
     prefix="/admin/users",
-    tags=["Users"],
+    tags=["Admin Users"],
     dependencies=[Depends(admin_guard)],
 )
 

@@ -14,7 +14,7 @@ from app.schemas.profile import ProfileCreate
 
 router = APIRouter(
     prefix="/admin/profiles",
-    tags=["Profiles"],
+    tags=["Admin Profiles"],
     dependencies=[Depends(admin_guard)],
 )
 
