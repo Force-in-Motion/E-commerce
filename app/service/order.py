@@ -107,7 +107,7 @@ class OrderService(BaseService[OrderRepo]):
         if order_models is None:
             return None
 
-        return [OrderResponse.model_validate(order) for order in order_models]
+        return [cls._to_order_response(order) for order in order_models]
 
     @classmethod
     async def get_orders_by_date(
@@ -129,7 +129,7 @@ class OrderService(BaseService[OrderRepo]):
         if order_models is None:
             return None
         
-        return [OrderResponse.model_validate(order) for order in order_models]
+        return [cls._to_order_response(order) for order in order_models]
 
     @classmethod
     async def get_order_model(
@@ -206,7 +206,7 @@ class OrderService(BaseService[OrderRepo]):
             session=session,
         )
 
-        if not cart_model:
+        if not cart_model or cart_model.products == []:
             return None
 
         order_model = cls._collect_order(
@@ -262,7 +262,7 @@ class OrderService(BaseService[OrderRepo]):
         if not order_model:
             return None
 
-        order_model = cls.repo.update(
+        order_model = await cls.repo.update(
             new_data=order_scheme.model_dump(exclude_unset=True),
             update_model=order_model,
             session=session,

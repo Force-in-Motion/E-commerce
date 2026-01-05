@@ -90,7 +90,7 @@ class BaseService(Generic[Repo], AService):
 
         data = scheme_in.model_dump()
 
-        if user_id:
+        if user_id is not None:
             data["user_id"] = user_id
 
         return await cls.repo.create(

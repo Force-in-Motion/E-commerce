@@ -110,7 +110,7 @@ class OrderDepends:
         cls,
         order_id: int,
         session: AsyncSession,
-        order_schema: OrderUpdate,
+        order_scheme: OrderUpdate,
         user_id: Optional[int] = None,
     ) -> OrderResponse:
         """
@@ -122,7 +122,7 @@ class OrderDepends:
         order_scheme = await OrderService.update_order_partial(
             user_id=user_id,
             order_id=order_id,
-            order_schema=order_schema,
+            order_scheme=order_scheme,
             session=session,
         )
 
