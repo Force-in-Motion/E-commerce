@@ -32,17 +32,17 @@ class Profile(Base, TimestampMixin):
         nullable=False,
     )
 
-    floor: Mapped[str] = mapped_column(
+    floor: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
     )
 
-    age: Mapped[int] = mapped_column(
+    age: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
     )
 
-    bio: Mapped[str] = mapped_column(
+    bio: Mapped[str | None] = mapped_column(
         Text,
         nullable=True,
     )

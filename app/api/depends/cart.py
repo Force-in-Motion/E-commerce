@@ -24,7 +24,7 @@ class CartDepends:
         cart_schemes = await CartService.get_all_carts(session=session)
 
         if not cart_schemes:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.not_found
 
         return cart_schemes
 
@@ -46,7 +46,7 @@ class CartDepends:
         )
 
         if not cart_schemes:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.not_found
 
         return cart_schemes
 
@@ -69,7 +69,7 @@ class CartDepends:
 
         if not cart_scheme:
 
-            raise HTTPErrors.db_error
+            raise HTTPErrors.not_found
 
         return cart_scheme
 
@@ -93,7 +93,7 @@ class CartDepends:
         )
 
         if not cart_scheme:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_update_model
 
         return cart_scheme
 
@@ -117,7 +117,7 @@ class CartDepends:
         )
 
         if not cart_scheme:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_delete_model
 
         return cart_scheme
 
@@ -139,6 +139,6 @@ class CartDepends:
         )
 
         if not empty_list:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.clear_table
 
         return empty_list

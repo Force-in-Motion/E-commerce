@@ -78,7 +78,7 @@ async def get_my_order(
     status_code=status.HTTP_201_CREATED,
 )
 async def create_my_order(
-    order_schema: OrderCreate,
+    order_scheme: OrderCreate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
@@ -96,7 +96,7 @@ async def create_my_order(
     return await OrderDepends.create_oreder(
         user_id=user_model.id,
         session=session,
-        order_schema=order_schema,
+        order_scheme=order_scheme,
     )
 
 
@@ -106,7 +106,7 @@ async def create_my_order(
     status_code=status.HTTP_200_OK,
 )
 async def update_my_order_partial(
-    order_schema: OrderUpdate,
+    order_scheme: OrderUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     order_id: Annotated[int, Path(..., description="Order ID")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
@@ -126,7 +126,7 @@ async def update_my_order_partial(
         user_id=user_model.id,
         order_id=order_id,
         session=session,
-        order_schema=order_schema,
+        order_scheme=order_scheme,
     )
 
 

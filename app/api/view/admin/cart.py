@@ -15,7 +15,7 @@ from app.schemas.cart import CartResponse
 
 router = APIRouter(
     prefix="/admin/carts",
-    tags=["Admin Cart"],
+    tags=["Admin Carts"],
     dependencies=[Depends(admin_guard)],
 )
 

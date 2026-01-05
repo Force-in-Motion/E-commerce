@@ -2,10 +2,11 @@ from typing import Optional
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.models import Order as Order_model
-from app.schemas import OrderCreate, OrderUpdate
-from app.service.order import OrderService
 from app.tools import HTTPErrors
+from app.service.order import OrderService
+from app.models import Order as Order_model
+from app.schemas.order import OrderResponse
+from app.schemas import OrderCreate, OrderUpdate
 
 
 class OrderDepends:
@@ -15,46 +16,46 @@ class OrderDepends:
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[list[Order_model]]:
+    ) -> Optional[list[OrderResponse]]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        list_order_model = await OrderService.get_all_orders(
+        order_schemes = await OrderService.get_all_orders(
             user_id=user_id,
             session=session,
         )
 
-        if not list_order_model:
+        if not order_schemes:
 
             raise HTTPErrors.not_found
 
-        return list_order_model
+        return order_schemes
 
     @classmethod
     async def get_all_oreders_by_date(
         cls,
         session: AsyncSession,
         dates: tuple[datetime, datetime],
-    ) -> Optional[list[Order_model]]:
+    ) -> Optional[list[OrderResponse]]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        list_order_model = await OrderService.get_orders_by_date(
+        order_schemes = await OrderService.get_orders_by_date(
             dates=dates,
             session=session,
         )
 
-        if not list_order_model:
+        if not order_schemes:
 
             raise HTTPErrors.not_found
 
-        return list_order_model
+        return order_schemes
 
     @classmethod
     async def get_oreder(
@@ -62,47 +63,47 @@ class OrderDepends:
         order_id: int,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[Order_model]:
+    ) -> Optional[OrderResponse]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        order_model = await OrderService.get_order(
+        order_scheme = await OrderService.get_order_response(
             order_id=order_id,
             user_id=user_id,
             session=session,
         )
 
-        if not order_model:
+        if not order_scheme:
             raise HTTPErrors.not_found
 
-        return order_model
+        return order_scheme
 
     @classmethod
     async def create_oreder(
         cls,
         user_id: int,
         session: AsyncSession,
-        order_schema: OrderCreate,
-    ) -> Order_model:
+        order_scheme: OrderCreate,
+    ) -> OrderResponse:
         """
 
         :param param:
         :param param:
         :return:
         """
-        order_model = await OrderService.create_order(
+        order_scheme = await OrderService.create_order(
             user_id=user_id,
-            order_schema=order_schema,
+            order_scheme=order_scheme,
             session=session,
         )
 
-        if not order_model:
-            raise HTTPErrors.db_error
+        if not order_scheme:
+            raise HTTPErrors.err_create_model
 
-        return order_model
+        return order_scheme
 
     @classmethod
     async def update_oreder(
@@ -111,24 +112,24 @@ class OrderDepends:
         session: AsyncSession,
         order_schema: OrderUpdate,
         user_id: Optional[int] = None,
-    ) -> Order_model:
+    ) -> OrderResponse:
         """
 
         :param param:
         :param param:
         :return:
         """
-        updated_order_model = await OrderService.update_order_partial(
+        order_scheme = await OrderService.update_order_partial(
             user_id=user_id,
             order_id=order_id,
             order_schema=order_schema,
             session=session,
         )
 
-        if not updated_order_model:
-            raise HTTPErrors.db_error
+        if not order_scheme:
+            raise HTTPErrors.err_update_model
 
-        return updated_order_model
+        return order_scheme
 
     @classmethod
     async def delete_order(
@@ -143,18 +144,18 @@ class OrderDepends:
         :param param:
         :return:
         """
-        deleted_order_model = await OrderService.delete_model(
+        order_scheme = await OrderService.delete_order(
             user_id=user_id,
-            model_id=order_id,
+            order_id=order_id,
             session=session,
         )
-        if not deleted_order_model:
-            raise HTTPErrors.db_error
+        if not order_scheme:
+            raise HTTPErrors.err_delete_model
 
-        return deleted_order_model
-    
+        return order_scheme
 
     classmethod
+
     async def delete_all_user_orders(
         cls,
         session: AsyncSession,
@@ -172,10 +173,9 @@ class OrderDepends:
         )
 
         if result != []:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.err_delete_model
 
         return result
-    
 
     @classmethod
     async def clear_orders(
@@ -191,6 +191,6 @@ class OrderDepends:
         result = await OrderService.clear_table(session=session)
 
         if result != []:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.clear_table
 
         return result

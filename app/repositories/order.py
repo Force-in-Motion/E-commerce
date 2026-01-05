@@ -16,7 +16,7 @@ from app.tools import DatabaseError
 
 class OrderRepo(BaseRepo[Order_model]):
 
-    model: Order_model
+    model = Order_model
 
     @classmethod
     async def get_all_orders(
@@ -61,9 +61,9 @@ class OrderRepo(BaseRepo[Order_model]):
         try:
             stmt = (
                 select(cls.model)
-                .where(cls.model.user_id == user_id)
-                .options(
-                    selectinload(cls.model.products).selectinload(
+                .where(cls.model.user_id == user_id).options(
+                    selectinload(cls.model.products)
+                    .selectinload(
                         OrderProducts_model.product
                     )
                 )
@@ -161,40 +161,7 @@ class OrderRepo(BaseRepo[Order_model]):
         except SQLAlchemyError as e:
             raise DatabaseError(f"Error when receiving {cls.model.__name__}") from e
 
-    @classmethod
-    async def create_order(
-        cls,
-        user_id: int,
-        total_price: int,
-        total_quantity: int,
-        session: AsyncSession,
-        promo_code: Optional[str] = None,
-        comment: Optional[str] = None,
-    ) -> Order_model:
-        """
 
-        :param order_in:
-        :param session:
-        :return:
-        """
-        try:
-            order_model = Order_model(
-                user_id=user_id,
-                comment=comment,
-                promo_code=promo_code,
-                total_price=total_price,
-                total_quantity=total_quantity,
-            )
-
-            session.add(order_model)
-
-            await session.flush()
-            await session.refresh(order_model)
-
-            return order_model
-
-        except SQLAlchemyError as e:
-            raise DatabaseError(f"Error when adding {cls.model.__name__}") from e
 
     @classmethod
     async def add_product_to_order(

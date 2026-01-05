@@ -20,23 +20,15 @@ class Order(Base, TimestampMixin):
     """Класс, описывающий мета информацию таблицы Order"""
 
     __tablename__ = "orders"
-
-    __table_args__ = (
-        CheckConstraint(
-            "promo_code IS NULL OR char_length(promo_code) = 10",
-            name="err_promo_code_length",
-        ),
-    )
-
+        
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
         nullable=False,
     )
 
-    promo_code: Mapped[str | None] = mapped_column(
-        String(10),
-        unique=True,
+    promo_code: Mapped[int | None] = mapped_column(
+        Integer,
         nullable=True,
     )
 
@@ -45,7 +37,7 @@ class Order(Base, TimestampMixin):
         nullable=False,
     )
 
-    discount: Mapped[int] = mapped_column(
+    discount: Mapped[int | None] = mapped_column(
         Integer,
         nullable=True,
     )
@@ -60,7 +52,7 @@ class Order(Base, TimestampMixin):
         nullable=False,
     )
 
-    comment: Mapped[str] = mapped_column(
+    comment: Mapped[str | None] = mapped_column(
         String(255),
         nullable=True,
     )
