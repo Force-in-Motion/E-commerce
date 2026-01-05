@@ -76,7 +76,7 @@ async def get_post_by_id(
 
 
 @router.get(
-    "/{post_id}user/{user_id}",
+    "/user/{user_id}",
     response_model=list[PostResponse],
     status_code=status.HTTP_200_OK,
 )
@@ -121,7 +121,7 @@ async def register_post(
 
 
 @router.put(
-    "/{post_id}/user/{user_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -145,7 +145,7 @@ async def full_update_post(
 
 
 @router.patch(
-    "/{post_id}/user/{user_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -161,7 +161,7 @@ async def update_post_partial(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostDepends.update_user_post(
+    return await PostDepends.update_post(
         post_id=post_id,
         post_scheme=post_scheme,
         session=session,
@@ -187,7 +187,7 @@ async def clear_all_posts(
 
 
 @router.delete(
-    "/{post_id}/user/{user_id}",
+    "/{post_id}",
     response_model=PostResponse,
     status_code=status.HTTP_200_OK,
 )
@@ -208,7 +208,7 @@ async def delete_post(
 
 
 @router.delete(
-    "/{post_id}/user/{user_id}",
+    "/user/{user_id}",
     response_model=list,
     status_code=status.HTTP_200_OK,
 )

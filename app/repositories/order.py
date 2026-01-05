@@ -195,6 +195,7 @@ class OrderRepo(BaseRepo[Order_model]):
                 session.add(order_product)
 
         except SQLAlchemyError as e:
+            await session.rollback()
             raise DatabaseError(
                 f"Error when adding product to {cls.model.__name__}"
             ) from e

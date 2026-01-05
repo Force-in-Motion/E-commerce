@@ -230,7 +230,7 @@ class OrderService(BaseService[OrderRepo]):
         )
 
         await CartRepo.clear_cart(
-            cart_model=cart_model,
+            cart_id=cart_model.id,
             session=session,
         )
 
@@ -262,7 +262,7 @@ class OrderService(BaseService[OrderRepo]):
             user_id=user_id,
         )
 
-        if not order_model:
+        if order_model is None:
             return None
 
         order_model = await cls.repo.update(
@@ -295,7 +295,7 @@ class OrderService(BaseService[OrderRepo]):
             model_id=order_id,
             session=session,
         )
-        if not order_model:
+        if order_model is None:
             return None
 
         return cls._to_order_response(order_model=order_model)
