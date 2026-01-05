@@ -14,24 +14,6 @@ class CartDepends:
     async def get_all_cart(
         cls,
         session: AsyncSession,
-    ) -> list[CartResponse]:
-        """
-
-        :param param:
-        :param param:
-        :return:
-        """
-        cart_schemes = await CartService.get_all_carts(session=session)
-
-        if not cart_schemes:
-            raise HTTPErrors.not_found
-
-        return cart_schemes
-
-    @classmethod
-    async def get_all_cart_by_date(
-        cls,
-        session: AsyncSession,
         dates: tuple[datetime, datetime] = None,
     ) -> list[CartResponse]:
         """
@@ -40,10 +22,7 @@ class CartDepends:
         :param param:
         :return:
         """
-        cart_schemes = await CartService.get_all_carts_by_date(
-            dates=dates,
-            session=session,
-        )
+        cart_schemes = await CartService.get_all_carts(dates=dates, session=session)
 
         if not cart_schemes:
             raise HTTPErrors.not_found
@@ -53,8 +32,9 @@ class CartDepends:
     @classmethod
     async def get_cart(
         cls,
-        user_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
+        cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
 
@@ -64,6 +44,7 @@ class CartDepends:
         """
         cart_scheme = await CartService.get_or_create_cart(
             user_id=user_id,
+            cart_id=cart_id,
             session=session,
         )
 
@@ -76,9 +57,10 @@ class CartDepends:
     @classmethod
     async def add_or_update_product_in_cart(
         cls,
-        user_id: int,
-        product_add: ProductAddOrUpdate,
         session: AsyncSession,
+        product_scheme: ProductAddOrUpdate,
+        user_id: Optional[int] = None,
+        cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
 
@@ -88,8 +70,9 @@ class CartDepends:
         """
         cart_scheme = await CartService.add_or_update_product_in_cart(
             user_id=user_id,
+            cart_id=cart_id,
             session=session,
-            product_scheme=product_add,
+            product_scheme=product_scheme,
         )
 
         if not cart_scheme:
@@ -133,12 +116,12 @@ class CartDepends:
         :param param:
         :return:
         """
-        empty_list = await CartService.clear_cart_by_user_id(
+        cart_table = await CartService.clear_user_cart(
             user_id=user_id,
             session=session,
         )
 
-        if not empty_list:
+        if not cart_table:
             raise HTTPErrors.clear_table
 
-        return empty_list
+        return cart_table

@@ -130,6 +130,7 @@ class OrderRepo(BaseRepo[Order_model]):
                         OrderProducts_model.product
                     )
                 )
+                .execution_options(populate_existing=True)
             )
 
             result = await session.execute(stmt)
@@ -153,6 +154,7 @@ class OrderRepo(BaseRepo[Order_model]):
                         OrderProducts_model.product
                     )
                 )
+                .execution_options(populate_existing=True)
             )
 
             result = await session.execute(stmt)

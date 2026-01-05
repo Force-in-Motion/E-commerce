@@ -70,7 +70,7 @@ class OrderDepends:
         :param param:
         :return:
         """
-        order_scheme = await OrderService.get_order_response(
+        order_scheme = await OrderService.get_order_scheme(
             order_id=order_id,
             user_id=user_id,
             session=session,

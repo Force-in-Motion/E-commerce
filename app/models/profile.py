@@ -19,6 +19,7 @@ class Profile(Base, TimestampMixin):
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),
+        unique=True,
         nullable=False,
     )
 

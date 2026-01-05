@@ -88,16 +88,16 @@ class ProfileDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        created_profile_model = await ProfileService.register_model(
+        profile_model = await ProfileService.register_model(
             scheme_in=profile_scheme,
             session=session,
             user_id=user_id,
         )
 
-        if not created_profile_model:
+        if not profile_model:
             raise HTTPErrors.err_create_model
 
-        return created_profile_model
+        return profile_model
 
     @classmethod
     async def update_profile(
@@ -113,17 +113,17 @@ class ProfileDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        updated_profile_model = await ProfileService.update_model(
+        profile_model = await ProfileService.update_model(
             scheme_in=profile_scheme,
             session=session,
             partial=partial,
             user_id=user_id,
         )
 
-        if not updated_profile_model:
-            raise HTTPErrors.db_error
+        if not profile_model:
+            raise HTTPErrors.err_update_model
 
-        return updated_profile_model
+        return profile_model
 
     @classmethod
     async def delete_profile(
@@ -137,15 +137,15 @@ class ProfileDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        deleted_profile_model = await ProfileService.delete_model(
+        profile_model = await ProfileService.delete_model(
             session=session,
             user_id=user_id,
         )
 
-        if not deleted_profile_model:
-            raise HTTPErrors.db_error
+        if not profile_model:
+            raise HTTPErrors.err_delete_model
 
-        return deleted_profile_model
+        return profile_model
 
     @classmethod
     async def clear_profiles(
@@ -161,6 +161,6 @@ class ProfileDepends:
         cleared_table = await ProfileService.clear_table(session=session)
 
         if cleared_table != []:
-            raise HTTPErrors.db_error
+            raise HTTPErrors.clear_table
 
         return cleared_table

@@ -53,11 +53,14 @@ class OrderService(BaseService[OrderRepo]):
     @classmethod
     def _to_order_response(cls, order_model: Order_model) -> OrderResponse:
         """
-        
+
         :param param:
         :param param:
         :return:
         """
+        if order_model is None:
+            return None
+
         products = [
             ProductInOrder(
                 id=op.product.id,
@@ -128,7 +131,7 @@ class OrderService(BaseService[OrderRepo]):
 
         if order_models is None:
             return None
-        
+
         return [cls._to_order_response(order) for order in order_models]
 
     @classmethod
@@ -145,7 +148,7 @@ class OrderService(BaseService[OrderRepo]):
         :return:
         """
         if user_id is not None:
-            order_model =  await cls.repo.get_by_user_id_and_order_id(
+            order_model = await cls.repo.get_by_user_id_and_order_id(
                 user_id=user_id,
                 order_id=order_id,
                 session=session,
@@ -159,11 +162,11 @@ class OrderService(BaseService[OrderRepo]):
 
         if order_model is None:
             return None
-        
+
         return order_model
 
     @classmethod
-    async def get_order_response(
+    async def get_order_scheme(
         cls,
         order_id: int,
         session: AsyncSession,
@@ -183,7 +186,7 @@ class OrderService(BaseService[OrderRepo]):
 
         if order_model is None:
             return None
-    
+
         return cls._to_order_response(order_model=order_model)
 
     @classmethod
@@ -231,7 +234,7 @@ class OrderService(BaseService[OrderRepo]):
             session=session,
         )
 
-        return await cls.get_order_response(
+        return await cls.get_order_scheme(
             order_id=order_model.id,
             session=session,
             user_id=user_id,
@@ -268,12 +271,12 @@ class OrderService(BaseService[OrderRepo]):
             session=session,
         )
 
-        return await cls.get_order_response(
+        return await cls.get_order_scheme(
             order_id=order_model.id,
             session=session,
             user_id=user_id,
         )
-    
+
     @classmethod
     async def delete_order(
         cls,

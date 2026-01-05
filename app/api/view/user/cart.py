@@ -50,7 +50,7 @@ async def get_my_cart(
     status_code=status.HTTP_200_OK,
 )
 async def add_product(
-    product_add_schema: ProductAddOrUpdate,
+    product_scheme: ProductAddOrUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
@@ -68,7 +68,7 @@ async def add_product(
 
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_model.id,
-        product_add=product_add_schema,
+        product_scheme=product_scheme,
         session=session,
     )
 
@@ -79,7 +79,7 @@ async def add_product(
     status_code=status.HTTP_200_OK,
 )
 async def update_count_product(
-    product_upd_schema: ProductAddOrUpdate,
+    product_scheme: ProductAddOrUpdate,
     token: Annotated[str, Depends(oauth2_scheme)],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
@@ -97,7 +97,7 @@ async def update_count_product(
 
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_model.id,
-        product_add=product_upd_schema,
+        product_scheme=product_scheme,
         session=session,
     )
 
