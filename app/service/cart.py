@@ -20,7 +20,10 @@ class CartService(BaseService[CartRepo]):
     repo = CartRepo
 
     @classmethod
-    def _to_cart_response(cls, cart_model: Cart_model) -> CartResponse:
+    def _to_cart_response(
+        cls,
+        cart_model: Cart_model,
+    ) -> CartResponse:
         """
 
         :param param:
@@ -54,7 +57,7 @@ class CartService(BaseService[CartRepo]):
         cls,
         session: AsyncSession,
         dates: tuple[datetime, datetime] = None,
-    ) -> list[CartResponse]:
+    ) -> Optional[list[CartResponse]]:
         """ "
 
         :param user_id:
@@ -73,7 +76,6 @@ class CartService(BaseService[CartRepo]):
         if cart_models is None:
             return None
 
-
         return [cls._to_cart_response(cart) for cart in cart_models]
 
     @classmethod
@@ -90,21 +92,16 @@ class CartService(BaseService[CartRepo]):
         :return:
         """
         if user_id is not None:
-            cart_model = await cls.repo.get_by_user_id(
+            return await cls.repo.get_by_user_id(
                 user_id=user_id,
                 session=session,
             )
 
-        else:
-            cart_model = await cls.repo.get_by_id(
+        if user_id is None:
+            return await cls.repo.get_by_id(
                 cart_id=cart_id,
                 session=session,
             )
-        if cart_model is None:
-            return None
-
-
-        return cart_model
 
     @classmethod
     async def get_or_create_cart(
@@ -112,7 +109,7 @@ class CartService(BaseService[CartRepo]):
         session: AsyncSession,
         user_id: Optional[int] = None,
         cart_id: Optional[int] = None,
-    ) -> CartResponse:
+    ) -> Optional[CartResponse]:
         """
 
         :param user_id:
@@ -125,15 +122,13 @@ class CartService(BaseService[CartRepo]):
             session=session,
         )
 
-        if not cart_model:
+        if cart_model is None:
             cart_model = Cart_model(user_id=user_id)
 
             cart_model = await cls.repo.create(
                 model=cart_model,
                 session=session,
             )
-        if cart_model is None:
-            return None
 
         return cls._to_cart_response(cart_model)
 
@@ -144,7 +139,7 @@ class CartService(BaseService[CartRepo]):
         product_scheme: ProductAddOrUpdate,
         user_id: Optional[int] = None,
         cart_id: Optional[int] = None,
-    ) -> CartResponse:
+    ) -> Optional[CartResponse]:
         """
 
         :param user_id:
@@ -166,7 +161,7 @@ class CartService(BaseService[CartRepo]):
             cart_id=cart_model.id,
             product_id=product_scheme.product_id,
         )
-        
+
         if not product_in_cart:
             product_model = await ProductRepo.get_by_id(
                 model_id=product_scheme.product_id,
@@ -213,7 +208,7 @@ class CartService(BaseService[CartRepo]):
         session: AsyncSession,
         user_id: Optional[int] = None,
         cart_id: Optional[int] = None,
-    ) -> CartResponse:
+    ) -> Optional[CartResponse]:
         """
 
         :param user_id:
@@ -227,7 +222,7 @@ class CartService(BaseService[CartRepo]):
             cart_id=cart_id,
         )
 
-        if not cart_model:
+        if cart_model is None:
             return None
 
         product_in_cart = await cls.repo.get_product(
@@ -236,7 +231,7 @@ class CartService(BaseService[CartRepo]):
             product_id=product_id,
         )
 
-        if not product_in_cart:
+        if product_in_cart is None:
             return None
 
         await cls.repo.delete(
@@ -255,7 +250,7 @@ class CartService(BaseService[CartRepo]):
         session: AsyncSession,
         user_id: Optional[int] = None,
         cart_id: Optional[int] = None,
-    ) -> list:
+    ) -> Optional[list]:
         """
 
         :param user_id:
@@ -269,7 +264,7 @@ class CartService(BaseService[CartRepo]):
             cart_id=cart_id,
         )
 
-        if not cart_model:
+        if cart_model is None:
             return None
 
         await cls.repo.clear_cart(

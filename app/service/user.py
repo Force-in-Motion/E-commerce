@@ -26,4 +26,4 @@ class UserService(BaseService[UserRepo]):
         """
         user_model = await cls.repo.get_by_login(login=login, session=session)
 
-        return user_model if user_model else None
+        return user_model if user_model is not None else None

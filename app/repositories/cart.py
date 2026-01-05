@@ -18,7 +18,7 @@ class CartRepo(BaseRepo[Cart_model]):
     async def get_all_carts(
         cls,
         session: AsyncSession,
-    ) -> list[Cart_model]:
+    ) -> Optional[list[Cart_model]]:
         """
 
         :param user_id:
@@ -44,7 +44,7 @@ class CartRepo(BaseRepo[Cart_model]):
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> list[Cart_model]:
+    ) -> Optional[list[Cart_model]]:
         """
 
         :param user_id:
@@ -167,7 +167,7 @@ class CartRepo(BaseRepo[Cart_model]):
         cls,
         cart_id: int,
         session: AsyncSession,
-    ) -> None:
+    ) -> list:
         """
         
         :param param:
@@ -179,6 +179,7 @@ class CartRepo(BaseRepo[Cart_model]):
 
             await session.execute(stmt)
             await session.commit()
+            return []
 
         except SQLAlchemyError as e:
             await session.rollback()

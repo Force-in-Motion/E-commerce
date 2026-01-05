@@ -16,7 +16,7 @@ class BaseService(Generic[Repo], AService):
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> list[DBModel]:
+    ) -> Optional[list][DBModel]:
         """
         Возвращает результат выполнения метода получения всех моделей пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -28,7 +28,8 @@ class BaseService(Generic[Repo], AService):
                 session=session,
             )
 
-        return await cls.repo.get_all(session=session)
+        return cls.repo.get_all(session=session)
+        
 
     @classmethod
     async def get_model(
@@ -56,13 +57,14 @@ class BaseService(Generic[Repo], AService):
 
         if user_id is not None:
             return await cls.repo.get_by_user_id(user_id=user_id, session=session)
+        
 
     @classmethod
     async def get_all_models_by_date(
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> list[DBModel]:
+    ) -> Optional[list][DBModel]:
         """
         Возвращает результат выполнения метода получения моделей пользователей из БД, добавленных за указанный интервал времени
         :param dates:  кортеж, содержащий начало интервала времени и его окончание
@@ -80,7 +82,7 @@ class BaseService(Generic[Repo], AService):
         scheme_in: PDScheme,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> DBModel:
+    ) -> Optional[DBModel]:
         """
         Возвращает результат выполнения метода добавления модели пользователя в БД
         :param scheme_in: Pydantic Схема - объект, содержащий данные модели пользователя
@@ -126,7 +128,7 @@ class BaseService(Generic[Repo], AService):
             model_id=model_id,
         )
 
-        if not model:
+        if model is None:
             return None
 
         return await cls.repo.update(
@@ -154,7 +156,7 @@ class BaseService(Generic[Repo], AService):
             model_id=model_id,
         )
 
-        if not model:
+        if model is None:
             return None
 
         return await cls.repo.delete(

@@ -28,7 +28,7 @@ class BaseRepo(Generic[DBModel], ARepo):
     async def get_all(
         cls,
         session: AsyncSession,
-    ) -> list[DBModel]:
+    ) -> Optional[list[DBModel]]:
         """
         Возвращает всех моделей пользователей из БД
         :param session: Объект сессии, полученный в качестве аргумента
@@ -50,7 +50,7 @@ class BaseRepo(Generic[DBModel], ARepo):
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> list[DBModel]:
+    ) -> Optional[list[DBModel]]:
         """
 
         :param user_id:
@@ -137,7 +137,7 @@ class BaseRepo(Generic[DBModel], ARepo):
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> list[DBModel]:
+    ) -> Optional[list[DBModel]]:
         """
         Возвращает список всех моделей пользователей, добавленных за указанный интервал времени
         :param dates:  кортеж, содержащий начало интервала времени и его окончание

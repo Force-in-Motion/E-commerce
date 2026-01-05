@@ -51,7 +51,10 @@ class OrderService(BaseService[OrderRepo]):
         )
 
     @classmethod
-    def _to_order_response(cls, order_model: Order_model) -> OrderResponse:
+    def _to_order_response(
+        cls,
+        order_model: Order_model,
+    ) -> OrderResponse:
         """
 
         :param param:
@@ -148,22 +151,18 @@ class OrderService(BaseService[OrderRepo]):
         :return:
         """
         if user_id is not None:
-            order_model = await cls.repo.get_by_user_id_and_order_id(
+            return await cls.repo.get_by_user_id_and_order_id(
                 user_id=user_id,
                 order_id=order_id,
                 session=session,
             )
 
-        else:
-            order_model = await cls.repo.get_by_order_id(
+        if user_id is None:
+            return await cls.repo.get_by_order_id(
                 order_id=order_id,
                 session=session,
             )
 
-        if order_model is None:
-            return None
-
-        return order_model
 
     @classmethod
     async def get_order_scheme(
@@ -209,7 +208,7 @@ class OrderService(BaseService[OrderRepo]):
             session=session,
         )
 
-        if not cart_model or cart_model.products == []:
+        if cart_model is None or cart_model.products == []:
             return None
 
         order_model = cls._collect_order(
@@ -247,7 +246,7 @@ class OrderService(BaseService[OrderRepo]):
         session: AsyncSession,
         order_scheme: OrderUpdate,
         user_id: Optional[int] = None,
-    ) -> Order_model:
+    ) -> Optional[OrderResponse]:
         """
 
         :param model_id:
@@ -283,14 +282,14 @@ class OrderService(BaseService[OrderRepo]):
         order_id: int,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Order_model:
+    ) -> Optional[OrderResponse]:
         """
 
         :param param:
         :param param:
         :return:
         """
-        order_model = await OrderService.delete_model(
+        order_model = await cls.delete_model(
             user_id=user_id,
             model_id=order_id,
             session=session,
