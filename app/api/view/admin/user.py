@@ -2,7 +2,7 @@ from datetime import datetime
 from typing import Annotated
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
-from fastapi import APIRouter, status, Depends, Query, Path
+from fastapi import APIRouter, status, Depends, Path
 
 from app.core import db_connector
 from app.api.depends.user import UserDepends
@@ -56,12 +56,12 @@ async def get_users_by_date(
 
 
 @router.get(
-    "/name",
+    "/login/{login}",
     response_model=UserResponse,
     status_code=status.HTTP_200_OK,
 )
 async def get_user_by_login(
-    login: Annotated[EmailStr, Query(..., description="User login")],
+    login: Annotated[EmailStr, Path(..., description="User login")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> UserResponse:
     """

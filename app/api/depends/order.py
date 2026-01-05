@@ -154,8 +154,7 @@ class OrderDepends:
 
         return order_scheme
 
-    classmethod
-
+    @classmethod
     async def delete_all_user_orders(
         cls,
         session: AsyncSession,
@@ -188,9 +187,9 @@ class OrderDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        result = await OrderService.clear_table(session=session)
+        cleared_table = await OrderService.clear_table(session=session)
 
-        if result != []:
+        if cleared_table != []:
             raise HTTPErrors.clear_table
 
-        return result
+        return cleared_table

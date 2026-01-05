@@ -117,7 +117,7 @@ async def register_profile(
     :param user_id: Profile_model - объект, содержащий данные профиля пользователя
     :return: dict
     """
-    return await ProfileDepends.create_user_profile(
+    return await ProfileDepends.create_profile(
         user_id=user_id,
         profile_scheme=profile_scheme,
         session=session,
@@ -141,7 +141,7 @@ async def full_update_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileDepends.update_user_profile(
+    return await ProfileDepends.update_profile(
         user_id=user_id,
         profile_scheme=profile_scheme,
         session=session,
@@ -165,7 +165,7 @@ async def partial_update_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileDepends.update_user_profile(
+    return await ProfileDepends.update_profile(
         user_id=user_id,
         profile_scheme=profile_scheme,
         session=session,
@@ -206,7 +206,7 @@ async def delete_profile(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await ProfileDepends.delete_user_profile(
+    return await ProfileDepends.delete_profile(
         user_id=user_id,
         session=session,
     )

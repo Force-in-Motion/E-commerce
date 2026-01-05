@@ -84,8 +84,6 @@ class ProductDepends:
         :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
         :return: Добавленного в БД пользователя в виде Pydantic схемы
         """
-        product_scheme.price = str(product_scheme.price)
-
         product_model = await ProductService.register_model(
             scheme_in=product_scheme,
             session=session,

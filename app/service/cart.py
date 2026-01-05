@@ -68,10 +68,11 @@ class CartService(BaseService[CartRepo]):
             )
 
         else:
-            cart_models = await cls.repo.get_all_carts(
-                dates=dates,
-                session=session,
-            )
+            cart_models = await cls.repo.get_all_carts(session=session)
+
+        if cart_models is None:
+            return None
+
 
         return [cls._to_cart_response(cart) for cart in cart_models]
 
@@ -99,8 +100,9 @@ class CartService(BaseService[CartRepo]):
                 cart_id=cart_id,
                 session=session,
             )
-        if not cart_model:
+        if cart_model is None:
             return None
+
 
         return cart_model
 
@@ -130,6 +132,8 @@ class CartService(BaseService[CartRepo]):
                 model=cart_model,
                 session=session,
             )
+        if cart_model is None:
+            return None
 
         return cls._to_cart_response(cart_model)
 
@@ -162,7 +166,7 @@ class CartService(BaseService[CartRepo]):
             cart_id=cart_model.id,
             product_id=product_scheme.product_id,
         )
-
+        
         if not product_in_cart:
             product_model = await ProductRepo.get_by_id(
                 model_id=product_scheme.product_id,
@@ -171,7 +175,7 @@ class CartService(BaseService[CartRepo]):
 
             if product_model is None:
                 return None
-        
+
             product_in_cart = Cart_Product_model(
                 cart_id=cart_model.id,
                 quantity=product_scheme.quantity,
@@ -234,7 +238,7 @@ class CartService(BaseService[CartRepo]):
 
         if not product_in_cart:
             return None
-        
+
         await cls.repo.delete(
             del_model=product_in_cart,
             session=session,

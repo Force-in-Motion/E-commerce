@@ -114,7 +114,7 @@ async def create_order(
     return await OrderDepends.create_oreder(
         user_id=user_id,
         session=session,
-        order_schema=order_scheme,
+        order_scheme=order_scheme,
     )
 
 
@@ -181,13 +181,13 @@ async def delete_order(
 
 @router.delete(
     "/user/{user_id}",
-    response_model=OrderResponse,
+    response_model=[],
     status_code=status.HTTP_200_OK,
 )
 async def delete_user_orders(
     user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
-) -> OrderResponse:
+) -> list:
     """
 
     :param order_id:

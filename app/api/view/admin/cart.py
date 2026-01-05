@@ -84,7 +84,7 @@ async def get_cart_by_user_id(
     status_code=status.HTTP_200_OK,
 )
 async def add_product(
-    product_add: ProductAddOrUpdate,
+    product_scheme: ProductAddOrUpdate,
     user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
@@ -98,7 +98,7 @@ async def add_product(
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_id,
         session=session,
-        product_add=product_add,
+        product_scheme=product_scheme,
     )
 
 
@@ -108,7 +108,7 @@ async def add_product(
     status_code=status.HTTP_200_OK,
 )
 async def update_count_product(
-    product_upd: ProductAddOrUpdate,
+    product_scheme: ProductAddOrUpdate,
     user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
@@ -119,21 +119,21 @@ async def update_count_product(
     :param session:
     :return:
     """
-    return CartDepends.add_or_update_product_in_cart(
+    return await CartDepends.add_or_update_product_in_cart(
         user_id=user_id,
-        product_add=product_upd,
+        product_scheme=product_scheme,
         session=session,
     )
 
 
 @router.delete(
-    "/user/{user_id}",
+    "/user/{user_id}/product_id{product_id}",
     response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def delete_product(
     user_id: Annotated[int, Path(..., description="User ID")],
-    product_id: Annotated[int, Path(..., description="User ID")],
+    product_id: Annotated[int, Path(..., description="Product ID")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
