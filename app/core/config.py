@@ -7,9 +7,13 @@ PROJECT = Path(__file__).parent.parent.parent
 
 class DBSettings(BaseSettings):
 
-    url: str
+    db_url: str
 
     echo: bool
+
+    celery_broker_url: str
+
+    celery_result_url: str
 
     model_config = ConfigDict(env_file=".env", extra="ignore", env_prefix="DB_")
 

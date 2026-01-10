@@ -33,4 +33,4 @@ class DBConnector:
             yield session
 
 
-db_connector = DBConnector(url=db_settings.url, echo=db_settings.echo)
+db_connector = DBConnector(url=db_settings.db_url, echo=db_settings.echo)
