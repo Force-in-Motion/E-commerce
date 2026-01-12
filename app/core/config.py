@@ -13,10 +13,25 @@ class DBSettings(BaseSettings):
 
     celery_broker_url: str
 
-    celery_result_url: str
+    celery_backend_url: str
 
     model_config = ConfigDict(env_file=".env", extra="ignore", env_prefix="DB_")
 
+
+class SMTPSettings(BaseSettings):  
+        """ Определяет настройки SMTP, которые считываются из .env файла """                          
+        hostname: str
+
+        port: int
+
+        username: str
+
+        password: str
+
+        start_tls: bool
+
+        model_config = ConfigDict(env_file=".env", extra="ignore", env_prefix="SMTP_")
+        
 
 class JWTSettings(BaseSettings):
     """ Определяет настройки JWT, которые считываются из .env файла """
