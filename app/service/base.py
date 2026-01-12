@@ -82,7 +82,7 @@ class BaseService(Generic[Repo], AService):
         scheme_in: PDScheme,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[DBModel]:
+    ) -> DBModel:
         """
         Возвращает результат выполнения метода добавления модели пользователя в БД
         :param scheme_in: Pydantic Схема - объект, содержащий данные модели пользователя

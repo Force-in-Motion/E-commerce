@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from app.core import db_connector
 from app.api.depends.post import PostDepends
 from app.api.depends.security import admin_guard
-from app.api.depends.inspect import Inspector 
+from app.api.depends.inspect import Inspector
 from app.schemas import PostCreate, PostUpdate, PostResponse
 
 
@@ -171,7 +171,7 @@ async def update_post_partial(
 
 @router.delete(
     "/clear",
-    response_model=list,
+    response_model=[],
     status_code=status.HTTP_200_OK,
 )
 async def clear_all_posts(
@@ -182,8 +182,7 @@ async def clear_all_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return: dict
     """
-    return await PostDepends.clear_post(session=session)
-
+    return await PostDepends.clear_posts(session=session)
 
 
 @router.delete(
@@ -209,7 +208,7 @@ async def delete_post(
 
 @router.delete(
     "/user/{user_id}",
-    response_model=list,
+    response_model=[],
     status_code=status.HTTP_200_OK,
 )
 async def delete_all_user_posts(
@@ -222,7 +221,7 @@ async def delete_all_user_posts(
     :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
     :return:
     """
-    return await PostDepends.delete_all_user_post(
+    return await PostDepends.delete_all_user_posts(
         user_id=user_id,
         session=session,
     )

@@ -13,7 +13,13 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")
 async def admin_guard(
     token: Annotated[str,  Depends(oauth2_scheme)],
     session: AsyncSession = Depends(db_connector.get_session),
-):
+) -> None:
+    """
+    Выполняет валидацию пользователя по его роли
+    :param token: Токен в виде строки
+    :param session: Асинхронная сессия
+    :return: None
+    """
     user = await UserAuth.get_current_user_by_access(token, session)
 
     if user.role != UserRole.admin:

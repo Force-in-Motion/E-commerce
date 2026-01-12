@@ -17,31 +17,30 @@ class UserDepends:
     async def get_all_users(
         cls,
         session: AsyncSession,
-    ) -> Optional[list[User_model]]:
+    ) -> list[User_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает всех пользователей
+        :param session: Асинхронная сессия
+        :return: Список моделей пользователей
         """
-        list_user_models = await UserService.get_all_models(session=session)
+        user_models = await UserService.get_all_models(session=session)
 
-        if not list_user_models:
+        if not user_models:
             raise HTTPErrors.not_found
 
-        return list_user_models
+        return user_models
 
     @classmethod
     async def get_user_by_login(
         cls,
         login: EmailStr,
         session: AsyncSession,
-    ) -> Optional[User_model]:
+    ) -> User_model:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает пользователя по его логину
+        :param login: Логин пользователя
+        :param session: Асинхронная сессия
+        :return: Модель пользователя
         """
         user_model = await UserService.get_user_by_login(
             login=login,
@@ -58,12 +57,12 @@ class UserDepends:
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> Optional[User_model]:
+    ) -> User_model:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает пользователя по его id
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель пользователя
         """
         user_model = await UserService.get_model(
             model_id=user_id,
@@ -80,22 +79,22 @@ class UserDepends:
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> Optional[list[User_model]]:
+    ) -> list[User_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает пользователей, добавленных в указанном временном диапазоне
+        :param session: Асинхронная сессия
+        :param dates: Определяет временной диапазон 
+        :return: Список моделей пользователей, добавленных в указанном временном диапазоне
         """
-        list_user_models = await UserService.get_all_models_by_date(
+        user_models = await UserService.get_all_models_by_date(
             dates=dates,
             session=session,
         )
 
-        if not list_user_models:
+        if not user_models:
             raise HTTPErrors.not_found
 
-        return list_user_models
+        return user_models
 
     @classmethod
     async def create_user(
@@ -104,10 +103,10 @@ class UserDepends:
         session: AsyncSession,
     ) -> User_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Создает пользователя
+        :param session: Асинхронная сессия
+        :param user_scheme: Схема пользователя, полученная от клиента
+        :return: Модель пользователя
         """
         user_scheme.password = AuthUtils.hash_password(user_scheme.password)
 
@@ -122,74 +121,6 @@ class UserDepends:
         return user_model
 
     @classmethod
-    async def get_refresh(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> Refresh_model:
-        """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
-        """
-
-        refresh_model = await TokenService.get_model(
-            user_id=user_id,
-            session=session,
-        )
-
-        return refresh_model
-
-    @classmethod
-    async def create_refresh(
-        cls,
-        user_id: int,
-        refresh: str,
-        session: AsyncSession,
-    ) -> Refresh_model:
-        """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
-        """
-        refresh_schema = RefreshCreate(token=refresh)
-
-        refresh_model = await TokenService.register_model(
-            scheme_in=refresh_schema,
-            user_id=user_id,
-            session=session,
-        )
-
-        if not refresh_model:
-            raise HTTPErrors.err_create_model
-
-        return refresh_model
-
-    @classmethod
-    async def delete_refresh(
-        cls,
-        user_id: int,
-        session: AsyncSession,
-    ) -> Refresh_model:
-        """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
-        """
-        refresh_model = await TokenService.delete_model(
-            session=session,
-            user_id=user_id,
-        )
-
-        if not refresh_model:
-            raise HTTPErrors.err_delete_model
-
-        return refresh_model
-
-    @classmethod
     async def update_user(
         cls,
         user_id: int,
@@ -198,10 +129,12 @@ class UserDepends:
         partial: bool = False,
     ) -> User_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Изменяет данные пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :param user_scheme: Схема пользователя, полученная от клиента
+        :param partial: Флаг, определяющий полное или частичное изменение данных
+        :return: Модель пользователя
         """
         if user_scheme.password is not None:
             user_scheme.password = AuthUtils.hash_password(user_scheme.password)
@@ -225,10 +158,10 @@ class UserDepends:
         session: AsyncSession,
     ) -> User_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Удаляет пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель пользователя
         """
         user_model = await UserService.delete_model(
             model_id=user_id,
@@ -246,10 +179,9 @@ class UserDepends:
         session: AsyncSession,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Полностью очищает таблицу профилей
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         cleared_table = await UserService.clear_table(session=session)
 
@@ -257,6 +189,74 @@ class UserDepends:
             raise HTTPErrors.clear_table
 
         return cleared_table
+    
+    @classmethod
+    async def get_refresh(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Refresh_model:
+        """
+        Возвращает refresh токен по id пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель refresh токена
+        """
+        refresh_model = await TokenService.get_model(
+            user_id=user_id,
+            session=session,
+        )
+
+        return refresh_model
+
+    @classmethod
+    async def create_refresh(
+        cls,
+        user_id: int,
+        refresh: str,
+        session: AsyncSession,
+    ) -> Refresh_model:
+        """
+        Добавляет refresh токен по id пользователя
+        :param user_id: id пользователя
+        :param refresh: Токен в виде строки
+        :param session: Асинхронная сессия
+        :return: Модель refresh токена
+        """
+        refresh_schema = RefreshCreate(token=refresh)
+
+        refresh_model = await TokenService.register_model(
+            scheme_in=refresh_schema,
+            user_id=user_id,
+            session=session,
+        )
+
+        if not refresh_model:
+            raise HTTPErrors.err_create_model
+
+        return refresh_model
+
+    @classmethod
+    async def delete_refresh(
+        cls,
+        user_id: int,
+        session: AsyncSession,
+    ) -> Refresh_model:
+        """
+        Удаляет refresh токен по id пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель refresh токена
+        """
+        refresh_model = await TokenService.delete_model(
+            session=session,
+            user_id=user_id,
+        )
+
+        if not refresh_model:
+            raise HTTPErrors.err_delete_model
+
+        return refresh_model
 
 
 class UserAuth:
@@ -269,9 +269,11 @@ class UserAuth:
         session: AsyncSession,
     ) -> User_model:
         """
-        Выполняет валидацию пользователя, если все проверки пройдены то возвращает его
-        :param form_data: При помощи Depends() создается объект OAuth2PasswordRequestForm, содержащий данные, введенные в форме клиента form_data.username и form_data.password
-        :return: Пользователя
+        Выполняет валидацию пользователя
+        :param login: Логин пользователя
+        :param password: Пароль пользователя
+        :param session: Асинхронная сессия
+        :return: Модель пользователя
         """
         user_model = await UserDepends.get_user_by_login(
             login=login,
@@ -295,8 +297,8 @@ class UserAuth:
         user_model: User_model,
     ) -> str:
         """
-        Создает конкретно access_token
-        :param user: схема пользователя с данными изи БД
+        Создает access токен
+        :param user_model: модель пользователя с данными изи БД
         :return: access_token
         """
         return JWTUtils.create_access_token(user_model=user_model)
@@ -308,9 +310,9 @@ class UserAuth:
         session: AsyncSession,
     ) -> str:
         """
-        Создает конкретно refresh_token
+        Изменяет refresh токен в БД
         :param user: схема пользователя с данными изи БД
-        :return: refresh_token
+        :return: refresh_token в виде строки
         """
         refresh = JWTUtils.create_refresh_token(user_model=user_model)
 
@@ -340,11 +342,12 @@ class UserAuth:
         refresh_status: bool = False,
     ) -> TokenResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
-        """
+        Создает схему TokenResponse
+        :param session: Асинхронная сессия
+        :param user_model: Модель пользователя с данными изи БД
+        :param refresh_status: Флаг, который определяет количество создаваемых токенов
+        :return: Схему токенов
+        """ 
         refresh = None
 
         access = await cls.create_access(user_model)
@@ -367,10 +370,11 @@ class UserAuth:
         session: AsyncSession,
     ) -> User_model:
         """
-        Через зависимость oauth2_scheme извлекает токен из заголовка запроса, затем парсит данные, извлеченные из токена и выполняет проверки
-        :param token: Токен, полученный через зависимость из заголовка запроса
-        :return: Возвращает пользователя, если такой существует в БД
-        """
+        Возвращает модель пользователя по его access токену
+        :param session: Асинхронная сессия
+        :param token: Токен в виде строки
+        :return: Модель пользователя
+        """ 
         payload = JWTUtils.decode_jwt(token)
 
         if not AuthUtils.check_token_type(
@@ -398,9 +402,11 @@ class UserAuth:
         session: AsyncSession,
     ) -> User_model:
         """
-        Через зависимость oauth2_scheme извлекает токен из заголовка запроса, затем парсит данные, извлеченные из токена и выполняет проверки
-        :return: Возвращает пользователя, если такой существует в БД
-        """
+        Возвращает модель пользователя по его refresh токену
+        :param session: Асинхронная сессия
+        :param token: Токен в виде строки
+        :return: Модель пользователя
+        """ 
         payload = JWTUtils.decode_jwt(token)
 
         if not AuthUtils.check_token_type(
@@ -416,7 +422,7 @@ class UserAuth:
             session=session,
         )
 
-        if not refresh_model or refresh_model.token != token:
+        if refresh_model is None or refresh_model.token != token:
             raise HTTPErrors.token_invalid
 
         user_model = await UserDepends.get_user(

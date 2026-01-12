@@ -15,44 +15,44 @@ class PostDepends:
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[list[Post_model]]:
+    ) -> list[Post_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все посты, поиск постов осуществляется в зависимости от переданных параметров
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Список моделей постов
         """
-        list_post_models = await PostService.get_all_models(
+        post_models = await PostService.get_all_models(
             user_id=user_id,
             session=session,
         )
 
-        if not list_post_models:
+        if not post_models:
             raise HTTPErrors.not_found
 
-        return list_post_models
+        return post_models
 
     @classmethod
     async def get_all_posts_by_date(
         cls,
         dates: datetime,
         session: AsyncSession,
-    ) -> Optional[list[Post_model]]:
+    ) -> list[Post_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все посты, созданные в указанном временном диапазоне
+        :param dates: Определяет временной диапазон 
+        :param session: Асинхронная сессия
+        :return: Список моделей постов, созданных в указанном временном диапазоне
         """
-        list_post_models = await PostService.get_all_models_by_date(
+        post_models = await PostService.get_all_models_by_date(
             dates=dates,
             session=session,
         )
 
-        if not list_post_models:
+        if not post_models:
             raise HTTPErrors.not_found
 
-        return list_post_models
+        return post_models
 
     @classmethod
     async def get_post(
@@ -60,12 +60,13 @@ class PostDepends:
         session: AsyncSession,
         user_id: Optional[int] = None,
         post_id: Optional[int] = None,
-    ) -> Optional[Post_model]:
+    ) -> Post_model:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает пост, поиск поста осуществляется в зависимости от переданных параметров
+        :param user_id: Опциональный параметр, id пользователя
+        :param post_id: Опциональный параметр, id поста
+        :param session: Асинхронная сессия
+        :return: Модель поста пользователя
         """
         post_model = await PostService.get_model(
             user_id=user_id,
@@ -86,21 +87,22 @@ class PostDepends:
         session: AsyncSession,
     ) -> Post_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Создает пост пользователя
+        :param post_scheme: Схема поста, полученная от пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель поста пользователя 
         """
-        created_post_model = await PostService.register_model(
+        post_model = await PostService.register_model(
             scheme_in=post_scheme,
             session=session,
             user_id=user_id,
         )
 
-        if not created_post_model:
+        if not post_model:
             raise HTTPErrors.err_create_model
 
-        return created_post_model
+        return post_model
 
     @classmethod
     async def update_post(
@@ -112,12 +114,15 @@ class PostDepends:
         partial: bool = False,
     ) -> Post_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Изменяет пост пользователя
+        :param post_scheme: Схема поста, полученная от пользователя
+        :param post_id: Опциональный параметр, id поста
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :param partial: Флаг, определяющий полное или частичное изменение данных
+        :return: Модель поста пользователя
         """
-        updated_post_model = await PostService.update_model(
+        post_model = await PostService.update_model(
             scheme_in=post_scheme,
             session=session,
             user_id=user_id,
@@ -125,10 +130,10 @@ class PostDepends:
             partial=partial,
         )
 
-        if not updated_post_model:
+        if not post_model:
             raise HTTPErrors.err_update_model
 
-        return updated_post_model
+        return post_model
 
     @classmethod
     async def delete_post(
@@ -138,32 +143,33 @@ class PostDepends:
         post_id: Optional[int] = None,
     ) -> Post_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Удаляет пост пользователя
+        :param post_id: Опциональный параметр, id поста
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель поста пользователя
         """
-        deleted_post_model = await PostService.delete_model(
+        post_model = await PostService.delete_model(
             user_id=user_id,
             model_id=post_id,
             session=session,
         )
-        if not deleted_post_model:
+        if not post_model:
             raise HTTPErrors.err_delete_model
 
-        return deleted_post_model
+        return post_model
 
     @classmethod
-    async def delete_all_user_post(
+    async def delete_all_user_posts(
         cls,
+        user_id: int,
         session: AsyncSession,
-        user_id: Optional[int] = None,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Удаляет все посты пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         result = await PostService.delete_all_models(
             user_id=user_id,
@@ -176,15 +182,14 @@ class PostDepends:
         return result
 
     @classmethod
-    async def clear_post(
+    async def clear_posts(
         cls,
         session: AsyncSession,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Полностью очищает таблицу постов
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         cleared_table = await PostService.clear_table(session=session)
 

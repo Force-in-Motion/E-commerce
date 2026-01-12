@@ -148,7 +148,7 @@ async def update_product_partial(
 
 @router.delete(
     "/clear",
-    response_model=list,
+    response_model=[],
     status_code=status.HTTP_200_OK,
 )
 async def clear_products(

@@ -8,7 +8,11 @@ from typing import AsyncGenerator
 
 
 class DBConnector:
-
+    """
+    Ключевой объект приложения, создающий подключение к БД, фабрику сессий и управляет сиссиями
+    :param param:
+    :return:
+    """
     def __init__(self, url: str, echo: bool):
         self.engine = create_async_engine(
             url=url,
@@ -27,7 +31,7 @@ class DBConnector:
         Асинхронный генератор, который предоставляет сессию для FastAPI-маршрутов и автоматически закрывает её после использования.
         "Отдаёт" её маршруту (через yield), чтобы тот мог работать с базой.
         После завершения запроса закрывает сессию и возвращает ее в пул соединений
-        :return:
+        :return: AsyncSession
         """
         async with self.session_factory() as session:
             yield session

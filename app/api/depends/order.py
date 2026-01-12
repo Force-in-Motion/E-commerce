@@ -16,12 +16,12 @@ class OrderDepends:
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[list[OrderResponse]]:
+    ) -> list[OrderResponse]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все созданные заказы, поиск заказов осуществляется в зависимости от переданных параметров
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Список схем заказов пользователей
         """
         order_schemes = await OrderService.get_all_orders(
             user_id=user_id,
@@ -39,12 +39,12 @@ class OrderDepends:
         cls,
         session: AsyncSession,
         dates: tuple[datetime, datetime],
-    ) -> Optional[list[OrderResponse]]:
+    ) -> list[OrderResponse]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все созданные заказы, созданные в указанном временном диапазоне
+        :param dates: Определяет временной диапазон 
+        :param session: Асинхронная сессия
+        :return: Список схем заказов пользователей, созданных в указанном временном диапазоне
         """
         order_schemes = await OrderService.get_orders_by_date(
             dates=dates,
@@ -63,12 +63,13 @@ class OrderDepends:
         order_id: int,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[OrderResponse]:
+    ) -> OrderResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает заказ пользователя, поиск заказа осуществляется в зависимости от переданных параметров
+        :param user_id: Опциональный параметр, id пользователя
+        :param order_id: id заказа
+        :param session: Асинхронная сессия
+        :return: Схема заказа пользователя
         """
         order_scheme = await OrderService.get_order_scheme(
             order_id=order_id,
@@ -89,10 +90,11 @@ class OrderDepends:
         order_scheme: OrderCreate,
     ) -> OrderResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Создает заказ пользователя
+        :param order_scheme: Схема заказа, полученная от пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Схема заказа пользователя
         """
         order_scheme = await OrderService.create_order(
             user_id=user_id,
@@ -114,10 +116,12 @@ class OrderDepends:
         user_id: Optional[int] = None,
     ) -> OrderResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Изменяет заказ пользователя
+        :param order_scheme: Схема заказа, полученная от пользователя
+        :param order_id: id заказа
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Схема заказа пользователя
         """
         order_scheme = await OrderService.update_order_partial(
             user_id=user_id,
@@ -137,12 +141,13 @@ class OrderDepends:
         order_id: int,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Order_model:
+    ) -> OrderResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Удаляет заказ пользователя
+        :param order_id: id заказа
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Схема заказа пользователя
         """
         order_scheme = await OrderService.delete_order(
             user_id=user_id,
@@ -157,14 +162,14 @@ class OrderDepends:
     @classmethod
     async def delete_all_user_orders(
         cls,
+        user_id: int,
         session: AsyncSession,
-        user_id: Optional[int] = None,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Удаляет все заказы пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         result = await OrderService.delete_all_models(
             user_id=user_id,
@@ -182,10 +187,9 @@ class OrderDepends:
         session: AsyncSession,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Полностью очищает таблицу заказов
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         cleared_table = await OrderService.clear_table(session=session)
 

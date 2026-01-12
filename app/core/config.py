@@ -6,7 +6,7 @@ PROJECT = Path(__file__).parent.parent.parent
 
 
 class DBSettings(BaseSettings):
-
+    """ Определяет настройки баз данных, которые считываются из .env файла """
     db_url: str
 
     echo: bool
@@ -19,7 +19,7 @@ class DBSettings(BaseSettings):
 
 
 class JWTSettings(BaseSettings):
-
+    """ Определяет настройки JWT, которые считываются из .env файла """
     private_key: Path
 
     public_key: Path

@@ -29,9 +29,9 @@ async def get_all_carts(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[CartResponse]:
     """
-
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение всех корзин пользователей
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Список схем корзины пользователей
     """
     return await CartDepends.get_all_cart(session=session)
 
@@ -46,10 +46,10 @@ async def get_carts_by_date(
     session: AsyncSession = Depends(db_connector.get_session),
 ) -> list[CartResponse]:
     """
-
-    :param dates:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение всех корзин пользователей, созданных в полученный интервал времени
+    :param dates: Определяет временной диапазон для поиска
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Список схем корзины пользователей
     """
     return await CartDepends.get_all_cart_by_date(
         dates=dates,
@@ -67,10 +67,10 @@ async def get_cart_by_user_id(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение корзины пользователеля по его id
+    :param user_id: id пользователя
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Схема корзины пользователя
     """
     return await CartDepends.get_cart(
         user_id=user_id,
@@ -89,11 +89,11 @@ async def add_product(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param product_add:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на добавление продукта в корзину пользователеля
+    :param user_id: id пользователя
+    :param product_scheme: Схема продукта для добавления
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Схема корзины пользователя
     """
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_id,
@@ -113,11 +113,11 @@ async def update_count_product(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param product_upd:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на изменение количества продукта в корзине пользователеля
+    :param user_id: id пользователя
+    :param product_scheme: Схема продукта для изменения
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Схема корзины пользователя
     """
     return await CartDepends.add_or_update_product_in_cart(
         user_id=user_id,
@@ -137,11 +137,11 @@ async def delete_product(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param product_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление продукта из корзины пользователеля
+    :param user_id: id пользователя
+    :param product_id: id продукта
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Схема корзины пользователя
     """
     return await CartDepends.del_product_from_cart(
         user_id=user_id,
@@ -152,18 +152,18 @@ async def delete_product(
 
 @router.delete(
     "/user/{user_id}/clear",
-    response_model=list,
+    response_model=CartResponse,
     status_code=status.HTTP_200_OK,
 )
 async def clear_user_cart(
     user_id: Annotated[int, Path(..., description="User ID")],
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
-) -> list:
+) -> CartResponse:
     """
-
-    :param user_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление всех продуктов из корзины пользователеля
+    :param user_id: id пользователя
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Схема корзины пользователя
     """
     return await CartDepends.clear_cart(
         user_id=user_id,

@@ -14,13 +14,13 @@ class CartDepends:
     async def get_all_cart(
         cls,
         session: AsyncSession,
-        dates: tuple[datetime, datetime] = None,
+        dates: Optional[tuple[datetime, datetime]] = None,
     ) -> list[CartResponse]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все созданные корзины в зависимости от переданных параметров
+        :param dates: Опциональный параметр, определяет временной диапазон для поиска
+        :param session: Асинхронная сессия
+        :return: Список схем корзин пользователей, созданных в указанном временном диапазоне
         """
         cart_schemes = await CartService.get_all_carts(dates=dates, session=session)
 
@@ -37,10 +37,11 @@ class CartDepends:
         cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает корзину пользователя, поиск корзины осуществляется в зависимости от переданных параметров
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id корзины
+        :param session: Асинхронная сессия
+        :return: Схему корзины пользователя
         """
         cart_scheme = await CartService.get_or_create_cart(
             user_id=user_id,
@@ -63,10 +64,12 @@ class CartDepends:
         cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Добавляет продукт в корзину или изменяет его количество, если он уже есть в корзине
+        :param product_scheme: Схема продукта, полученная от пользователя
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id корзины
+        :param session: Асинхронная сессия
+        :return: Схему корзины пользователя
         """
         cart_scheme = await CartService.add_or_update_product_in_cart(
             user_id=user_id,
@@ -83,18 +86,22 @@ class CartDepends:
     @classmethod
     async def del_product_from_cart(
         cls,
-        user_id: int,
         product_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
+        cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Удаляет продукт из корзины
+        :param product_id: id продукта
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id корзины
+        :param session: Асинхронная сессия
+        :return: Схему корзины пользователя
         """
         cart_scheme = await CartService.del_product_from_cart(
             user_id=user_id,
+            cart_id=cart_id,
             product_id=product_id,
             session=session,
         )
@@ -107,21 +114,24 @@ class CartDepends:
     @classmethod
     async def clear_cart(
         cls,
-        user_id: int,
         session: AsyncSession,
-    ) -> list:
+        user_id: Optional[int] = None,
+        cart_id: Optional[int] = None,
+    ) -> CartResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Очищает полностью корзину пользователя
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id корзины
+        :param session: Асинхронная сессия
+        :return: Схему корзины пользователя
         """
-        cart_table = await CartService.clear_user_cart(
+        cart_scheme = await CartService.clear_user_cart(
+            cart_id=cart_id,
             user_id=user_id,
             session=session,
         )
 
-        if cart_table is None:
+        if cart_scheme is None:
             raise HTTPErrors.clear_table
 
-        return cart_table
+        return cart_scheme

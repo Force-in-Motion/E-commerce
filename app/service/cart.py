@@ -109,7 +109,7 @@ class CartService(BaseService[CartRepo]):
         session: AsyncSession,
         user_id: Optional[int] = None,
         cart_id: Optional[int] = None,
-    ) -> Optional[CartResponse]:
+    ) -> CartResponse:
         """
 
         :param user_id:
@@ -250,7 +250,7 @@ class CartService(BaseService[CartRepo]):
         session: AsyncSession,
         user_id: Optional[int] = None,
         cart_id: Optional[int] = None,
-    ) -> Optional[list]:
+    ) -> Optional[CartResponse]:
         """
 
         :param user_id:

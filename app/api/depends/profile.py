@@ -14,12 +14,11 @@ class ProfileDepends:
     async def get_all_profiles(
         cls,
         session: AsyncSession,
-    ) -> Optional[list[Profile_model]]:
+    ) -> list[Profile_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все профили пользователей
+        :param session: Асинхронная сессия
+        :return: Список моделей профилей
         """
         list_profile_models = await ProfileService.get_all_models(session=session)
 
@@ -33,12 +32,12 @@ class ProfileDepends:
         cls,
         dates: datetime,
         session: AsyncSession,
-    ) -> Optional[list[Profile_model]]:
+    ) -> list[Profile_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает профили, добавленные в указанном временном диапазоне
+        :param dates: Определяет временной диапазон 
+        :param session: Асинхронная сессия
+        :return: Список моделей профилей, добавленных в указанном временном диапазоне
         """
         list_profile_models = await ProfileService.get_all_models_by_date(
             dates=dates,
@@ -56,12 +55,13 @@ class ProfileDepends:
         session: AsyncSession,
         user_id: Optional[int] = None,
         profile_id: Optional[int] = None,
-    ) -> Optional[Profile_model]:
+    ) -> Profile_model:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает конкретный профиль пользователя
+        :param user_id: Опциональный параметр, id продукта
+        :param profile_id: Опциональный параметр, id продукта
+        :param session: Асинхронная сессия
+        :return: Модель профиля пользователя
         """
         profile_model = await ProfileService.get_model(
             user_id=user_id,
@@ -83,10 +83,11 @@ class ProfileDepends:
         session: AsyncSession,
     ) -> Profile_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Создает профиль пользователя
+        :param profile_scheme: Схема профиля, полученная от пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель профиля пользователя
         """
         profile_model = await ProfileService.register_model(
             scheme_in=profile_scheme,
@@ -108,10 +109,12 @@ class ProfileDepends:
         partial: bool = False,
     ) -> Profile_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Изменяет профиль пользователя
+        :param profile_scheme: Схема профиля, полученная от пользователя
+        :param user_id: id пользователя
+        :param session: Асинхронная сессия
+        :param partial: Флаг, определяющий полное или частичное изменение данных
+        :return: Заказ пользователя
         """
         profile_model = await ProfileService.update_model(
             scheme_in=profile_scheme,
@@ -128,18 +131,21 @@ class ProfileDepends:
     @classmethod
     async def delete_profile(
         cls,
-        user_id: int,
         session: AsyncSession,
+        user_id: Optional[int] = None,
+        post_id: Optional[int] = None,
     ) -> Profile_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Удаляет профиль пользователя
+        :param post_id: Опциональный параметр, id профиля
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Модель профиля пользователя
         """
         profile_model = await ProfileService.delete_model(
             session=session,
             user_id=user_id,
+            model_id=post_id,
         )
 
         if not profile_model:
@@ -153,10 +159,9 @@ class ProfileDepends:
         session: AsyncSession,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Полностью очищает таблицу профилей
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         cleared_table = await ProfileService.clear_table(session=session)
 

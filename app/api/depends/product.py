@@ -1,4 +1,3 @@
-from typing import Optional
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -14,12 +13,11 @@ class ProductDepends:
     async def get_all_products(
         cls,
         session: AsyncSession,
-    ) -> Optional[list[Product_model]]:
+    ) -> list[Product_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все продукты
+        :param session: Асинхронная сессия
+        :return: Список моделей продуктов
         """
         product_models = await ProductService.get_all_models(session=session)
 
@@ -33,12 +31,12 @@ class ProductDepends:
         cls,
         product_id: int,
         session: AsyncSession,
-    ) -> Optional[Product_model]:
+    ) -> Product_model:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает конкретный продукт
+        :param product_id: id продукта
+        :param session: Асинхронная сессия
+        :return: Модель поста 
         """
         product_model = await ProductService.get_model(
             model_id=product_id,
@@ -55,12 +53,12 @@ class ProductDepends:
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> Optional[list[Product_model]]:
+    ) -> list[Product_model]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Возвращает все продукты, добавленные в указанном временном диапазоне
+        :param dates: Определяет временной диапазон 
+        :param session: Асинхронная сессия
+        :return: Список моделей продуктов, добавленных в указанном временном диапазоне
         """
         product_models = await ProductService.get_all_models_by_date(
             dates=dates,
@@ -79,10 +77,10 @@ class ProductDepends:
         session: AsyncSession,
     ) -> Product_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Добавляет продукт
+        :param product_scheme: Схема продукта, полученная от пользователя
+        :param session: Асинхронная сессия
+        :return: Модель продукта 
         """
         product_model = await ProductService.register_model(
             scheme_in=product_scheme,
@@ -103,10 +101,12 @@ class ProductDepends:
         partial: bool = False,
     ) -> Product_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Изменяет данные продукта
+        :param product_scheme: Схема прподукта, полученная от пользователя
+        :param product_id:  id поспродукта
+        :param session: Асинхронная сессия
+        :param partial: Флаг, определяющий полное или частичное изменение данных
+        :return: Модель продукта 
         """
         product_model = await ProductService.update_model(
             model_id=product_id,
@@ -127,10 +127,10 @@ class ProductDepends:
         session: AsyncSession,
     ) -> Product_model:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Удаляет продукт
+        :param product_id: id поста
+        :param session: Асинхронная сессия
+        :return: Модель продукта 
         """
         product_model = await ProductService.delete_model(
             model_id=product_id,
@@ -148,10 +148,9 @@ class ProductDepends:
         session: AsyncSession,
     ) -> list:
         """
-        Обрабатывает запрос с fontend на добавление пользователя в БД
-        :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-        :return: Добавленного в БД пользователя в виде Pydantic схемы
+        Полностью очищает таблицу продуктов
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         cleared_table = await ProductService.clear_table(session=session)
 
