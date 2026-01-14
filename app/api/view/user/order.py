@@ -126,7 +126,7 @@ async def update_my_order_partial(
         user_id=user_model.id,
         order_id=order_id,
         session=session,
-        order_scheme=order_scheme,
+        order_response=order_scheme,
     )
 
 

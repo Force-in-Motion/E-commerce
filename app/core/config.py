@@ -7,7 +7,7 @@ PROJECT = Path(__file__).parent.parent.parent
 
 class DBSettings(BaseSettings):
     """ Определяет настройки баз данных, которые считываются из .env файла """
-    db_url: str
+    url: str
 
     echo: bool
 
@@ -15,7 +15,7 @@ class DBSettings(BaseSettings):
 
     celery_backend_url: str
 
-    model_config = ConfigDict(env_file=".env", extra="ignore", env_prefix="DB_")
+    model_config = ConfigDict(env_file=PROJECT /".env", extra="ignore", env_prefix="DB_")
 
 
 class SMTPSettings(BaseSettings):  
@@ -30,7 +30,7 @@ class SMTPSettings(BaseSettings):
 
         start_tls: bool
 
-        model_config = ConfigDict(env_file=".env", extra="ignore", env_prefix="SMTP_")
+        model_config = ConfigDict(env_file=PROJECT /".env", extra="ignore", env_prefix="SMTP_")
         
 
 class JWTSettings(BaseSettings):
@@ -40,6 +40,8 @@ class JWTSettings(BaseSettings):
     public_key: Path
 
     algorithm: str
+    
+    token_type: str
 
     access_token_expire: int
 
@@ -49,9 +51,12 @@ class JWTSettings(BaseSettings):
 
     refresh_name: str
 
-    model_config = ConfigDict(env_file=".env", extra="ignore", env_prefix="JWT_")
+    model_config = ConfigDict(env_file=PROJECT /".env", extra="ignore", env_prefix="JWT_")
+
 
 
 db_settings = DBSettings()
 
 jwt_settings = JWTSettings()
+
+smtp_settings = SMTPSettings()

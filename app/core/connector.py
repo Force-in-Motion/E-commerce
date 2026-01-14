@@ -13,6 +13,7 @@ class DBConnector:
     :param param:
     :return:
     """
+
     def __init__(self, url: str, echo: bool):
         self.engine = create_async_engine(
             url=url,
@@ -37,4 +38,4 @@ class DBConnector:
             yield session
 
 
-db_connector = DBConnector(url=db_settings.db_url, echo=db_settings.echo)
+db_connector = DBConnector(url=db_settings.url, echo=db_settings.echo)

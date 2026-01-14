@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from typing import Optional
-from tools.types import DBModel
+from app.tools.types import DBModel
 
 
 class ARepo(ABC):

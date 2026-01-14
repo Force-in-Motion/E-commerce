@@ -42,7 +42,7 @@ class OrderDepends:
     ) -> list[OrderResponse]:
         """
         Возвращает все созданные заказы, созданные в указанном временном диапазоне
-        :param dates: Определяет временной диапазон 
+        :param dates: Определяет временной диапазон
         :param session: Асинхронная сессия
         :return: Список схем заказов пользователей, созданных в указанном временном диапазоне
         """
@@ -96,16 +96,16 @@ class OrderDepends:
         :param session: Асинхронная сессия
         :return: Схема заказа пользователя
         """
-        order_scheme = await OrderService.create_order(
+        order_response = await OrderService.create_order(
             user_id=user_id,
             order_scheme=order_scheme,
             session=session,
         )
 
-        if not order_scheme:
+        if not order_response:
             raise HTTPErrors.err_create_model
 
-        return order_scheme
+        return order_response
 
     @classmethod
     async def update_oreder(
@@ -123,17 +123,17 @@ class OrderDepends:
         :param session: Асинхронная сессия
         :return: Схема заказа пользователя
         """
-        order_scheme = await OrderService.update_order_partial(
+        order_response = await OrderService.update_order_partial(
             user_id=user_id,
             order_id=order_id,
-            order_scheme=order_scheme,
+            order_scheme=order_response,
             session=session,
         )
 
-        if not order_scheme:
+        if not order_response:
             raise HTTPErrors.err_update_model
 
-        return order_scheme
+        return order_response
 
     @classmethod
     async def delete_order(

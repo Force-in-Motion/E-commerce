@@ -6,8 +6,8 @@ from app.models.user import User as User_model
 
 class AuthUtils:
 
-    @classmethod
-    def hash_password(cls, password: SecretStr) -> bytes:
+    @staticmethod
+    def hash_password(password: SecretStr) -> bytes:
         """
         Хэширует полученный пароль
         :param password: Пароль в виде строки
@@ -18,9 +18,8 @@ class AuthUtils:
             salt=bcrypt.gensalt(),
         )
 
-    @classmethod
+    @staticmethod
     def check_password(
-        cls,
         password: str,
         hashed_password,
     ) -> bool:
@@ -35,11 +34,8 @@ class AuthUtils:
             hashed_password=hashed_password,
         )
 
-    @classmethod
-    def check_user_status(
-        cls,
-        user_model: User_model,
-    ) -> bool:
+    @staticmethod
+    def check_user_status(user_model: User_model) -> bool:
         """
 
         :param param:
@@ -48,9 +44,8 @@ class AuthUtils:
         """
         return user_model.is_active
 
-    @classmethod
+    @staticmethod
     def check_token_type(
-        cls,
         payload: dict,
         token_type: str,
     ) -> bool:

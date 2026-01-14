@@ -1,14 +1,21 @@
+from email.message import EmailMessage
 from pydantic import EmailStr
-from typing import Optional
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core import jwt_settings
+from app.core import jwt_settings, smtp_settings
 from app.tools import HTTPErrors
 from app.service import UserService, TokenService
-from app.utils import JWTUtils, AuthUtils
+from app.utils import JWTUtils, AuthUtils, EmailUtils
+from app.celery.tasks import send_msg_to_email_task
 from app.models import User as User_model, RefreshToken as Refresh_model
-from app.schemas import UserCreate, UserUpdate, TokenResponse, RefreshCreate
+from app.schemas import (
+    UserCreate,
+    UserUpdate,
+    TokenResponse,
+    RefreshCreate,
+    EmailScheme,
+)
 
 
 class UserDepends:
@@ -83,7 +90,7 @@ class UserDepends:
         """
         Возвращает пользователей, добавленных в указанном временном диапазоне
         :param session: Асинхронная сессия
-        :param dates: Определяет временной диапазон 
+        :param dates: Определяет временной диапазон
         :return: Список моделей пользователей, добавленных в указанном временном диапазоне
         """
         user_models = await UserService.get_all_models_by_date(
@@ -118,6 +125,11 @@ class UserDepends:
         if not user_model:
             raise HTTPErrors.err_create_model
 
+        send_msg_to_email_task.delay(
+            key=cls.create_user.__name__,
+            to_email=user_scheme.login,
+        )
+
         return user_model
 
     @classmethod
@@ -149,6 +161,11 @@ class UserDepends:
         if not user_model:
             raise HTTPErrors.err_update_model
 
+        send_msg_to_email_task.delay(
+            key=cls.update_user.__name__,
+            to_email=user_scheme.login,
+        )
+            
         return user_model
 
     @classmethod
@@ -171,6 +188,11 @@ class UserDepends:
         if not user_model:
             raise HTTPErrors.err_delete_model
 
+        send_msg_to_email_task.delay(
+            key=cls.update_user.__name__,
+            to_email=user_model.login,
+        )
+            
         return user_model
 
     @classmethod
@@ -189,7 +211,7 @@ class UserDepends:
             raise HTTPErrors.clear_table
 
         return cleared_table
-    
+
     @classmethod
     async def get_refresh(
         cls,
@@ -289,6 +311,11 @@ class UserAuth:
         if not AuthUtils.check_user_status(user_model=user_model):
             raise HTTPErrors.user_inactive
 
+        send_msg_to_email_task.delay(
+            key=cls.validate_user.__name__,
+            to_email=login,
+        )
+            
         return user_model
 
     @classmethod
@@ -347,7 +374,7 @@ class UserAuth:
         :param user_model: Модель пользователя с данными изи БД
         :param refresh_status: Флаг, который определяет количество создаваемых токенов
         :return: Схему токенов
-        """ 
+        """
         refresh = None
 
         access = await cls.create_access(user_model)
@@ -361,6 +388,7 @@ class UserAuth:
         return TokenResponse(
             access_token=access,
             refresh_token=refresh,
+            token_type=jwt_settings.token_type,
         )
 
     @classmethod
@@ -374,7 +402,7 @@ class UserAuth:
         :param session: Асинхронная сессия
         :param token: Токен в виде строки
         :return: Модель пользователя
-        """ 
+        """
         payload = JWTUtils.decode_jwt(token)
 
         if not AuthUtils.check_token_type(
@@ -382,7 +410,7 @@ class UserAuth:
             token_type=jwt_settings.access_name,
         ):
             raise HTTPErrors.token_invalid
-    
+
         user_id = int(payload.get("sub"))
 
         user_model = await UserDepends.get_user(
@@ -406,7 +434,7 @@ class UserAuth:
         :param session: Асинхронная сессия
         :param token: Токен в виде строки
         :return: Модель пользователя
-        """ 
+        """
         payload = JWTUtils.decode_jwt(token)
 
         if not AuthUtils.check_token_type(
@@ -414,7 +442,7 @@ class UserAuth:
             token_type=jwt_settings.refresh_name,
         ):
             raise HTTPErrors.token_invalid
-        
+
         user_id = int(payload.get("sub"))
 
         refresh_model = await UserDepends.get_refresh(

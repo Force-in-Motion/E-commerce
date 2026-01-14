@@ -1,4 +1,5 @@
 __all__ = [
+    "EmailScheme",
     "TokenResponse",
     "RefreshCreate",
     "UserCreate",
@@ -23,6 +24,7 @@ __all__ = [
     "ProductAddOrUpdate",
 ]
 
+from app.schemas.message import EmailScheme
 from app.schemas.token import TokenResponse, RefreshCreate
 from app.schemas.user import UserCreate, UserUpdate, UserResponse, UserUpdateForAdmin
 from app.schemas.post import PostCreate, PostUpdate, PostResponse
