@@ -1,8 +1,10 @@
 from datetime import datetime
 from typing import Optional
+from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.schemas import ProfileCreate, ProfileUpdate
+from app.celery.tasks import send_msg_to_email_task
 from app.models import Profile as Profile_model
 from app.service import ProfileService
 from app.tools import HTTPErrors
@@ -79,8 +81,9 @@ class ProfileDepends:
     async def create_profile(
         cls,
         user_id: int,
-        profile_scheme: ProfileCreate,
         session: AsyncSession,
+        profile_scheme: ProfileCreate,
+        login: Optional[EmailStr] = None
     ) -> Profile_model:
         """
         Создает профиль пользователя
@@ -98,6 +101,11 @@ class ProfileDepends:
         if not profile_model:
             raise HTTPErrors.err_create_model
 
+        send_msg_to_email_task.delay(
+            key=cls.create_profile.__name__,
+            to_email=login,
+        )
+            
         return profile_model
 
     @classmethod
@@ -107,6 +115,7 @@ class ProfileDepends:
         profile_scheme: ProfileUpdate,
         session: AsyncSession,
         partial: bool = False,
+        login: Optional[EmailStr] = None,
     ) -> Profile_model:
         """
         Изменяет профиль пользователя
@@ -125,6 +134,11 @@ class ProfileDepends:
 
         if not profile_model:
             raise HTTPErrors.err_update_model
+        
+        send_msg_to_email_task.delay(
+            key=cls.update_profile.__name__,
+            to_email=login,
+        )
 
         return profile_model
 
@@ -134,6 +148,7 @@ class ProfileDepends:
         session: AsyncSession,
         user_id: Optional[int] = None,
         post_id: Optional[int] = None,
+        login: Optional[EmailStr] = None
     ) -> Profile_model:
         """
         Удаляет профиль пользователя
@@ -150,6 +165,11 @@ class ProfileDepends:
 
         if not profile_model:
             raise HTTPErrors.err_delete_model
+        
+        send_msg_to_email_task.delay(
+            key=cls.delete_profile.__name__,
+            to_email=login,
+        )
 
         return profile_model
 

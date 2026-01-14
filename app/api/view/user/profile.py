@@ -66,6 +66,7 @@ async def create_my_profile(
 
     return await ProfileDepends.create_profile(
         user_id=user_model.id,
+        login=user_model.login,
         profile_scheme=profile_scheme,
         session=session,
     )
@@ -95,6 +96,7 @@ async def full_update_my_profile(
 
     return await ProfileDepends.update_profile(
         user_id=user_model.id,
+        login=user_model.login,
         profile_scheme=profile_scheme,
         session=session,
     )
@@ -124,6 +126,7 @@ async def partial_update_my_profile(
 
     return await ProfileDepends.update_profile(
         user_id=user_model.id,
+        login=user_model.login,
         profile_scheme=profile_scheme,
         session=session,
         partial=True,
@@ -152,5 +155,6 @@ async def delete_my_profile(
 
     return await ProfileDepends.delete_profile(
         user_id=user_model.id,
+        login=user_model.login,
         session=session,
     )

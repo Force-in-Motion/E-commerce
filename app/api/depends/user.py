@@ -1,12 +1,11 @@
-from email.message import EmailMessage
 from pydantic import EmailStr
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.core import jwt_settings, smtp_settings
+from app.core import jwt_settings
 from app.tools import HTTPErrors
 from app.service import UserService, TokenService
-from app.utils import JWTUtils, AuthUtils, EmailUtils
+from app.utils import JWTUtils, AuthUtils
 from app.celery.tasks import send_msg_to_email_task
 from app.models import User as User_model, RefreshToken as Refresh_model
 from app.schemas import (
@@ -14,7 +13,6 @@ from app.schemas import (
     UserUpdate,
     TokenResponse,
     RefreshCreate,
-    EmailScheme,
 )
 
 

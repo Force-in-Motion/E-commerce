@@ -9,5 +9,3 @@ celery = Celery(
 # обязательно импортируем задачи, чтобы воркер их видел
 import app.celery.tasks
 
-# или автодисквери
-# celery.autodiscover_tasks(['app.celery.tasks'])
