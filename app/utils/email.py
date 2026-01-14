@@ -22,7 +22,7 @@ class EmailUtils:
             return yaml.safe_load(f)  # преобразует YAML в dict Python
 
     @classmethod
-    def _email(email_scheme: EmailScheme) -> EmailMessage:
+    def _email(cls, email_scheme: EmailScheme) -> EmailMessage:
         """
         Создает письмо из полученных компонентов схемы
         :param message_scheme: Схема письма для отправки клиенту
