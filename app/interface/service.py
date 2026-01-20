@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 from typing import Optional
+from abc import ABC, abstractmethod
 
 
 class AService(ABC):
@@ -62,7 +62,7 @@ class AService(ABC):
     @abstractmethod
     async def delete_all_models(cls, *args, **kwargs) -> list:
         """
-        Удаляет модель из БД
+        Удаляет все модели согласно условию из БД
         :return: Пустой список
         """
         pass

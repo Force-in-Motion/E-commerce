@@ -2,11 +2,10 @@ from typing import Optional
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import ProductAddOrUpdate
-from app.schemas import CartResponse
-from app.service import CartService
 from app.tools import HTTPErrors
-
+from app.service import CartService, UserService
+from app.celery.tasks import send_msg_to_email_task
+from app.schemas import ProductAddOrUpdate, CartResponse
 
 class CartDepends:
 
@@ -50,7 +49,6 @@ class CartDepends:
         )
 
         if cart_scheme is None:
-
             raise HTTPErrors.not_found
 
         return cart_scheme
@@ -64,7 +62,7 @@ class CartDepends:
         cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-        Добавляет продукт в корзину или изменяет его количество, если он уже есть в корзине
+        Добавляет продукт в корзину или изменяет его количество, если он уже есть в корзине, а так же уведомляет пользователя об этом
         :param product_scheme: Схема продукта, полученная от пользователя
         :param user_id: Опциональный параметр, id пользователя
         :param cart_id: Опциональный параметр, id корзины
@@ -81,6 +79,16 @@ class CartDepends:
         if cart_scheme is None:
             raise HTTPErrors.err_update_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.add_or_update_product_in_cart.__name__,
+            user_email=user_model.login,
+        )
+
         return cart_scheme
 
     @classmethod
@@ -92,7 +100,7 @@ class CartDepends:
         cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-        Удаляет продукт из корзины
+        Удаляет продукт из корзины, а так же уведомляет пользователя об этом
         :param product_id: id продукта
         :param user_id: Опциональный параметр, id пользователя
         :param cart_id: Опциональный параметр, id корзины
@@ -109,6 +117,16 @@ class CartDepends:
         if cart_scheme is None:
             raise HTTPErrors.err_delete_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.del_product_from_cart.__name__,
+            user_email=user_model.login,
+        )
+
         return cart_scheme
 
     @classmethod
@@ -119,7 +137,7 @@ class CartDepends:
         cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-        Очищает полностью корзину пользователя
+        Очищает полностью корзину пользователя, а так же уведомляет пользователя об этом
         :param user_id: Опциональный параметр, id пользователя
         :param cart_id: Опциональный параметр, id корзины
         :param session: Асинхронная сессия
@@ -133,5 +151,15 @@ class CartDepends:
 
         if cart_scheme is None:
             raise HTTPErrors.clear_table
+
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.clear_cart.__name__,
+            user_email=user_model.login,
+        )
 
         return cart_scheme

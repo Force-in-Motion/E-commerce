@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-
 from sqlalchemy import ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -11,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class Cart(Base, TimestampMixin):
+    """Класс, описывающий мета информацию таблицы Cart"""
+
     __tablename__ = "carts"
 
     user_id: Mapped[int] = mapped_column(

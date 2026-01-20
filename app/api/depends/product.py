@@ -1,10 +1,10 @@
 from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import ProductCreate, ProductUpdate
 from app.tools import HTTPErrors
 from app.service import ProductService
 from app.models import Product as Product_model
+from app.schemas import ProductCreate, ProductUpdate
 
 
 class ProductDepends:
@@ -36,7 +36,7 @@ class ProductDepends:
         Возвращает конкретный продукт
         :param product_id: id продукта
         :param session: Асинхронная сессия
-        :return: Модель поста 
+        :return: Модель продукта 
         """
         product_model = await ProductService.get_model(
             model_id=product_id,

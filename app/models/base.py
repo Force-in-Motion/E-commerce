@@ -1,5 +1,5 @@
 from sqlalchemy import Integer
-from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column, declared_attr
+from sqlalchemy.orm import DeclarativeBase, Mapped, mapped_column
 
 
 class Base(DeclarativeBase):
@@ -7,14 +7,6 @@ class Base(DeclarativeBase):
 
     __abstract__ = True  # Указывает алхимии, что такой таблицы в БД быть не должно, она абстрактная
 
-    # @classmethod
-    # # Декоратор позволяет автоматически генерировать названия таблиц исходя из названия моделей SQLAlchemy
-    # @declared_attr.directive
-    # def __tablename__(cls) -> str:
-    #     return cls.__name__.title()
-
-    # id присутствует во всех таблицах, поэтому его можно указать в родительской,
-    # чтобы при наследовании он по умолчанию был уже во всех дочерних таблицах
     id: Mapped[int] = mapped_column(
         Integer,
         primary_key=True,

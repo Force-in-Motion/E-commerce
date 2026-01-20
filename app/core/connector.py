@@ -1,18 +1,14 @@
+from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
-    create_async_engine,
-    async_sessionmaker,
     AsyncSession,
+    async_sessionmaker,
+    create_async_engine,
 )
 from . import db_settings
-from typing import AsyncGenerator
 
 
 class DBConnector:
-    """
-    Ключевой объект приложения, создающий подключение к БД, фабрику сессий и управляет сиссиями
-    :param param:
-    :return:
-    """
+    """ Ключевой объект приложения, создающий подключение к БД, фабрику сессий и управляет сиссиями """
 
     def __init__(self, url: str, echo: bool):
         self.engine = create_async_engine(

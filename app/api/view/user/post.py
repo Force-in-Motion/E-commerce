@@ -26,8 +26,9 @@ async def get_all_my_posts(
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: Список всех постов пользователей
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Список всех постов пользователей в виде Pydantic схем
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -51,10 +52,11 @@ async def get_my_post(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> PostResponse:
     """
-    Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
-    :param user_id: список объектов PostOutput, который получается путем выполнения зависимости (метода posts_by_user_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: список всех постов пользователя
+    Обрабатывает запрос с фронт энда на получение конкретного поста пользователя
+    :param post_id: id конкретного поста в БД
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: список всех постов пользователя в виде Pydantic схем
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -80,10 +82,10 @@ async def register_my_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
-    :param post_in: PostInput - объект, содержащий данные поста пользователя
-    :param user_id: UserModel - объект, содержащий данные пользователя
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param post_scheme: PostCreate - схема, содержащая данные поста пользователя
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: созданный пост пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -110,10 +112,11 @@ async def full_update_my_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
-    :param post_in:  PostInput - объект, содержащий данные поста пользователя
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param post_id: id конкретного поста в БД
+    :param post_scheme:  PostUpdate - схема, содержащая данные поста пользователя
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: измененный пост пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -141,10 +144,11 @@ async def partial_update_my_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
-    :param post_in:  PostInput - объект, содержащий данные поста пользователя
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param post_id: id конкретного поста в БД
+    :param post_scheme:  PostUpdate - осхема, содержащая данные поста пользователя
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: измененный пост пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -170,10 +174,10 @@ async def delete_all_my_post(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-    Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return:
+    Обрабатывает запрос с фронт энда на удаление всех постов пользователя из БД
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -198,9 +202,10 @@ async def delete_my_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return:
+    :param post_id: id конкретного поста в БД
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Удаленный пост пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,

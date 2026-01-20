@@ -1,6 +1,7 @@
 import aiosmtplib
 from pydantic import EmailStr
 
+
 from app.core.config import smtp_settings
 from app.utils.email import EmailUtils
 
@@ -12,7 +13,7 @@ class MessagesService:
     async def send_msg_to_email(
         cls,
         key: str,
-        to_email: EmailStr,
+        user_email: EmailStr,
     ) -> dict:
         """
 
@@ -20,10 +21,11 @@ class MessagesService:
         :param param:
         :return:
         """
+
         email_message = EmailUtils.create_email_message(
             key=key,
-            to_email=to_email,
-            from_email=smtp_settings.username,
+            user_email=user_email,
+            service_email=smtp_settings.username,
         )
 
         await aiosmtplib.send(
@@ -34,3 +36,9 @@ class MessagesService:
             password=smtp_settings.password,
             start_tls=smtp_settings.start_tls,
         )
+
+        return {
+            "status": "SUCCESS",
+            "message": f"Письмо отправлено на {user_email}",
+            "called": key,
+        }

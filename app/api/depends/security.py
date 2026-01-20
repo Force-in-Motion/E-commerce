@@ -1,11 +1,11 @@
+from fastapi import Depends
 from typing import Annotated
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.security import OAuth2PasswordBearer
-from fastapi import Depends
 
 from app.core import db_connector
-from app.tools import HTTPErrors, UserRole
 from app.api.depends.user import UserAuth
+from app.tools import HTTPErrors, UserRole
 
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/auth/login")

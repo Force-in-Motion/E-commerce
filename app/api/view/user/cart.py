@@ -28,10 +28,10 @@ async def get_my_cart(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param cart_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение корзины пользователеля по его id
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Корзина пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -55,11 +55,11 @@ async def add_product(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param product_add:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на добавление продукта в корзину пользователеля
+    :param product_scheme: Схема продукта для добавления
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Корзина пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -84,11 +84,11 @@ async def update_count_product(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param product_upd:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на изменение количества продукта в корзине пользователеля
+    :param product_scheme: Схема продукта для изменения
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Корзина пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -113,11 +113,11 @@ async def delete_product(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> CartResponse:
     """
-
-    :param user_id:
-    :param product_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление продукта из корзины пользователеля
+    :param product_id: id конкретного продукта в БД
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Корзина пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,
@@ -141,10 +141,10 @@ async def clear_my_cart(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-
-    :param user_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление всех продуктов из корзины пользователеля
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: Объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Корзина пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
         token=token,

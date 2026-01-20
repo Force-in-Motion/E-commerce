@@ -26,9 +26,9 @@ async def get_all_orders(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[OrderResponse]:
     """
-
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение списка всех заказов пользователей
+    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :return: Список всех заказов пользователей в виде Pydantic схем
     """
     return await OrderDepends.get_all_oreders(session=session)
 
@@ -43,10 +43,10 @@ async def get_orders_by_date(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[OrderResponse]:
     """
-
-    :param dates:
-    :param session:
-    :return:
+    Возвращает все добавленные в БД заказы пользователей за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :param dates: кортеж, содержащий начало интервала времени и его окончание
+    :return: Список пользователей за указанную дату в виде Pydantic схем
     """
     return await OrderDepends.get_all_oreders_by_date(
         dates=dates,
@@ -64,9 +64,10 @@ async def get_all_user_orders(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[OrderResponse]:
     """
-
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение заказа пользователя по id пользователя
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: заказ конкретного пользователя в виде Pydantic схемы
     """
     return await OrderDepends.get_all_oreders(
         user_id=user_id,
@@ -84,10 +85,10 @@ async def get_order_by_id(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
-
-    :param order_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на получение заказа пользователя по его id
+    :param order_id: id конкретного заказа в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Профиль конкретного пользователя в виде Pydantic схемы
     """
     return await OrderDepends.get_oreder(
         order_id=order_id,
@@ -106,10 +107,11 @@ async def create_order(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
-
-    :param user_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на создание заказа пользователя в БД
+    :param user_id: id конкретного пользователя в БД
+    :param order_scheme: OrderCreate - объект, содержащий данные заказа пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Добавленный в БД заказ пользователя в виде Pydantic схемы
     """
     return await OrderDepends.create_oreder(
         user_id=user_id,
@@ -129,10 +131,11 @@ async def update_order_partial(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
-
-    :param order_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на частичную замену данных заказа конкретного пользователя
+    :param order_id: id конкретного заказа в БД
+    :param order_scheme: OrderUpdate - объект, содержащий новые данные заказа конкретного пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Обновленный в БД заказ пользователя в виде Pydantic схемы
     """
     return await OrderDepends.update_oreder(
         order_id=order_id,
@@ -143,17 +146,16 @@ async def update_order_partial(
 
 @router.delete(
     "/clear",
-    response_model=[],
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_orders(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-
-    :param order_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление всех заказов
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     return await OrderDepends.clear_orders(session=session)
 
@@ -168,10 +170,10 @@ async def delete_order(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> OrderResponse:
     """
-
-    :param order_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление конкретного заказа
+    :param order_id: id конкретного заказа в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Удаленный из БД заказ пользователя в виде Pydantic схемы
     """
     return await OrderDepends.delete_order(
         order_id=order_id,
@@ -181,7 +183,7 @@ async def delete_order(
 
 @router.delete(
     "/user/{user_id}",
-    response_model=[],
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def delete_user_orders(
@@ -189,10 +191,10 @@ async def delete_user_orders(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-
-    :param order_id:
-    :param session:
-    :return:
+    Обрабатывает запрос с фронт энда на удаление всех заказов конкретного пользователя
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     return await OrderDepends.delete_all_user_orders(
         user_id=user_id,

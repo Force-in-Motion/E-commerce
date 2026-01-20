@@ -1,6 +1,4 @@
-from datetime import datetime
 from typing import TYPE_CHECKING
-
 from sqlalchemy import Text, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
@@ -12,7 +10,8 @@ if TYPE_CHECKING:
 
 
 class RefreshToken(Base, TimestampMixin):
-
+    """Класс, описывающий мета информацию таблицы Profile"""
+    
     __tablename__ = "refresh_tokens"
 
     user_id: Mapped[int] = mapped_column(

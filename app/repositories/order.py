@@ -22,12 +22,11 @@ class OrderRepo(BaseRepo[Order_model]):
     async def get_all_orders(
         cls,
         session: AsyncSession,
-    ) -> list[Order_model]:
+    ) -> Optional[list[Order_model]]:
         """
-
-        :param order_in:
-        :param session:
-        :return:
+        Возвращает все модели заказов содержащиеся в БД
+        :param session: Объект асинхронной сессии
+        :return: Список всех ORM моделей заказов | None
         """
         try:
             stmt = (
@@ -51,12 +50,12 @@ class OrderRepo(BaseRepo[Order_model]):
         cls,
         user_id: int,
         session: AsyncSession,
-    ) -> list[Order_model]:
+    ) -> Optional[list[Order_model]]:
         """
-
-        :param order_in:
-        :param session:
-        :return:
+        Возвращает все модели заказов из БД по id пользователя
+        :param user_id: id пользователя
+        :param session: Объект асинхронной сессии
+        :return: Список всех ORM моделей заказов | None
         """
         try:
             stmt = (
@@ -84,12 +83,12 @@ class OrderRepo(BaseRepo[Order_model]):
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> list[Order_model]:
+    ) -> Optional[list[Order_model]]:
         """
-        Возвращает список всех моделей пользователей, добавленных за указанный интервал времени
+        Возвращает список всех моделей заказов, добавленных за указанный интервал времени
         :param dates:  кортеж, содержащий начало интервала времени и его окончание
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: список всех моделей пользователей, добавленных за указанный интервал времени
+        :param session: Объект асинхронной сессии
+        :return: список всех ORM моделей заказов, добавленных за указанный интервал времени
         """
         try:
             stmt = (
@@ -118,6 +117,13 @@ class OrderRepo(BaseRepo[Order_model]):
         order_id: int,
         session: AsyncSession,
     ) -> Optional[Order_model]:
+        """
+        Возвращает конкретную модель заказа по user_id и id заказа
+        :param order_id: id заказа
+        :param user_id: id пользователя
+        :param session: Объект асинхронной сессии
+        :return: ORM модель заказа | None
+        """
         try:
             stmt = (
                 select(cls.model)
@@ -145,6 +151,12 @@ class OrderRepo(BaseRepo[Order_model]):
         order_id: int,
         session: AsyncSession,
     ) -> Optional[Order_model]:
+        """
+        Возвращает конкретную модель заказа по id заказа
+        :param order_id: id заказа
+        :param session: Объект асинхронной сессии
+        :return: ORM модель заказа | None
+        """
         try:
             stmt = (
                 select(cls.model)
@@ -173,15 +185,12 @@ class OrderRepo(BaseRepo[Order_model]):
         session: AsyncSession,
     ) -> None:
         """
-
-        :param order_id:
-        :param product_id:
-        :param quantity:
-        :param current_price:
-        :param session:
-        :return:
+        Добавляет продукты, аналогичные продуктам полученной корзины в полученную модель заказа
+        :param cart_model: ORM модель корзины
+        :param order_model: ORM модель заказа
+        :param session: Объект асинхронной сессии
+        :return: None
         """
-
         try:
             for cart_product in cart_model.products:
 

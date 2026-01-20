@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
-
-from sqlalchemy import ForeignKey, Integer, UniqueConstraint, String
+from sqlalchemy import ForeignKey, Integer, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
@@ -11,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class CartProduct(Base, TimestampMixin):
+    """Класс, описывающий мета информацию таблицы CartProduct"""
+
     __tablename__ = "cart_products"
 
     __table_args__ = (

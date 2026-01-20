@@ -1,10 +1,8 @@
 from datetime import datetime
+from app.tools.types import UserRole
 from typing import Annotated, Optional
-
 from annotated_types import MaxLen, MinLen, Ge
 from pydantic import BaseModel, EmailStr, ConfigDict, SecretStr
-
-from app.tools.types import UserRole
 
 
 class UserCreate(BaseModel):
@@ -16,7 +14,7 @@ class UserCreate(BaseModel):
 
     login: Annotated[EmailStr, MinLen(5), MaxLen(30)]
     password: Annotated[SecretStr, MinLen(7), MaxLen(120)]
-EmailStr
+
 
 class UserUpdate(BaseModel):
     """Класс описывающий объект, получаемый от пользователя, для изменения логина или пароля

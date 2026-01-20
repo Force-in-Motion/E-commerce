@@ -3,11 +3,11 @@ from typing import Optional
 from pydantic import EmailStr
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import ProfileCreate, ProfileUpdate
-from app.celery.tasks import send_msg_to_email_task
-from app.models import Profile as Profile_model
-from app.service import ProfileService
 from app.tools import HTTPErrors
+from app.models import Profile as Profile_model
+from app.celery.tasks import send_msg_to_email_task
+from app.service import ProfileService, UserService
+from app.schemas import ProfileCreate, ProfileUpdate
 
 
 class ProfileDepends:
@@ -83,10 +83,9 @@ class ProfileDepends:
         user_id: int,
         session: AsyncSession,
         profile_scheme: ProfileCreate,
-        login: Optional[EmailStr] = None
     ) -> Profile_model:
         """
-        Создает профиль пользователя
+        Создает профиль пользователя, а так же уведомляет пользователя об этом
         :param profile_scheme: Схема профиля, полученная от пользователя
         :param user_id: id пользователя
         :param session: Асинхронная сессия
@@ -101,9 +100,14 @@ class ProfileDepends:
         if not profile_model:
             raise HTTPErrors.err_create_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
         send_msg_to_email_task.delay(
             key=cls.create_profile.__name__,
-            to_email=login,
+            user_email=user_model.login,
         )
             
         return profile_model
@@ -115,15 +119,14 @@ class ProfileDepends:
         profile_scheme: ProfileUpdate,
         session: AsyncSession,
         partial: bool = False,
-        login: Optional[EmailStr] = None,
     ) -> Profile_model:
         """
-        Изменяет профиль пользователя
+        Изменяет профиль пользователя, а так же уведомляет пользователя об этом
         :param profile_scheme: Схема профиля, полученная от пользователя
         :param user_id: id пользователя
         :param session: Асинхронная сессия
         :param partial: Флаг, определяющий полное или частичное изменение данных
-        :return: Заказ пользователя
+        :return: Модель профиля пользователя
         """
         profile_model = await ProfileService.update_model(
             scheme_in=profile_scheme,
@@ -135,9 +138,14 @@ class ProfileDepends:
         if not profile_model:
             raise HTTPErrors.err_update_model
         
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
         send_msg_to_email_task.delay(
             key=cls.update_profile.__name__,
-            to_email=login,
+            user_email=user_model.login,
         )
 
         return profile_model
@@ -148,10 +156,9 @@ class ProfileDepends:
         session: AsyncSession,
         user_id: Optional[int] = None,
         post_id: Optional[int] = None,
-        login: Optional[EmailStr] = None
     ) -> Profile_model:
         """
-        Удаляет профиль пользователя
+        Удаляет профиль пользователя, а так же уведомляет пользователя об этом
         :param post_id: Опциональный параметр, id профиля
         :param user_id: Опциональный параметр, id пользователя
         :param session: Асинхронная сессия
@@ -166,9 +173,14 @@ class ProfileDepends:
         if not profile_model:
             raise HTTPErrors.err_delete_model
         
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
         send_msg_to_email_task.delay(
             key=cls.delete_profile.__name__,
-            to_email=login,
+            user_email=user_model.login,
         )
 
         return profile_model

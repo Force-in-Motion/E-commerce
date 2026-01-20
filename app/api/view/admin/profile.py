@@ -4,11 +4,11 @@ from fastapi import APIRouter, status, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import db_connector
+from app.api.depends.inspect import Inspector
 from app.api.depends.security import admin_guard
 from app.api.depends.profile import ProfileDepends
-from app.api.depends.inspect import Inspector
 from app.schemas import ProfileResponse, ProfileCreate, ProfileUpdate
-from app.schemas.profile import ProfileCreate
+
 
 
 
@@ -29,8 +29,8 @@ async def get_all_profiles(
 ) -> list[ProfileResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех профилей пользователей
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: Список всех профилей пользователей
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Список всех профилей пользователей в виде Pydantic схем
     """
     return await ProfileDepends.get_all_profiles(session=session)
 
@@ -45,10 +45,10 @@ async def get_profiles_by_date(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[ProfileResponse]:
     """
-    Возвращает всех добавленных в БД пользователей за указанный интервал времени
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :param dates: окончание интервала времени
-    :return: Список пользователей за указанную дату
+    Возвращает всех добавленных в БД профилей пользователей за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :param dates: кортеж, содержащий начало интервала времени и его окончание
+    :return: Список профилей пользователей за указанную дату в виде Pydantic схем
     """
     return await ProfileDepends.get_profiles_by_date(
         dates=dates,
@@ -56,8 +56,6 @@ async def get_profiles_by_date(
     )
 
 
-# response_model определяет модель ответа пользователю, в данном случае список объектов ProfileOutput,
-# status_code определяет какой статус вернется пользователю в случае успешного выполнения запроса с фронт энда
 @router.get(
     "/user/{user_id}",
     response_model=ProfileResponse,
@@ -69,9 +67,9 @@ async def get_profile_by_user_id(
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по id пользователя
-    :param user_id: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: Профиль конкретного пользователя
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Профиль конкретного пользователя в виде Pydantic схемы
     """
     return await ProfileDepends.get_profile(
         user_id=user_id,
@@ -90,9 +88,9 @@ async def get_profile_by_id(
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на получение профиля пользователя по его id
-    :param profile_id: объект ProfileOutput, который получается путем выполнения зависимости (метода product_by_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: Профиль конкретного пользователя
+    :param profile_id: id конкретного профиля в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Профиль конкретного пользователя в виде Pydantic схемы
     """
     return await ProfileDepends.get_profile(
         profile_id=profile_id,
@@ -112,10 +110,10 @@ async def register_profile(
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на создание профиля пользователя в БД
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :param profile_in: ProfileInput - объект, содержащий данные профиля пользователя
-    :param user_id: Profile_model - объект, содержащий данные профиля пользователя
-    :return: dict
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :param profile_scheme: ProfileCreate - объект, содержащий данные профиля пользователя
+    :param user_id: id конкретного пользователя в БД
+    :return: Добавленный в БД профиль пользователя в виде Pydantic схемы
     """
     return await ProfileDepends.create_profile(
         user_id=user_id,
@@ -136,10 +134,10 @@ async def full_update_profile(
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных профиля конкретного пользователя
-    :param profile_in: ProfileInput - объект, содержащий новые данные профиля конкретного пользователя
-    :param user_id: ProfileModel - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param profile_scheme: ProfileUpdate - объект, содержащий новые данные профиля конкретного пользователя
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Обновленный в БД профиль пользователя в виде Pydantic схемы
     """
     return await ProfileDepends.update_profile(
         user_id=user_id,
@@ -160,10 +158,10 @@ async def partial_update_profile(
 ) -> ProfileResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных профиля конкретного пользователя
-    :param user_id: ProfileInput - объект, содержащий новые данные профиля конкретного пользователя
-    :param profile_in: ProfileModel - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param user_id: id конкретного пользователя в БД
+    :param profile_scheme: ProfileUpdate - объект, содержащий новые данные профиля конкретного пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Обновленный в БД профиль пользователя в виде Pydantic схемы
     """
     return await ProfileDepends.update_profile(
         user_id=user_id,
@@ -182,9 +180,9 @@ async def clear_profiles(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-    Обрабатывает запрос с фронт энда на удаление всех пользователей
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    Обрабатывает запрос с фронт энда на удаление всех профилей
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     return await ProfileDepends.clear_profiles(session=session)
 
@@ -201,10 +199,10 @@ async def delete_profile(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> ProfileResponse:
     """
-    Обрабатывает запрос с фронт энда на удаление конкретного пользователя
-    :param user_id: ProfileModel - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    Обрабатывает запрос с фронт энда на удаление конкретного профиля
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Удаленный из БД профиль пользователя в виде Pydantic схемы
     """
     return await ProfileDepends.delete_profile(
         user_id=user_id,

@@ -4,7 +4,6 @@ from email.message import EmailMessage
 
 from app.schemas import EmailScheme
 from app.core.config import PROJECT
-from app.core import smtp_settings
 
 
 class EmailUtils:
@@ -32,8 +31,8 @@ class EmailUtils:
         data = email_scheme.model_dump()
 
         message = EmailMessage()
-        message["From"] = data.get("from_email")
-        message["To"] = data.get("to_email")
+        message["From"] = data.get("service_email")
+        message["To"] = data.get("user_email")
         message["Subject"] = data.get("theme_msg")
         message.set_content(data.get("body_msg"))
 
@@ -43,8 +42,8 @@ class EmailUtils:
     def create_email_message(
         cls,
         key: str,
-        to_email: EmailStr,
-        from_email: EmailStr,
+        user_email: EmailStr,
+        service_email: EmailStr,
     ) -> EmailMessage:
         """
         Создает письмо из полученных компонентов схемы
@@ -57,10 +56,10 @@ class EmailUtils:
         data = templates.get(key)
 
         email_scheme = EmailScheme(
-            from_email=from_email,
-            to_email=to_email,
+            user_email=user_email,
+            service_email=service_email,
             theme_msg=data.get("theme_msg"),
-            body_msg=data.get("body_msg").format(username=to_email),
+            body_msg=data.get("body_msg").format(username=user_email),
         )
 
         return cls._email(email_scheme=email_scheme)

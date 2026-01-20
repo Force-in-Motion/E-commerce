@@ -1,11 +1,5 @@
 from typing import TYPE_CHECKING
-
-from sqlalchemy import (
-    String,
-    Integer,
-    CheckConstraint,
-    ForeignKey,
-)
+from sqlalchemy import String, Integer, ForeignKey
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
@@ -20,7 +14,7 @@ class Order(Base, TimestampMixin):
     """Класс, описывающий мета информацию таблицы Order"""
 
     __tablename__ = "orders"
-        
+
     user_id: Mapped[int] = mapped_column(
         Integer,
         ForeignKey("users.id", ondelete="CASCADE"),

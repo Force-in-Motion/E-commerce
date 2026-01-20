@@ -1,6 +1,6 @@
 from pathlib import Path
-from pydantic_settings import BaseSettings
 from pydantic import ConfigDict
+from pydantic_settings import BaseSettings
 
 PROJECT = Path(__file__).parent.parent.parent
 

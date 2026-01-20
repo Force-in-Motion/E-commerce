@@ -1,27 +1,20 @@
 from datetime import datetime
-from typing import Optional, Type, Generic, cast
-
-from sqlalchemy import select, text, delete, Table
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
+from typing import Optional, Type, Generic, cast
+from sqlalchemy import select, text, delete, Table
 
 from app.interface import ARepo
 from app.tools.exeptions import DatabaseError
 from app.tools.types import DBModel
 
 
-# DBModel - будет подставляться конкретная ORM модель, наследуемая от Base напрямую или через других предков
-# PDScheme - будет подставляться конкретная Pydantic схема, наследуемая от BaseModel напрямую или через других предков
-
-
 class BaseRepo(Generic[DBModel], ARepo):
     """
-    Базовый CRUD.
+    Базовый Репозиторий.
     model должен быть определён в наследнике.
     """
 
-    # Optional нужен для типовой корректности и работы статического анализа
-    # базовый CRUD не может знать заранее модель и схему, которые будут определены в дочерних классах.
     model: Type[DBModel]  # Будет переопределено в наследниках
 
     @classmethod
@@ -30,9 +23,9 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> Optional[list[DBModel]]:
         """
-        Возвращает всех моделей пользователей из БД
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Список всех моделей пользователей
+        Возвращает все модели, содержащиеся в конкретной таблице БД
+        :param session: Объект асинхронной сессии
+        :return: Список всех ORM моделей
         """
         try:
             stmt = select(cls.model).order_by(cls.model.id)
@@ -52,10 +45,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> Optional[list[DBModel]]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает все модели, содержащиеся в конкретной таблице БД по user_id
+        :param user_id: id пользователя
+        :param session: объект асинхронной сессии
+        :return: Список всех ORM моделей по user_id
         """
         try:
             stmt = select(cls.model).where(cls.model.user_id == user_id)
@@ -75,10 +68,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> Optional[DBModel]:
         """
-        Возвращает модель пользователя по его id из БД
-        :param model_id: id модели конкретного пользователя
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя | None
+        Возвращает модель по ее id из конкретной таблицы БД
+        :param model_id: id модели
+        :param session: объект асинхронной сессии
+        :return: ORM модель по ее id
         """
         try:
             return await session.get(cls.model, model_id)
@@ -95,10 +88,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> Optional[DBModel]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает модель, содержащиеся в конкретной таблице БД по user_id
+        :param user_id: id пользователя
+        :param session: объект асинхронной сессии
+        :return: ORM модель по user_id
         """
         try:
             stmt = select(cls.model).where(cls.model.user_id == user_id)
@@ -118,6 +111,13 @@ class BaseRepo(Generic[DBModel], ARepo):
         user_id: int,
         session: AsyncSession,
     ) -> Optional[DBModel]:
+        """
+        Возвращает модель, содержащиеся в конкретной таблице БД по user_id и id модели
+        :param model_id: id модели
+        :param user_id: id пользователя
+        :param session: объект асинхронной сессии
+        :return: ORM модель по user_id и id модели
+        """
         try:
             stmt = select(cls.model).where(
                 cls.model.id == model_id,
@@ -139,10 +139,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> Optional[list[DBModel]]:
         """
-        Возвращает список всех моделей пользователей, добавленных за указанный интервал времени
+        Возвращает список всех модель, содержащихся в конкретной таблице БД, добавленных за указанный интервал времени
+        :param session: объект асинхронной сессии
         :param dates:  кортеж, содержащий начало интервала времени и его окончание
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: список всех моделей пользователей, добавленных за указанный интервал времени
+        :return: список всех ORM моделей, добавленных за указанный интервал времени
         """
         try:
             stmt = (
@@ -165,18 +165,16 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> DBModel:
         """
-        Добавляет модель пользователя в БД
-        :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя, добавленную в БД
+        Добавляет модель пользователя в конкретную таблицу БД
+        :param model: ORM модель
+        :param session: объект асинхронной сессии
+        :return: ORM модель, добавленную в БД
         """
         try:
             session.add(model)
             await session.commit()
-            await session.refresh(
-                model
-            )  # После commit SQLAlchemy не всегда подгружает свежие данные из базы (например, если БД автоматически меняет created_at или триггеры что-то обновляют).
-            # refresh гарантирует, что User_model содержит актуальное состояние из базы.
+            await session.refresh(model)
+
             return model
 
         except SQLAlchemyError as e:
@@ -191,17 +189,11 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> DBModel:
         """
-        Обновляет данные модели пользователя в БД полностью или частично
-        :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param update_model: ORM Модель - конкретный объект в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве аргумента
-        :param partial: Флаг, передаваем значение True или False,
-               значение передается в метод model_dump(exclude_unset=partial),
-               параметр exclude_unset означает - "То, что не было передано, исключить",
-               по умолчанию partial = False, то есть заменяются все данные объекта в БД, если partial = True,
-               то заменятся только переданные данные объекта. То есть если переданы не все поля объекта UserInput,
-               то заменить в базе только переданные, не переданные пропустить
-        :return: Модель пользователя, обновленную в БД
+        Обновляет данные модели в конкретной таблице БД полностью или частично
+        :param new_data: dict с новыми данными для изменения ORM модели
+        :param update_model: ORM Модель - конкретный объект в БД
+        :param session: объект асинхронной сессии
+        :return: ORM модель, обновленную в БД
         """
         try:
             for key, value in new_data.items():
@@ -223,10 +215,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> DBModel:
         """
-        Удаляет модель пользователя из БД
-        :param del_model: ORM Модель - конкретный объект в БД, найденный по id для удаления
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя, удаленную из БД
+        Удаляет ORM модель из конкретной таблицы БД
+        :param del_model: ORM Модель - конкретный объект в БД для удаления
+        :param session: объект асинхронной сессии
+        :return: ORM модель, удаленную из БД
         """
         try:
             await session.delete(del_model)
@@ -244,11 +236,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> list:
         """
-
-        :param user_id:
-        :param post_in:
-        :param session:
-        :return:
+        Удаляет все ORM модели из полученного списка ORM моделей
+        :param list_models: список ORM моделей для удаления
+        :param session: объект асинхронной сессии
+        :return: Пустой список
         """
         try:
             for model in list_models:
@@ -266,13 +257,10 @@ class BaseRepo(Generic[DBModel], ARepo):
         session: AsyncSession,
     ) -> list:
         """
-        Очищает таблицу моделей пользователей и сбрасывает последовательность id моделей
-        :param session: Объект сессии, полученный в качестве аргумента
+        Очищает таблицу БД и сбрасывает последовательность id моделей
+        :param session: объект асинхронной сессии
         :return: Пустой список
         """
-        # Имя таблицы.
-        # Получаем список первичных ключей и берем колонку id.
-        # Формируем строку из названия таблицы, название столбца, счетчик которого нужно сбросить и добавляем _seq
         table = cast(Table, cls.model.__table__)
         pk_column = next(iter(table.primary_key.columns))
         seq_name = f"{table.name}_{pk_column.name}_seq"
@@ -285,6 +273,4 @@ class BaseRepo(Generic[DBModel], ARepo):
 
         except SQLAlchemyError as e:
             await session.rollback()
-            raise DatabaseError(
-                f"Error when clearing table {cls.model.__name__}"
-            ) from e
+            raise DatabaseError(f"Error when clearing table {cls.model.__name__}") from e

@@ -1,5 +1,4 @@
 from typing import TYPE_CHECKING
-
 from pydantic import EmailStr
 from sqlalchemy import Boolean, Enum, String, true, LargeBinary
 from sqlalchemy.orm import Mapped, mapped_column, relationship

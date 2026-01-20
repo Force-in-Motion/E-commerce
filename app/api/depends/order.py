@@ -3,10 +3,9 @@ from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.tools import HTTPErrors
-from app.service.order import OrderService
-from app.models import Order as Order_model
-from app.schemas.order import OrderResponse
-from app.schemas import OrderCreate, OrderUpdate
+from app.service import OrderService, UserService
+from app.celery.tasks import send_msg_to_email_task
+from app.schemas import OrderCreate, OrderUpdate, OrderResponse
 
 
 class OrderDepends:
@@ -90,7 +89,7 @@ class OrderDepends:
         order_scheme: OrderCreate,
     ) -> OrderResponse:
         """
-        Создает заказ пользователя
+        Создает заказ пользователя, а так же уведомляет пользователя об этом
         :param order_scheme: Схема заказа, полученная от пользователя
         :param user_id: id пользователя
         :param session: Асинхронная сессия
@@ -105,6 +104,16 @@ class OrderDepends:
         if not order_response:
             raise HTTPErrors.err_create_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.create_oreder.__name__,
+            user_email=user_model.login,
+        )
+
         return order_response
 
     @classmethod
@@ -116,7 +125,7 @@ class OrderDepends:
         user_id: Optional[int] = None,
     ) -> OrderResponse:
         """
-        Изменяет заказ пользователя
+        Изменяет заказ пользователя, а так же уведомляет пользователя об этом
         :param order_scheme: Схема заказа, полученная от пользователя
         :param order_id: id заказа
         :param user_id: Опциональный параметр, id пользователя
@@ -126,12 +135,22 @@ class OrderDepends:
         order_response = await OrderService.update_order_partial(
             user_id=user_id,
             order_id=order_id,
-            order_scheme=order_response,
+            order_scheme=order_scheme,
             session=session,
         )
 
         if not order_response:
             raise HTTPErrors.err_update_model
+
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.update_oreder.__name__,
+            user_email=user_model.login,
+        )
 
         return order_response
 
@@ -143,7 +162,7 @@ class OrderDepends:
         user_id: Optional[int] = None,
     ) -> OrderResponse:
         """
-        Удаляет заказ пользователя
+        Удаляет заказ пользователя, а так же уведомляет пользователя об этом
         :param order_id: id заказа
         :param user_id: Опциональный параметр, id пользователя
         :param session: Асинхронная сессия
@@ -157,6 +176,16 @@ class OrderDepends:
         if not order_scheme:
             raise HTTPErrors.err_delete_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.delete_order.__name__,
+            user_email=user_model.login,
+        )
+
         return order_scheme
 
     @classmethod
@@ -166,7 +195,7 @@ class OrderDepends:
         session: AsyncSession,
     ) -> list:
         """
-        Удаляет все заказы пользователя
+        Удаляет все заказы пользователя, а так же уведомляет пользователя об этом
         :param user_id: id пользователя
         :param session: Асинхронная сессия
         :return: Пустой список
@@ -178,6 +207,16 @@ class OrderDepends:
 
         if result != []:
             raise HTTPErrors.err_delete_model
+
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.delete_all_user_orders.__name__,
+            user_email=user_model.login,
+        )
 
         return result
 

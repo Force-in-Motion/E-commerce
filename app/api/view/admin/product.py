@@ -1,13 +1,12 @@
 from datetime import datetime
 from typing import Annotated
-
-from fastapi import APIRouter, status, Depends, Path
 from sqlalchemy.ext.asyncio import AsyncSession
+from fastapi import APIRouter, status, Depends, Path
 
 from app.core import db_connector
+from app.api.depends.inspect import Inspector
 from app.api.depends.security import admin_guard
 from app.api.depends.product import ProductDepends
-from app.api.depends.inspect import Inspector
 from app.schemas import ProductCreate, ProductResponse, ProductUpdate
 
 
@@ -28,8 +27,8 @@ async def get_all_products(
 ) -> list[ProductResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех продуктов
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: list[ProductOutput]
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Список всех продуктов в виде Pydantic схем
     """
     return await ProductDepends.get_all_products(session=session)
 
@@ -46,8 +45,8 @@ async def get_products_by_date(
     """
     Обрабатывает запрос с фронт энда на получение списка всех продуктов, добавленных за указанный интервал времени
     :param dates: кортеж, содержащий начало интервала времени и его окончание
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: список всех продуктов, добавленных за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: список всех продуктов, добавленных за указанный интервал времени в виде Pydantic схем
     """
     return await ProductDepends.get_products_by_date(
         dates=dates,
@@ -66,9 +65,9 @@ async def get_product_by_id(
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на получение продукта по его id
-    :param product_id: объект ProductOutput, который получается путем выполнения зависимости (метода product_by_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: ProductOutput
+    :param product_id: id конкретного продукта в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Объект продукта в виде Pydantic схемы
     """
     return await ProductDepends.get_product(
         product_id=product_id,
@@ -87,9 +86,9 @@ async def register_product(
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на добавление продукта в БД
-    :param product_in: ProductInput - объект, содержащий данные продукта
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param product_scheme: ProductCreate - объект, содержащий данные продукта
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Объект продукта в виде Pydantic схемы, добавленного в БД
     """
     return await ProductDepends.create_product(
         product_scheme=product_scheme,
@@ -109,10 +108,10 @@ async def update_product(
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на полную замену данных продукта по его id
-    :param product_in: ProductInput - объект, содержащий новые данные конкретного продукта
-    :param product_id: Product_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param product_id: id конкретного продукта в БД
+    :param product_scheme: ProductUpdate - объект, содержащий новые данные конкретного продукта
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Объект продукта в виде Pydantic схемы, обновленного в БД
     """
     return await ProductDepends.update_product(
         product_id=product_id,
@@ -133,10 +132,10 @@ async def update_product_partial(
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на частичную замену данных продукта по его id
-    :param product_in: ProductInput - объект, содержащий новые данные конкретного продукта
-    :param product_id: Product_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param product_id: id конкретного продукта в БД
+    :param product_scheme: ProductUpdate - объект, содержащий новые данные конкретного продукта
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Объект продукта в виде Pydantic схемы, обновленного в БД
     """
     return await ProductDepends.update_product(
         product_id=product_id,
@@ -148,16 +147,16 @@ async def update_product_partial(
 
 @router.delete(
     "/clear",
-    response_model=[],
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_products(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-    Обрабатывает запрос с фронт энда на удаление всех пользователей
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    Обрабатывает запрос с фронт энда на удаление всех продуктов
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     return await ProductDepends.clear_products(session=session)
 
@@ -173,9 +172,9 @@ async def delete_product(
 ) -> ProductResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного продукта
-    :param product_id: Product_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param product_id: id конкретного продукта в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Объект продукта в виде Pydantic схемы, удаленного из БД
     """
     return await ProductDepends.delete_product(
         product_id=product_id,

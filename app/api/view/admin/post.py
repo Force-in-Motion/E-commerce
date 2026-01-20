@@ -27,8 +27,8 @@ async def get_all_posts(
 ) -> list[PostResponse]:
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: Список всех постов пользователей
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Список всех постов пользователей в виде Pydantic схем
     """
     return await PostDepends.get_all_posts(session=session)
 
@@ -45,8 +45,8 @@ async def get_posts_by_date(
     """
     Обрабатывает запрос с фронт энда на получение списка всех постов пользователей, добавленных за указанный интервал времени
     :param dates: кортеж, содержащий начало интервала времени и его окончание
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: список всех постов, созданных за указанный интервал времени
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: список всех постов, созданных за указанный интервал времени в виде Pydantic схем
     """
     return await PostDepends.get_all_posts_by_date(
         dates=dates,
@@ -65,9 +65,9 @@ async def get_post_by_id(
 ) -> PostResponse:
     """
      Обрабатывает запрос с фронт энда на получение конкретного поста по его id
-    :param post_id: объект PostOutput, который получается путем выполнения зависимости (метода post_by_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: конкретный пост по его id
+    :param post_id: id конкретного поста в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: пост пользователя в виде Pydantic схемы
     """
     return await PostDepends.get_post(
         post_id=post_id,
@@ -85,10 +85,10 @@ async def get_posts_by_user_id(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list[PostResponse]:
     """
-    Обрабатывает запрос с фронт энда на получение списка всех постов конкретного пользователя
-    :param user_id: список объектов PostOutput, который получается путем выполнения зависимости (метода posts_by_user_id)
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: список всех постов пользователя
+    Обрабатывает запрос с фронт энда на получение всех постов конкретного пользователя
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: список всех постов пользователя в виде Pydantic схем
     """
     return await PostDepends.get_all_posts(
         user_id=user_id,
@@ -108,10 +108,10 @@ async def register_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на добавление нового поста пользователя в БД
-    :param post_in: PostInput - объект, содержащий данные поста пользователя
-    :param user_id: UserModel - объект, содержащий данные пользователя
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param post_scheme: PostCreate - объект, содержащий данные поста пользователя
+    :param user_id: id конкретного пользователя в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Добавленный в БД пост пользователя в виде Pydantic схемы
     """
     return await PostDepends.create_post(
         user_id=user_id,
@@ -132,10 +132,10 @@ async def full_update_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на полное обновление конкретного поста пользователя в БД
-    :param post_in:  PostInput - объект, содержащий данные поста пользователя
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param post_id: id конкретного поста в БД
+    :param post_scheme:  PostUpdate - объект, содержащий новые данные поста пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Обновленный в БД пост пользователя в виде Pydantic схемы
     """
     return await PostDepends.update_post(
         post_id=post_id,
@@ -156,10 +156,10 @@ async def update_post_partial(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на частичное обновление конкретного поста пользователя в БД
-    :param post_in:  PostInput - объект, содержащий данные поста пользователя
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param post_id: id конкретного поста в БД
+    :param post_scheme: PostUpdate - объект, содержащий новые данные поста пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Обновленный в БД пост пользователя в виде Pydantic схемы
     """
     return await PostDepends.update_post(
         post_id=post_id,
@@ -171,7 +171,7 @@ async def update_post_partial(
 
 @router.delete(
     "/clear",
-    response_model=[],
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def clear_all_posts(
@@ -179,8 +179,8 @@ async def clear_all_posts(
 ) -> list:
     """
     Обрабатывает запрос с фронт энда на удаление всех постов пользователей из БД
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return: dict
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     return await PostDepends.clear_posts(session=session)
 
@@ -196,9 +196,9 @@ async def delete_post(
 ) -> PostResponse:
     """
     Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return:
+    :param post_id: id конкретного поста в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Удаленный из БД пост пользователя в виде Pydantic схемы
     """
     return await PostDepends.delete_post(
         post_id=post_id,
@@ -208,7 +208,7 @@ async def delete_post(
 
 @router.delete(
     "/user/{user_id}",
-    response_model=[],
+    response_model=list,
     status_code=status.HTTP_200_OK,
 )
 async def delete_all_user_posts(
@@ -216,10 +216,10 @@ async def delete_all_user_posts(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> list:
     """
-    Обрабатывает запрос с фронт энда на удаление конкретного поста пользователя из БД
-    :param post_id: Post_model - конкретный объект в БД, найденный по id
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
-    :return:
+    Обрабатывает запрос с фронт энда на удаление всех постов пользователей из БД
+    :param post_id: id конкретного поста в БД
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: Пустой список
     """
     return await PostDepends.delete_all_user_posts(
         user_id=user_id,

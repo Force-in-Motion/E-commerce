@@ -61,3 +61,106 @@ delete_profile:
     Данные личного профиля были успешно удалены.
 
     С наилучшими пожеланиями E-Commerce!
+
+
+create_post:
+  theme_msg: "Добавление комментария"
+  body_msg: |
+    Привет, {username}!
+
+    Комментарий добавлен.
+
+    С наилучшими пожеланиями E-Commerce!
+
+update_post:
+  theme_msg: "Обновление комментария"
+  body_msg: |
+    Привет, {username}!
+
+    Текст комментария был успешно обновлен.
+
+    С наилучшими пожеланиями E-Commerce!
+
+delete_post:
+  theme_msg: "Удаление поста"
+  body_msg: |
+    Привет, {username}!
+
+    Ваш комментарий был успешно удален.
+
+    С наилучшими пожеланиями E-Commerce!
+
+delete_all_user_posts:
+  theme_msg: "Удаление списка постов"
+  body_msg: |
+    Привет, {username}!
+
+    Все Ваши комментарии были успешно удалены.
+
+    С наилучшими пожеланиями E-Commerce!
+
+
+create_oreder:
+  theme_msg: "Создание заказа"
+  body_msg: |
+    Привет, {username}!
+
+    Ваш заказ был успешно создан.
+
+    С наилучшими пожеланиями E-Commerce!
+
+update_oreder:
+  theme_msg: "Изменение заказа"
+  body_msg: |
+    Привет, {username}!
+
+    Ваш заказ был успешно изменен.
+
+    С наилучшими пожеланиями E-Commerce!
+
+delete_order:
+  theme_msg: "Удаление заказа"
+  body_msg: |
+    Привет, {username}!
+
+    Ваш заказ был успешно удален.
+
+    С наилучшими пожеланиями E-Commerce!
+
+delete_all_user_orders:
+  theme_msg: "Удаление списка заказов"
+  body_msg: |
+    Привет, {username}!
+
+    Все Ваши заказы были успешно удалены.
+
+    С наилучшими пожеланиями E-Commerce!
+
+
+
+add_or_update_product_in_cart:
+  theme_msg: "Добавление товара"
+  body_msg: |
+    Привет, {username}!
+
+    Товар был успешно добавлен в корзину.
+
+    С наилучшими пожеланиями E-Commerce!
+
+del_product_from_cart:
+  theme_msg: "Удаление товаров"
+  body_msg: |
+    Привет, {username}!
+
+    Товар был успешно удален из корзины.
+
+    С наилучшими пожеланиями E-Commerce!
+
+clear_cart:
+  theme_msg: "Удаление списка товаров"
+  body_msg: |
+    Привет, {username}!
+
+    Ваша корзина была полностью очищена.
+
+    С наилучшими пожеланиями E-Commerce!

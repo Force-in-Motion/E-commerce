@@ -4,8 +4,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.core import jwt_settings
 from app.tools import HTTPErrors
-from app.service import UserService, TokenService
 from app.utils import JWTUtils, AuthUtils
+from app.service import UserService, TokenService
 from app.celery.tasks import send_msg_to_email_task
 from app.models import User as User_model, RefreshToken as Refresh_model
 from app.schemas import (
@@ -108,7 +108,7 @@ class UserDepends:
         session: AsyncSession,
     ) -> User_model:
         """
-        Создает пользователя
+        Создает пользователя, а так же уведомляет пользователя об этом
         :param session: Асинхронная сессия
         :param user_scheme: Схема пользователя, полученная от клиента
         :return: Модель пользователя
@@ -125,7 +125,7 @@ class UserDepends:
 
         send_msg_to_email_task.delay(
             key=cls.create_user.__name__,
-            to_email=user_scheme.login,
+            user_email=user_scheme.login,
         )
 
         return user_model
@@ -139,7 +139,7 @@ class UserDepends:
         partial: bool = False,
     ) -> User_model:
         """
-        Изменяет данные пользователя
+        Изменяет данные пользователя, а так же уведомляет пользователя об этом
         :param user_id: id пользователя
         :param session: Асинхронная сессия
         :param user_scheme: Схема пользователя, полученная от клиента
@@ -161,7 +161,7 @@ class UserDepends:
 
         send_msg_to_email_task.delay(
             key=cls.update_user.__name__,
-            to_email=user_scheme.login,
+            user_email=user_scheme.login,
         )
             
         return user_model
@@ -173,7 +173,7 @@ class UserDepends:
         session: AsyncSession,
     ) -> User_model:
         """
-        Удаляет пользователя
+        Удаляет пользователя, а так же уведомляет пользователя об этом
         :param user_id: id пользователя
         :param session: Асинхронная сессия
         :return: Модель пользователя
@@ -188,7 +188,7 @@ class UserDepends:
 
         send_msg_to_email_task.delay(
             key=cls.update_user.__name__,
-            to_email=user_model.login,
+            user_email=user_model.login,
         )
             
         return user_model
@@ -289,7 +289,7 @@ class UserAuth:
         session: AsyncSession,
     ) -> User_model:
         """
-        Выполняет валидацию пользователя
+        Выполняет валидацию пользователя, а так же уведомляет пользователя об этом
         :param login: Логин пользователя
         :param password: Пароль пользователя
         :param session: Асинхронная сессия
@@ -311,7 +311,7 @@ class UserAuth:
 
         send_msg_to_email_task.delay(
             key=cls.validate_user.__name__,
-            to_email=login,
+            user_email=login,
         )
             
         return user_model
@@ -324,7 +324,7 @@ class UserAuth:
         """
         Создает access токен
         :param user_model: модель пользователя с данными изи БД
-        :return: access_token
+        :return: access_token в виде строки
         """
         return JWTUtils.create_access_token(user_model=user_model)
 

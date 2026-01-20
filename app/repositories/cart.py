@@ -5,9 +5,9 @@ from sqlalchemy.orm import selectinload
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 
+from app.tools import DatabaseError
 from app.repositories import BaseRepo
 from app.models import Cart as Cart_model, CartProduct as Cart_Product_model
-from app.tools import DatabaseError
 
 
 class CartRepo(BaseRepo[Cart_model]):
@@ -20,10 +20,9 @@ class CartRepo(BaseRepo[Cart_model]):
         session: AsyncSession,
     ) -> Optional[list[Cart_model]]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает все модели корзин, содержащиеся в БД
+        :param session: Объект асинхронной сессии
+        :return: Список всех ORM моделей корзин
         """
         try:
             stmt = select(cls.model).options(
@@ -46,10 +45,10 @@ class CartRepo(BaseRepo[Cart_model]):
         session: AsyncSession,
     ) -> Optional[list[Cart_model]]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает список всех моделей корзины, добавленных за указанный интервал времени
+        :param session: объект асинхронной сессии
+        :param dates:  кортеж, содержащий начало интервала времени и его окончание
+        :return: список всех ORM моделей корзин, добавленных за указанный интервал времени
         """
         try:
             stmt = (
@@ -78,10 +77,11 @@ class CartRepo(BaseRepo[Cart_model]):
         session: AsyncSession,
     ) -> Optional[Cart_Product_model]:
         """
-
-        :param cart_in:
-        :param product_id:
-        :return:
+        Возвращает продукт из конкретной, найденной по ее id
+        :param cart_id: id корзины
+        :param product_id: id продукта
+        :param session: объект асинхронной сессии
+        :return: ORM модель продукта по ее id
         """
         try:
             stmt = select(Cart_Product_model).where(
@@ -105,10 +105,10 @@ class CartRepo(BaseRepo[Cart_model]):
         session: AsyncSession,
     ) -> Optional[Cart_model]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает корзину по ее id
+        :param cart_id: id корзины
+        :param session: объект асинхронной сессии
+        :return: ORM модель корзины по ее id
         """
         try:
             stmt = (
@@ -136,10 +136,10 @@ class CartRepo(BaseRepo[Cart_model]):
         session: AsyncSession,
     ) -> Optional[Cart_model]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает корзину по id пользователя
+        :param user_id: id пользователя
+        :param session: объект асинхронной сессии
+        :return: ORM модель корзины по user_id
         """
         try:
             stmt = (
@@ -169,10 +169,10 @@ class CartRepo(BaseRepo[Cart_model]):
         session: AsyncSession,
     ) -> list:
         """
-        
-        :param param:
-        :param param:
-        :return:
+        Очищает конкретную корзину от продуктов, найденную по id
+        :param cart_id: id корзины
+        :param session: объект асинхронной сессии
+        :return: Пустой список
         """
         try:
             stmt = delete(Cart_Product_model).where(Cart_Product_model.cart_id == cart_id)

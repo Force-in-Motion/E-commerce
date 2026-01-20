@@ -1,6 +1,5 @@
 from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, UniqueConstraint, Integer, String
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models import Base
@@ -12,11 +11,9 @@ if TYPE_CHECKING:
 
 
 class OrderProducts(Base, TimestampMixin):
-    """Класс, описывающий мета информацию таблицы OrderProducts, таблица связывающая заказы и продукты
-    Ассоциативная модель, поскольку содержит не только внешние ключи, но и дополнительные личные поля и параметры
-    """
+    """Класс, описывающий мета информацию таблицы OrderProducts"""
 
-    __tablename__ = "order_products"  # Название таблицы в БД
+    __tablename__ = "order_products"  
 
     __table_args__ = (
         UniqueConstraint(

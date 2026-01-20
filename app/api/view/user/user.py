@@ -26,10 +26,10 @@ async def login_user(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
 ) -> TokenResponse:
     """
-
-    :param param:
-    :param param:
-    :return:
+    Обрабатывает запрос с fontend на авторизацию пользователя, выдает токены
+    :param form_data:  объект OAuth2PasswordRequestForm, содержит данные пользователя, считанные из формы
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: токены в виде Pydantic схемы
     """
     user_model = await UserAuth.validate_user(
         session=session,
@@ -54,10 +54,10 @@ async def give_access(
     session: Annotated[AsyncSession, Depends(db_connector.get_session)],
 ) -> TokenResponse:
     """
-
-    :param param:
-    :param param:
-    :return:
+    Обрабатывает запрос с fontend на выдачу access токена по refresh токену
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
+    :return: access токен в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_refresh(
         token=token,
@@ -81,11 +81,10 @@ async def register_me(
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на добавление пользователя в БД
-    :param user_in: Pydantic Схема - объект, содержащий данные пользователя
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :param user_scheme: Pydantic Схема - объект, содержащий данные пользователя
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
     :return: Добавленного в БД пользователя в виде Pydantic схемы
     """
-
     return await UserDepends.create_user(
         user_scheme=user_scheme,
         session=session,
@@ -104,9 +103,9 @@ async def full_update_me(
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
-    :param user_in: Pydantic Схема - объект, содержащий новые данные пользователя
-    :param user_id: id конкретного пользователя в БД
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :param user_scheme: Pydantic Схема - объект, содержащий новые данные пользователя
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
     :return: Полностью обновленного в БД пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
@@ -133,9 +132,9 @@ async def partial_update_me(
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на полную замену данных пользователя по его id
-    :param user_in: Pydantic Схема - объект, содержащий новые данные пользователя
-    :param user_id: id конкретного пользователя в БД
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :param user_scheme: Pydantic Схема - объект, содержащий новые данные пользователя
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
     :return: Частично обновленного в БД пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(
@@ -162,8 +161,8 @@ async def delete_me(
 ) -> UserResponse:
     """
     Обрабатывает запрос с fontend на удаление пользователя из БД
-    :param user_id: id конкретного пользователя в БД
-    :param session: объект сессии, который получается путем выполнения зависимости (метода session_dependency объекта db_connector)
+    :param token:  объект токена, полученный из заголовка запроса при помощи зависимости oauth2_scheme
+    :param session: объект сессии, который получается путем выполнения зависимости (метода get_session объекта db_connector)
     :return: Удаленного пользователя в виде Pydantic схемы
     """
     user_model = await UserAuth.get_current_user_by_access(

@@ -1,11 +1,12 @@
-from datetime import datetime
 from typing import Optional
+from datetime import datetime
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from app.schemas import PostCreate, PostUpdate, PostResponse
-from app.models import Post as Post_model
-from app.service import PostService
 from app.tools import HTTPErrors
+from app.models import Post as Post_model
+from app.schemas import PostCreate, PostUpdate
+from app.service import PostService, UserService
+from app.celery.tasks import send_msg_to_email_task
 
 
 class PostDepends:
@@ -87,7 +88,7 @@ class PostDepends:
         session: AsyncSession,
     ) -> Post_model:
         """
-        Создает пост пользователя
+        Создает пост пользователя, а так же уведомляет пользователя об этом
         :param post_scheme: Схема поста, полученная от пользователя
         :param user_id: id пользователя
         :param session: Асинхронная сессия
@@ -102,6 +103,16 @@ class PostDepends:
         if not post_model:
             raise HTTPErrors.err_create_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.create_post.__name__,
+            user_email=user_model.login,
+        )
+            
         return post_model
 
     @classmethod
@@ -114,7 +125,7 @@ class PostDepends:
         partial: bool = False,
     ) -> Post_model:
         """
-        Изменяет пост пользователя
+        Изменяет пост пользователя, а так же уведомляет пользователя об этом
         :param post_scheme: Схема поста, полученная от пользователя
         :param post_id: Опциональный параметр, id поста
         :param user_id: Опциональный параметр, id пользователя
@@ -133,6 +144,16 @@ class PostDepends:
         if not post_model:
             raise HTTPErrors.err_update_model
 
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.update_post.__name__,
+            user_email=user_model.login,
+        )
+            
         return post_model
 
     @classmethod
@@ -143,7 +164,7 @@ class PostDepends:
         post_id: Optional[int] = None,
     ) -> Post_model:
         """
-        Удаляет пост пользователя
+        Удаляет пост пользователя, а так же уведомляет пользователя об этом
         :param post_id: Опциональный параметр, id поста
         :param user_id: Опциональный параметр, id пользователя
         :param session: Асинхронная сессия
@@ -156,6 +177,16 @@ class PostDepends:
         )
         if not post_model:
             raise HTTPErrors.err_delete_model
+        
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+            
+        send_msg_to_email_task.delay(
+            key=cls.delete_post.__name__,
+            user_email=user_model.login,
+        )
 
         return post_model
 
@@ -166,7 +197,7 @@ class PostDepends:
         session: AsyncSession,
     ) -> list:
         """
-        Удаляет все посты пользователя
+        Удаляет все посты пользователя, а так же уведомляет пользователя об этом
         :param user_id: id пользователя
         :param session: Асинхронная сессия
         :return: Пустой список
@@ -178,6 +209,16 @@ class PostDepends:
 
         if result != []:
             raise HTTPErrors.err_delete_model
+        
+        user_model = await UserService.get_model(
+            session=session,
+            model_id=user_id,
+        )
+
+        send_msg_to_email_task.delay(
+            key=cls.delete_all_user_posts.__name__,
+            user_email=user_model.login,
+        )
 
         return result
 
