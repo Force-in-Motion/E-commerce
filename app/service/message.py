@@ -16,10 +16,10 @@ class MessagesService:
         user_email: EmailStr,
     ) -> dict:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Отправляет письмо на полученный email
+        :param key: Ключ словаря, служит для получения данных, отправляемых в письме
+        :param user_email: почта, на которую отправляется письмо
+        :return: Словарь с данными об успешной отправке
         """
 
         email_message = EmailUtils.create_email_message(

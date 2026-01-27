@@ -20,10 +20,10 @@ class OrderService(BaseService[OrderRepo]):
         order_scheme: OrderCreate,
     ) -> Order_model:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Служебный метод, создает ORM модель заказа и выполняет технические расчеты полей модели, на основе данных, из полученной ORM модели корзины
+        :param cart_model: ORM модель корзины
+        :param order_scheme: Pydantic схема - объект, содержащий данные закакза
+        :return: ORM модель закакза
         """
         discount: int | None = None
 
@@ -56,10 +56,9 @@ class OrderService(BaseService[OrderRepo]):
         order_model: Order_model,
     ) -> OrderResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Служебный метод, преобразует модель заказа и содержащиеся в ней продукты в Pydantic схему
+        :param cart_model: ORM модель корзины
+        :return: Pydantic схему заказа и содержащиеся в ней продукты
         """
         if order_model is None:
             return None
@@ -96,10 +95,10 @@ class OrderService(BaseService[OrderRepo]):
         user_id: Optional[int] = None,
     ) -> Optional[list[OrderResponse]]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает все заказы конкретного пользователя или всех пользователей, содержащиеся в БД, в зависимости от переданных параметров
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: возвращает все заказы и их продукты в виде Pydantic схем | None
         """
         if user_id is not None:
             order_models = await cls.repo.get_all_orders_by_user_id(
@@ -122,10 +121,16 @@ class OrderService(BaseService[OrderRepo]):
         session: AsyncSession,
     ) -> Optional[list[OrderResponse]]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает все заказы, созданные в указанном временном диапазоне
+        :param dates: Определяет временной диапазон
+        :param session: Асинхронная сессия
+        :return: все заказы и их продукты в виде Pydantic схем, созданных в указанном временном диапазоне | None
+        """
+        """
+        Возвращает все заказы пользователей, содержащиеся в БД
+        :param dates: Опциональный параметр, определяет временной диапазон
+        :param session: Асинхронная сессия
+        :return: возвращает все заказы и их продукты в виде Pydantic схем | None
         """
         order_models = await cls.repo.get_orders_by_date(
             dates=dates,
@@ -145,10 +150,11 @@ class OrderService(BaseService[OrderRepo]):
         user_id: Optional[int] = None,
     ) -> Optional[Order_model]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает модель заказа согласно полученым параметрам
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :param order_id: id  заказа
+        :return: ORM модель закакза | None
         """
         if user_id is not None:
             return await cls.repo.get_by_user_id_and_order_id(
@@ -172,10 +178,11 @@ class OrderService(BaseService[OrderRepo]):
         user_id: Optional[int] = None,
     ) -> Optional[OrderResponse]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает модель заказа согласно полученым параметрам
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :param order_id: id  заказа
+        :return: заказ в виде Pydantic схемы | None
         """
         order_model = await cls.get_order_model(
             order_id=order_id,
@@ -199,9 +206,10 @@ class OrderService(BaseService[OrderRepo]):
         Создает заказ на основе корзины пользователя.
         Рассчитывает total_price с учетом промокода (если он есть),
         сохраняет все данные заказа в БД и очищает корзину.
-        :param user_id:
-        :param session:
-        :return:
+        :param order_scheme: Pydantic схема - объект, содержащий данные заказе
+        :param session: Асинхронная сессия
+        :param user_id: id пользователя
+        :return: заказ в виде Pydantic схемы | None
         """
         cart_model = await CartRepo.get_by_user_id(
             user_id=user_id,
@@ -248,11 +256,11 @@ class OrderService(BaseService[OrderRepo]):
         user_id: Optional[int] = None,
     ) -> Optional[OrderResponse]:
         """
-
-        :param model_id:
-        :param order_in:
-        :param session:
-        :return:
+        Изменяет данные конкретного заказа
+        :param order_scheme: Pydantic схема - объект, содержащий данные о заказе
+        :param session: Асинхронная сессия
+        :param user_id: id пользователя
+        :return: заказ в виде Pydantic схемы | None
         """
 
         order_model = await cls.get_order_model(
@@ -284,10 +292,11 @@ class OrderService(BaseService[OrderRepo]):
         user_id: Optional[int] = None,
     ) -> Optional[OrderResponse]:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Удаляет конкретный заказ
+        :param session: Асинхронная сессия
+        :param user_id: id пользователя
+        :param order_id: id заказа
+        :return: удаленный заказ в виде Pydantic схемы | None
         """
         order_model = await cls.delete_model(
             user_id=user_id,

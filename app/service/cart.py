@@ -25,10 +25,9 @@ class CartService(BaseService[CartRepo]):
         cart_model: Cart_model,
     ) -> CartResponse:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Служебный метод, преобразует модель корзины и содержащиеся в ней продукты в Pydantic схему
+        :param cart_model: ORM модель корзины
+        :return: Pydantic схему корзины и содержащиеся в ней продукты
         """
         if cart_model is None:
             return None
@@ -58,11 +57,11 @@ class CartService(BaseService[CartRepo]):
         session: AsyncSession,
         dates: tuple[datetime, datetime] = None,
     ) -> Optional[list[CartResponse]]:
-        """ "
-
-        :param user_id:
-        :param session:
-        :return:
+        """
+        Возвращает все корзины пользователей, содержащиеся в БД
+        :param dates: Опциональный параметр, определяет временной диапазон
+        :param session: Асинхронная сессия
+        :return: возвращает все корзины и их продукты в виде Pydantic схем | None
         """
         if dates is not None:
             cart_models = await cls.repo.get_all_carts_by_date(
@@ -86,10 +85,11 @@ class CartService(BaseService[CartRepo]):
         cart_id: Optional[int] = None,
     ) -> Optional[Cart_model]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает модель корзины согласно полученым параметрам
+        :param session: Асинхронная сессия
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id  корзины
+        :return: корзину виде Pydantic схемы | None
         """
         if user_id is not None:
             return await cls.repo.get_by_user_id(
@@ -111,10 +111,11 @@ class CartService(BaseService[CartRepo]):
         cart_id: Optional[int] = None,
     ) -> CartResponse:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Возвращает модель корзины согласно полученым параметрам или создает и возвращает если она отсутствует
+        :param session: Асинхронная сессия
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id  корзины
+        :return: корзину виде Pydantic схемы
         """
         cart_model = await cls.get_cart_model(
             user_id=user_id,
@@ -141,11 +142,12 @@ class CartService(BaseService[CartRepo]):
         cart_id: Optional[int] = None,
     ) -> Optional[CartResponse]:
         """
-
-        :param user_id:
-        :param product_add:
-        :param session:
-        :return:
+        Добавляет продукт в корзину или изменяет его количество в ней
+        :param session: Асинхронная сессия
+        :param product_scheme: Pydantic схема - объект, содержащий данные о добавляемом продукте
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id  корзины
+        :return: корзину виде Pydantic схемы | None
         """
         cart_model = await cls.get_cart_model(
             user_id=user_id,
@@ -210,11 +212,12 @@ class CartService(BaseService[CartRepo]):
         cart_id: Optional[int] = None,
     ) -> Optional[CartResponse]:
         """
-
-        :param user_id:
-        :param product_id:
-        :param session:
-        :return:
+        Удаляет продукт из корзины
+        :param session: Асинхронная сессия
+        :param user_id: Опциональный параметр, id пользователя
+        :param product_id: id продукта
+        :param cart_id: Опциональный параметр, id  корзины
+        :return: корзину виде Pydantic схемы | None
         """
         cart_model = await cls.get_cart_model(
             session=session,
@@ -252,10 +255,11 @@ class CartService(BaseService[CartRepo]):
         cart_id: Optional[int] = None,
     ) -> Optional[CartResponse]:
         """
-
-        :param user_id:
-        :param session:
-        :return:
+        Очищает корзину от продуктов согласно полученым параметрам 
+        :param session: объект асинхронной сессии
+        :param user_id: Опциональный параметр, id пользователя
+        :param cart_id: Опциональный параметр, id  корзины
+        :return: Пустой список
         """
 
         cart_model = await cls.get_cart_model(

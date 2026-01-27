@@ -37,10 +37,8 @@ class AuthUtils:
     @staticmethod
     def check_user_status(user_model: User_model) -> bool:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Проверяет статус активности пользователя
+        :return: True | False
         """
         return user_model.is_active
 

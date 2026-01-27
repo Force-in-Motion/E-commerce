@@ -12,10 +12,8 @@ class EmailUtils:
     @classmethod
     def _read_text(cls) -> dict:
         """
-
-        :param param:
-        :param param:
-        :return:
+        Считывает данные из templates.yaml , преобразует в словарь
+        :return: словарь с данными
         """
         with open(PROJECT / "templates.yaml", "r", encoding="utf-8") as f:
             return yaml.safe_load(f)  # преобразует YAML в dict Python
@@ -23,10 +21,9 @@ class EmailUtils:
     @classmethod
     def _email(cls, email_scheme: EmailScheme) -> EmailMessage:
         """
-        Создает письмо из полученных компонентов схемы
+        Формирует данные письма из полученных компонентов схемы
         :param message_scheme: Схема письма для отправки клиенту
-        :param subject:
-        :return:
+        :return: готовое сообщение
         """
         data = email_scheme.model_dump()
 
@@ -46,8 +43,10 @@ class EmailUtils:
         service_email: EmailStr,
     ) -> EmailMessage:
         """
-        Создает письмо из полученных компонентов схемы
-        :param message_scheme: Схема письма для отправки клиенту
+        Создает письмо для отправки на email
+        :param key: Ключ словаря, служит для получения данных, отправляемых в письме
+        :param user_email: почта, на которую отправляется письмо
+        :param service_email: сервисная почта, с которой отправляется письмо
         :param subject:
         :return:
         """

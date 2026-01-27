@@ -19,10 +19,10 @@ class UserService(BaseService[UserRepo]):
         session: AsyncSession,
     ) -> Optional[User_model]:
         """
-        Возвращает модель пользователя по его имени из БД
-        :param name: Имя пользователя
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя | None
+        Возвращает модель пользователя по его логину из БД
+        :param name: Логин пользователя
+        :param session: Асинхронная сессия
+        :return: ORM модель пользователя | None
         """
         user_model = await cls.repo.get_by_login(login=login, session=session)
 

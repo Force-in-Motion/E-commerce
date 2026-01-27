@@ -7,7 +7,7 @@ from app.service.message import MessagesService
 
 @celery.task
 def send_msg_to_email_task(
-    key: str,
+    key: str, 
     user_email: EmailStr,
 ) -> None:
     """

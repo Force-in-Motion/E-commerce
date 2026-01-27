@@ -1,4 +1,5 @@
 from celery import Celery
+from  app.celery.tasks import *
 
 celery = Celery(
     'app',
@@ -6,6 +7,4 @@ celery = Celery(
     backend='redis://:0502@localhost:1010/1',
 )
 
-# обязательно импортируем задачи, чтобы воркер их видел
-import app.celery.tasks
 

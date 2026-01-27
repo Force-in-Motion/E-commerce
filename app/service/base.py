@@ -16,11 +16,12 @@ class BaseService(Generic[Repo], AService):
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[list][DBModel]:
+    ) -> Optional[list[DBModel]]:
         """
-        Возвращает результат выполнения метода получения всех моделей пользователей из БД
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Список всех моделей пользователей
+        Возвращает все модели согласно полученым параметрам
+        :param session: Асинхронная сессия
+        :param user_id: Опциональный параметр, id пользователя
+        :return: Список всех ORM моделей | None
         """
         if user_id is not None:
             return await cls.repo.get_all_by_user_id(
@@ -39,11 +40,11 @@ class BaseService(Generic[Repo], AService):
         model_id: Optional[int] = None,
     ) -> Optional[DBModel]:
         """
-        Универсальный метод получения модели по user_id, model_id или обоим сразу.
-        :param session: AsyncSession
-        :param user_id: id пользователя
-        :param model_id: id модели
-        :return: Найденная модель или None
+        Возвращает модель согласно полученым параметрам
+        :param session: Асинхронная сессия
+        :param user_id: Опциональный параметр, id пользователя
+        :param model_id: Опциональный параметр, id  модели
+        :return: ORM Модель | None
         """
         if user_id is not None and model_id is not None:
             return await cls.repo.get_by_user_and_model_id(
@@ -64,12 +65,12 @@ class BaseService(Generic[Repo], AService):
         cls,
         dates: tuple[datetime, datetime],
         session: AsyncSession,
-    ) -> Optional[list][DBModel]:
+    ) -> Optional[list[DBModel]]:
         """
-        Возвращает результат выполнения метода получения моделей пользователей из БД, добавленных за указанный интервал времени
-        :param dates:  кортеж, содержащий начало интервала времени и его окончание
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: список моделей всех пользователей, добавленных за указанный интервал времени
+        Возвращает все модели, созданные в указанном временном диапазоне
+        :param dates: Определяет временной диапазон
+        :param session: Асинхронная сессия
+        :return: Список ORM  моделей, созданных в указанном временном диапазоне
         """
         return await cls.repo.get_by_date(
             dates=dates,
@@ -84,10 +85,11 @@ class BaseService(Generic[Repo], AService):
         user_id: Optional[int] = None,
     ) -> DBModel:
         """
-        Возвращает результат выполнения метода добавления модели пользователя в БД
-        :param scheme_in: Pydantic Схема - объект, содержащий данные модели пользователя
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя, добавленную в БД
+        Регистрирует модель в БД согласно полученым параметрам
+        :param scheme_in: Pydantic схема - объект, содержащий данные для регистрации модели
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Зарегистрированную ORM модель
         """
 
         data = scheme_in.model_dump()
@@ -110,12 +112,13 @@ class BaseService(Generic[Repo], AService):
         partial: bool = False,
     ) -> Optional[DBModel]:
         """
-        Возвращает результат выполнения метода обновления данных модели пользователя в БД полностью или частично
-        :param scheme_in: Pydantic Схема - объект, содержащий данные пользователя
-        :param model_id: ORM Модель - конкретный объект модели в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве аргумента
-        :param partial: Флаг, передаваем значение True или False,
-        :return: Модель пользователя, обновленную в БД
+        Изменяет модель в БД, согласно полученым параметрам, полностью или частично
+        :param scheme_in: Pydantic схема - объект, содержащий данные для изменения модели
+        :param partial: Флаг, определяющий полное или частичное обновление
+        :param user_id: Опциональный параметр, id пользователя
+        :param model_id: Опциональный параметр, id модели
+        :param session: Асинхронная сессия
+        :return: Измененную ORM модель
         """
         new_data = scheme_in.model_dump(
             exclude_unset=partial,
@@ -145,10 +148,11 @@ class BaseService(Generic[Repo], AService):
         model_id: Optional[int] = None,
     ) -> Optional[DBModel]:
         """
-        Возвращает результат выполнения метода удаления модели пользователя из БД
-        :param model_id: ORM Модель - конкретный объект модели в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя, удаленную из БД
+        Удаляет модель из БД согласно полученым параметрам
+        :param user_id: Опциональный параметр, id пользователя
+        :param model_id: Опциональный параметр, id модели
+        :param session: Асинхронная сессия
+        :return: Удаленную ORM модель
         """
         model = await cls.get_model(
             session=session,
@@ -169,12 +173,12 @@ class BaseService(Generic[Repo], AService):
         cls,
         session: AsyncSession,
         user_id: Optional[int] = None,
-    ) -> Optional[DBModel]:
+    ) -> list:
         """
-        Возвращает результат выполнения метода удаления модели пользователя из БД
-        :param model_id: ORM Модель - конкретный объект модели в БД, найденный по id
-        :param session: Объект сессии, полученный в качестве аргумента
-        :return: Модель пользователя, удаленную из БД
+        Удаляет модель из БД согласно полученым параметрам
+        :param user_id: Опциональный параметр, id пользователя
+        :param session: Асинхронная сессия
+        :return: Пустой список
         """
         list_models = await cls.get_all_models(
             session=session,
@@ -195,8 +199,8 @@ class BaseService(Generic[Repo], AService):
         session: AsyncSession,
     ) -> list:
         """
-        Возвращает результат выполнения метода очищения таблицы данных моделей пользователя и сбрасывает последовательность id моделей
-        :param session: Объект сессии, полученный в качестве аргумента
+        Очищает таблицу БД
+        :param session: объект асинхронной сессии
         :return: Пустой список
         """
         return await cls.repo.clear(session=session)
