@@ -6,7 +6,8 @@ PROJECT = Path(__file__).parent.parent.parent
 
 
 class DBSettings(BaseSettings):
-    """ Определяет настройки баз данных, которые считываются из .env файла """
+    """Определяет настройки баз данных, которые считываются из .env файла"""
+
     url: str
 
     echo: bool
@@ -15,32 +16,42 @@ class DBSettings(BaseSettings):
 
     celery_backend_url: str
 
-    model_config = ConfigDict(env_file=PROJECT /".env", extra="ignore", env_prefix="DB_")
+    model_config = ConfigDict(
+        env_file=PROJECT / ".env",
+        extra="ignore",
+        env_prefix="DB_",
+    )
 
 
-class SMTPSettings(BaseSettings):  
-        """ Определяет настройки SMTP, которые считываются из .env файла """                          
-        hostname: str
+class SMTPSettings(BaseSettings):
+    """Определяет настройки SMTP, которые считываются из .env файла"""
 
-        port: int
+    hostname: str
 
-        username: str
+    port: int
 
-        password: str
+    username: str
 
-        start_tls: bool
+    password: str
 
-        model_config = ConfigDict(env_file=PROJECT /".env", extra="ignore", env_prefix="SMTP_")
-        
+    start_tls: bool
+
+    model_config = ConfigDict(
+        env_file=PROJECT / ".env",
+        extra="ignore",
+        env_prefix="SMTP_",
+    )
+
 
 class JWTSettings(BaseSettings):
-    """ Определяет настройки JWT, которые считываются из .env файла """
+    """Определяет настройки JWT, которые считываются из .env файла"""
+
     private_key: Path
 
     public_key: Path
 
     algorithm: str
-    
+
     token_type: str
 
     access_token_expire: int
@@ -51,8 +62,11 @@ class JWTSettings(BaseSettings):
 
     refresh_name: str
 
-    model_config = ConfigDict(env_file=PROJECT /".env", extra="ignore", env_prefix="JWT_")
-
+    model_config = ConfigDict(
+        env_file=PROJECT / ".env",
+        extra="ignore",
+        env_prefix="JWT_",
+    )
 
 
 db_settings = DBSettings()

@@ -23,4 +23,8 @@ def send_msg_to_email_task(
 
 #  celery -A app.celery.app.celery flower --port=5555
 
+# Запуск воркеров стандартным способом через delay 
 # celery -A app.celery.app worker --loglevel=info --concurrency=4
+
+# Запуск воркеров через celery.conf.beat_schedule
+# celery -A app.core.celery worker --beat --loglevel=info --concurrency=4
